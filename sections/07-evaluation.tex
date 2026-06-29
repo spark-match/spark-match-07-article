@@ -1,0 +1,73 @@
+% ============================================================================
+% Seccion 7: Evaluacion de la Aplicacion
+% TFP - Rubrica: 2 puntos
+% ============================================================================
+\section{Evaluaci\'on de la aplicaci\'on}
+
+% TODO: Documentar las metricas de evaluacion (BLEU/ROUGE/F1 para la
+% justificacion en lenguaje natural; NDCG/MAP para el ranking; precision/
+% recall del extractor de preferencias), los casos de prueba, las
+% comparaciones entre enfoques y las limitaciones detectadas.
+
+\subsection{M\'etricas empleadas}
+
+[Tabla de metricas por componente:
+
+\textbf{Motor de Scoring (ranking Top-N)}:
+- NDCG@5 y NDCG@10 (calidad del ranking vs ground truth).
+- MAP@K (Mean Average Precision).
+- Precision@K y Recall@K.
+
+\textbf{Extractor de preferencias (LLM)}:
+- Exact Match de campos estructurados.
+- F1-score por campo (region, presupuesto, pesos).
+- Tasa de JSON malformado.
+
+\textbf{Justificacion en lenguaje natural (LLM)}:
+- ROUGE-L vs respuestas de referencia.
+- BLEU-4.
+- Evaluacion humana (Likert 1-5) sobre coherencia, relevancia y fidelidad a los datos del ranking.
+
+\textbf{Satisfaccion del usuario}:
+- Thumbs up/down al final de cada conversacion.
+- NPS (Net Promoter Score).
+- Tiempo medio de sesion.]
+
+\subsection{Casos de prueba y validaci\'on}
+
+[Listar los casos de prueba representativos:
+- \texttt{test\_scoring\_peru\_south.py}: estudiante de Arequipa con presupuesto bajo y prioridad en salario.
+- \texttt{test\_scoring\_lima\_premium.py}: estudiante de Lima sin restricciones economicas, prioridad en calidad academica.
+- \texttt{test\_prompt\_extraction.py}: 20 mensajes canonicos con sus JSON esperados.
+- \texttt{test\_rag\_retrieval.py}: 10 consultas con los chunks esperados en el top-5.
+- \texttt{test\_e2e\_chat.py}: simulacion completa de una conversacion de 3 turnos.]
+
+\begin{lstlisting}[style=pythonstyle, caption={Test del extractor de preferencias}, label={lst:test-extract}]
+def test_extract_preferences_south_low_budget():
+    msg = "Soy de Arequipa, mi familia no puede pagar mas de 500 mensuales"
+    result = extract_preferences(msg)
+    assert result.region == "Arequipa"
+    assert result.presupuesto_max <= 500
+    assert result.peso_costo >= 0.3
+\end{lstlisting}
+
+\subsection{Comparaci\'on de enfoques}
+
+[Tabla comparativa de enfoques:
+- Baseline 1: recomendaciones aleatorias.
+- Baseline 2: ranking por salario esperado unicamente.
+- Enfoque A: motor de scoring con pesos estaticos iguales.
+- Enfoque B: motor de scoring con pesos generados por el LLM (propuesto).
+- Enfoque C: enfoque B + RAG con descripciones de carreras.
+
+Mostrar NDCG@5, latencia y costo por consulta para cada uno.]
+
+\subsection{Limitaciones detectadas}
+
+[Listar las limitaciones conocidas:
+- Dataset inicial limitado a X universidades / Y carreras (cobertura parcial).
+- LLM puede generar pesos incoherentes en mensajes ambiguos.
+- No se considera la calidad real del plan de estudios (solo metadata oficial).
+- Sin soporte para programas a distancia o semipresenciales.
+- Evaluacion humana limitada a N usuarios.
+- Sesgo potencial: el dataset refleja la oferta actual, no necesariamente la mejor para el perfil del estudiante.]

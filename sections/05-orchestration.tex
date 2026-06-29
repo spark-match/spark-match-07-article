@@ -1,0 +1,127 @@
+% ============================================================================
+% Seccion 5: Orquestacion y Despliegue
+% TFP - Rubrica: 2 puntos
+% ============================================================================
+\section{Orquestaci\'on y despliegue}
+
+% TODO: Documentar el Dockerfile del backend, docker-compose para desarrollo
+% local, manifest de Kubernetes (o ECS Fargate) para produccion, y los
+% GitHub Actions workflows (build, test, deploy).
+
+\subsection{API REST con FastAPI}
+
+[Detallar la implementacion de FastAPI:
+- Estructura del proyecto: routers, services, repositories, models.
+- Validacion con Pydantic v2.
+- Documentacion automatica OpenAPI en \texttt{/docs}.
+- Middlewares: CORS, logging, rate limiting, autenticacion (si aplica).
+- Tests: pytest + httpx.AsyncClient con coverage $\geq$ 80\%.]
+
+\begin{lstlisting}[style=bashstyle, caption={Ejecucion local de la API}, label={lst:run-api}]
+uvicorn spark_match.main:app --reload --host 0.0.0.0 --port 8000
+# Swagger UI: http://localhost:8000/docs
+\end{lstlisting}
+
+\subsection{Contenerizaci\'on con Docker}
+
+[Describir el Dockerfile:
+- Imagen base: \texttt{python:3.12-slim}.
+- Multi-stage build para reducir tamano final.
+- Usuario no-root para seguridad.
+- Capa de dependencias separada del codigo (cache de capas).
+- Healthcheck definido.
+- Variables de entorno via \texttt{env\_file}.]
+
+\begin{lstlisting}[style=yamlstyle, caption={docker-compose.yml para desarrollo local}, label={lst:compose}]
+version: "3.9"
+services:
+  api:
+    build: ./spark-match-03-backend
+    ports: ["8000:8000"]
+    env_file: .env
+    depends_on: [postgres, chromadb]
+  frontend:
+    build: ./spark-match-04-frontend
+    ports: ["4200:4200"]
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: sparkmatch
+      POSTGRES_PASSWORD: dev
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+volumes:
+  pgdata:
+\end{lstlisting}
+
+\subsection{Infraestructura como c\'odigo (Terraform)}
+
+[Detcribir los recursos provisionados en AWS:
+- VPC con subnets publicas/privadas.
+- ECS Fargate (o EKS) para el backend.
+- RDS PostgreSQL (multi-AZ).
+- S3 para datasets versionados (DVC remote).
+- CloudFront + S3 para el frontend Angular.
+- Secrets Manager para API keys.
+- IAM roles con least privilege.]
+
+\begin{lstlisting}[style=yamlstyle, caption={Modulo Terraform: ECS Fargate service}, label={lst:tf-ecs}]
+resource "aws_ecs_service" "spark_match_api" {
+  name            = "spark-match-api"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.api.arn
+  desired_count   = 2
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets         = aws_subnet.private[*].id
+    security_groups = [aws_security_group.api.id]
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.api.arn
+    container_name   = "api"
+    container_port   = 8000
+  }
+}
+\end{lstlisting}
+
+\subsection{CI/CD con GitHub Actions}
+
+[Detallar los workflows:
+- \texttt{ci.yml} (reusable): lint + tests + build de imagen Docker.
+- \texttt{deploy-staging.yml}: push a staging tras merge a \texttt{main}.
+- \texttt{deploy-prod.yml}: despliegue a produccion con aprobacion manual.
+- Versionado semantico automatico con release-please.
+- Escaneo de vulnerabilidades: Trivy + Snyk.]
+
+\begin{lstlisting}[style=yamlstyle, caption={Workflow reutilizable de CI}, label={lst:gh-actions}]
+name: CI
+on:
+  workflow_call:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.12"}
+      - run: pip install -r requirements.txt
+      - run: pytest --cov=app --cov-fail-under=80
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: docker build -t $IMAGE:${{ github.sha }} .
+      - run: docker push $IMAGE:${{ github.sha }}
+\end{lstlisting}
+
+\subsection{Despliegue en la nube (AWS)}
+
+[Resumen del entorno productivo:
+- Region: us-east-1 (o sa-east-1 para menor latencia en Per'u).
+- Cluster: ECS Fargate con auto-scaling (CPU 70\%).
+- Base de datos: RDS PostgreSQL 16.
+- CDN: CloudFront.
+- Costos estimados: USD/mes [definir tras el despliegue].
+- URL de demo: \url{https://spark-match.app} [placeholder].]

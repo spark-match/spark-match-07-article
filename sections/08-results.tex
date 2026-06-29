@@ -1,0 +1,70 @@
+% ============================================================================
+% Seccion 8: Resultados y Demostracion
+% TFP - Rubrica: 2 puntos
+% ============================================================================
+\section{Resultados y demostraci\'on}
+
+% TODO: Incluir capturas de pantalla de la aplicacion corriendo, ejemplos
+% reales de conversaciones con el agente, graficos de metricas (Grafana),
+% tabla con el Top-N recomendado para un caso canonico y enlace a la demo.
+
+\subsection{Outputs principales}
+
+[Mostrar ejemplos canonicos de salida del sistema. Ejemplo:
+
+\textbf{Caso:} Estudiante de Cusco, presupuesto max. S/600/mes, prioridad en salario y cercania geografica.
+
+\textbf{Prompt del usuario:} "Vivo en Cusco y mi presupuesto maximo es 600 soles al mes. Me interesa algo con buenos sueldos pero tambien quiero quedarme cerca de casa."
+
+\textbf{Pesos extraidos por el LLM:}
+\begin{lstlisting}[style=jsonstyle, caption={JSON de preferencias extraidas}, label={lst:json-prefs}]
+{
+  "region": "Cusco",
+  "presupuesto_max": 600,
+  "peso_salario": 0.45,
+  "peso_costo": 0.35,
+  "peso_admision": 0.05,
+  "peso_ubicacion": 0.15
+}
+\end{lstlisting}
+
+\textbf{Top-5 recomendado (Carrera - Universidad - Score):}
+\begin{enumerate}
+    \item Ingenieria de Minas -- Universidad Nacional de San Antonio Abad del Cusco -- Score: 0.87
+    \item Administracion de Empresas -- Universidad Andina del Cusco -- Score: 0.81
+    \item Contabilidad -- Universidad Nacional de San Antonio Abad del Cusco -- Score: 0.78
+    \item [...]
+\end{enumerate}
+
+\textbf{Justificacion generada por el LLM:}
+``Basandome en tu preferencia por salarios competitivos y tu cercania a Cusco, te recomiendo en primer lugar Ingenieria de Minas en la UNSAAC porque...'']
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.95\linewidth]{chat-screenshot.png}
+    \caption{Captura de la interfaz conversacional de Spark Match.}
+    \label{fig:chat}
+\end{figure}
+
+\subsection{Evidencia funcional}
+
+[Proveer evidencia funcional del sistema desplegado:
+- \textbf{Demo en la nube:} \url{https://demo.spark-match.app} [actualizar tras el despliegue].
+- \textbf{Video demostrativo:} [enlace al video de $\leq$15 min, subido a YouTube/Loom, mostrando la app corriendo en VS Code (terminal), navegador y Postman].
+- \textbf{Repositorio:} \url{https://github.com/spark-match}.
+
+\textbf{Capturas a incluir}:
+- Terminal con el backend levantandose (\texttt{uvicorn spark\_match.main:app --reload}).
+- Documentacion OpenAPI en \texttt{/docs}.
+- Conversacion real con el agente en el frontend.
+- Prueba de un endpoint en Postman.
+- Dashboard de Grafana con metricas en tiempo real.]
+
+\subsection{M\'etricas de adopci\'on (si aplica)}
+
+[Si se realizo un piloto con usuarios reales:
+- Numero de usuarios de prueba.
+- Conversaciones completadas.
+- Tasa de satisfaccion.
+- Tiempo promedio de sesion.
+- Carrera finalmente elegida vs recomendada (tasa de coincidencia).]

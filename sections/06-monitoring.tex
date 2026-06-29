@@ -1,0 +1,71 @@
+% ============================================================================
+% Seccion 6: Monitoreo y Mantenimiento
+% TFP - Rubrica: 2 puntos
+% ============================================================================
+\section{Monitoreo y mantenimiento}
+
+% TODO: Documentar las herramientas de monitoreo elegidas, las metricas
+% capturadas (latencia, throughput, tasa de exito, uso de tokens, costos
+% LLM), la gestion de drift en el dataset y los mecanismos de alerta.
+
+\subsection{Estrategia de monitoreo}
+
+[Describir el stack de observabilidad:
+- \textbf{MLflow Tracking}: experimentos, parametros, metricas, artefactos del motor de scoring.
+- \textbf{LangSmith} o \textbf{Bedrock Agents tracing}: trazas de invocaciones del LLM (latencia, tokens, costo por llamada).
+- \textbf{Prometheus}: metricas de aplicacion (request rate, error rate, latency).
+- \textbf{Grafana}: dashboards operativos.
+- \textbf{CloudWatch}: logs y metricas de infraestructura AWS.
+- \textbf{Sentry}: captura de excepciones en frontend y backend.]
+
+\begin{lstlisting}[style=pythonstyle, caption={Tracking de un experimento de motor de scoring con MLflow}, label={lst:mlflow}]
+import mlflow
+
+mlflow.set_tracking_uri("https://mlflow.spark-match.app")
+mlflow.set_experiment("scoring-engine")
+
+with mlflow.start_run(run_name="weighted-v3"):
+    mlflow.log_param("weights", {"salario": 0.4, "costo": 0.3, ...})
+    mlflow.log_metric("ndcg@5", 0.82)
+    mlflow.log_metric("mae_salary", 312.5)
+    mlflow.sklearn.log_model(model, "model")
+\end{lstlisting}
+
+\subsection{M\'etricas de desempe\~no en producci\'on}
+
+[Tabla de SLIs/SLOs:
+- Latencia p50/p95/p99 del endpoint \texttt{/chat} (<2s / <5s / <10s).
+- Throughput: requests/minuto.
+- Tasa de exito (HTTP 2xx) > 99\%.
+- Tokens consumidos por conversacion (mediana).
+- Costo LLM por conversacion (USD).
+- Satisfaccion del usuario (thumbs up/down post-respuesta).
+- Precision del Top-N vs decision final del usuario (medido por feedback).]
+
+\subsection{Gesti\'on de drift}
+
+[Politica de monitoreo de drift:
+- \textbf{Drift de datos}: comparacion semanal de la distribucion de features (KS test, PSI) entre el dataset actual y el de entrenamiento.
+- \textbf{Drift de modelo}: degradacion sostenida del feedback positivo (umbral: <70\% durante 7 dias).
+- \textbf{Drift de concepto}: cambios en la oferta educativa (nuevas carreras, universidades cerradas) detectados por DVC diff.
+- Reentrenamiento: pipeline automatizado en GitHub Actions al detectar drift $>$ umbral.]
+
+\subsection{Logging y alertas}
+
+[Configuracion de logging y alertas:
+- Logs estructurados JSON (nivel INFO/WARN/ERROR).
+- Correlacion con \texttt{trace\_id} propagado desde el frontend.
+- Alertas en CloudWatch + Slack webhook:
+  - Latencia p95 > 5s durante 5 min.
+  - Error rate > 5\% durante 5 min.
+  - Costo LLM diario > USD 50.
+  - Drift detectado por el job semanal.]
+
+\subsection{Plan de mantenimiento}
+
+[Calendario de mantenimiento:
+- Parches de seguridad: semanal (Dependabot + auto-merge de patches).
+- Reentrenamiento del motor de scoring: mensual o por drift.
+- Actualizacion del dataset: cada semestre (alineado con calendario academico).
+- Rotacion de secretos: trimestral.
+- Disaster recovery: backup diario de RDS + replicacion cross-region.]

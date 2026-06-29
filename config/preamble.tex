@@ -1,0 +1,162 @@
+% =============================================================================
+% Preamble - Paquetes y configuracion global
+% Articulo: Spark Match - Copiloto de Orientacion Vocacional con IA Generativa
+% =============================================================================
+
+\documentclass[12pt, a4paper]{article}
+
+% --- Codificacion y lenguaje ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+
+% --- Geometria de pagina ---
+\usepackage[top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm]{geometry}
+
+% --- Tipografia ---
+\usepackage{lmodern}
+
+% --- Graficos e imagenes ---
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{float}
+\usepackage[font=small, labelfont=bf]{caption}
+\usepackage{subcaption}
+
+% --- Tablas ---
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multirow}
+
+% --- Listas ---
+\usepackage{enumitem}
+
+% --- Matematicas ---
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% --- Colores y enlaces ---
+\usepackage{xcolor}
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{url}
+\urlstyle{same}
+
+% --- Codigo fuente ---
+\usepackage{listings}
+
+\definecolor{codegreen}{rgb}{0.0, 0.5, 0.0}
+\definecolor{codegray}{rgb}{0.5, 0.5, 0.5}
+\definecolor{codepurple}{rgb}{0.58, 0.0, 0.82}
+\definecolor{codeblue}{rgb}{0.0, 0.0, 0.7}
+\definecolor{codeorange}{rgb}{0.95, 0.50, 0.10}
+\definecolor{backcolour}{rgb}{0.97, 0.97, 0.97}
+
+\lstdefinestyle{pythonstyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{codeblue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{codegray},
+    framesep=5pt,
+    xleftmargin=15pt,
+    framexleftmargin=15pt
+}
+
+\lstdefinestyle{bashstyle}{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    captionpos=b,
+    frame=single,
+    rulecolor=\color{codegray},
+    numbers=none,
+    xleftmargin=10pt,
+    framexleftmargin=10pt,
+    aboveskip=10pt,
+    belowskip=10pt
+}
+
+\lstdefinestyle{yamlstyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{codeorange}\bfseries,
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    captionpos=b,
+    frame=single,
+    rulecolor=\color{codegray},
+    numbers=none,
+    xleftmargin=10pt,
+    framexleftmargin=10pt
+}
+
+\lstdefinestyle{jsonstyle}{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    captionpos=b,
+    frame=single,
+    rulecolor=\color{codegray},
+    numbers=none,
+    xleftmargin=10pt,
+    framexleftmargin=10pt
+}
+
+\lstset{
+    style=pythonstyle,
+    language=Python,
+    float=H,
+    aboveskip=10pt,
+    belowskip=10pt,
+    literate=
+        {\'a}{{\'a}}1 {\'e}{{\'e}}1 {\'i}{{\'i}}1 {\'o}{{\'o}}1 {\'u}{{\'u}}1
+        {\'A}{{\'A}}1 {\'E}{{\'E}}1 {\'I}{{\'I}}1 {\'O}{{\'O}}1 {\'U}{{\'U}}1
+        {\~n}{{\~n}}1 {\~N}{{\~N}}1
+}
+
+% --- Algoritmos (pseudocodigo con algorithmic) ---
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+% --- TikZ para diagramas ---
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc, shapes.geometric, fit, backgrounds}
+
+% --- Encabezados y pies de pagina ---
+\usepackage{fancyhdr}
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Spark Match - TFP UNI}
+\fancyhead[R]{\small IA Generativa y MLOps}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% --- Espaciado ---
+\usepackage{setspace}
+\onehalfspacing
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+
+% --- Bibliografia ---
+\usepackage[numbers, sort&compress]{natbib}
+\setlength{\bibsep}{4pt}
+
+% --- Cajas para repositorios ---
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable}

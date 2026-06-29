@@ -1,0 +1,61 @@
+% ============================================================================
+% Seccion 3: Ingenieria de Prompts y Adaptacion
+% TFP - Rubrica: 2 puntos
+% ============================================================================
+\section{Ingenier\'ia de prompts y adaptaci\'on}
+
+% TODO: Documentar las estrategias de prompting usadas:
+% - System prompt para extraccion de restricciones estructuradas.
+% - Chain-of-Thought para justificar el ranking.
+% - Few-shot examples con respuestas canonicas.
+% - Funcion de salida estructurada (JSON Schema / Pydantic) para los pesos.
+
+% TODO: Documentar ajustes finos si se aplican (LoRA, adapters) o justificar
+% por que se opto por prompting puro (costo, tiempo, datos disponibles).
+
+% TODO: Describir la base vectorial: ChromaDB / FAISS / Pinecone,
+% esquema de chunking, modelo de embeddings, estrategia de retrieval (top-k,
+% MMR, reranking).
+
+\subsection{Estrategia de prompting}
+
+[Detallar los templates de prompt empleados:
+- \texttt{system\_prompt\_extractor.py}: convierte el mensaje libre del usuario en un JSON estructurado (region, presupuesto, peso\_salario, peso\_costo, ...).
+- \texttt{justification\_prompt.py}: recibe el ranking Top-N y redacta la explicacion en lenguaje natural con chain-of-thought.
+- Few-shot examples: 3-5 ejemplos canonicos para anclar el formato.]
+
+\begin{lstlisting}[style=pythonstyle, caption={System prompt para extraccion estructurada de preferencias}, label={lst:prompt-extract}]
+EXTRACTOR_SYSTEM_PROMPT = """
+Eres un asistente que convierte mensajes libres de un estudiante
+peruano en preferencias estructuradas para un motor de recomendacion.
+
+Devuelve un JSON con este esquema:
+{
+  "region": str | null,
+  "presupuesto_max": float | null,
+  "peso_salario": float,    # 0.0 - 1.0
+  "peso_costo": float,
+  "peso_admision": float,
+  "peso_ubicacion": float
+}
+
+La suma de los cuatro pesos debe ser 1.0.
+"""
+\end{lstlisting}
+
+\subsection{Flujo RAG (Retrieval-Augmented Generation)}
+
+[Describir la base vectorial:
+- Tecnologia: ChromaDB (local) o Pinecone (gestionado) [definir].
+- Documentos indexados: descripciones de carreras, planes de estudio, testimonios.
+- Modelo de embeddings: \texttt{sentence-transformers/all-MiniLM-L6-v2} o similar.
+- Estrategia de retrieval: top-k=5, filtrado por metadata (region, area).
+- Re-ranking: opcional con cross-encoder.]
+
+\subsection{Ajustes finos (fine-tuning / LoRA)}
+
+[Documentar si se realizo fine-tuning:
+- Sobre que modelo base: [definir].
+- Dataset de entrenamiento: tamano, origen.
+- Hiperparametros: learning rate, epochs, LoRA rank.
+- Justificacion si NO se realizo: costo, datos insuficientes, baseline suficiente.]
