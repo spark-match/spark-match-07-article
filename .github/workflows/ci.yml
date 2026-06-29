@@ -1,0 +1,46 @@
+# =============================================================================
+# CI - Continuous Integration
+# =============================================================================
+# Trigger: Pull Request opened, synchronized or reopened targeting 'main'.
+# Action:  Compile the LaTeX document and upload the PDF as an artifact so
+#          reviewers can preview the rendered paper before approving the PR.
+# Notes:   This workflow is READ-ONLY. It does not create tags or releases.
+#          Release generation lives in cd.yml and runs only on merge.
+# =============================================================================
+
+name: CI - Build PDF (Pull Request)
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - "**.tex"
+      - "**.bib"
+      - "figures/**"
+      - ".github/workflows/**"
+
+jobs:
+  build:
+    name: Compile LaTeX
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main.tex
+          latexmk_use_lualatex: false
+          latexmk_shell_escape: false
+
+      - name: Upload PDF as artifact (PR preview)
+        uses: actions/upload-artifact@v7
+        with:
+          name: spark-match-paper-pr-${{ github.event.pull_request.number }}
+          path: main.pdf
+          retention-days: 14
+          if-no-files-found: error

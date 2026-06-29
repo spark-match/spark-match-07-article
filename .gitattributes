@@ -1,0 +1,26 @@
+# Normalizar line endings para consistencia cross-platform
+# (Windows usa CRLF, Linux/macOS usan LF)
+
+# Archivos que SIEMPRE deben tener LF (scripts, configs Unix)
+*.sh          text eol=lf
+*.bash        text eol=lf
+.gitattributes eol=lf
+.gitignore    text eol=lf
+.latexmkrc    text eol=lf
+
+# Workflows YAML (LF es el estandar en GitHub Actions)
+*.yml         text eol=lf
+*.yaml        text eol=lf
+
+# Archivos que SIEMPRE deben tener CRLF (scripts de Windows)
+*.bat         text eol=crlf
+*.cmd         text eol=crlf
+*.ps1         text eol=crlf
+
+# LaTeX y BibTeX: LF (LaTeX funciona mejor con LF)
+*.tex         text eol=lf
+*.bib         text eol=lf
+
+# Markdown y texto general: LF
+*.md          text eol=lf
+LICENSE       text eol=lf

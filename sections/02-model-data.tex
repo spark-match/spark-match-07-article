@@ -1,0 +1,53 @@
+% ============================================================================
+% Seccion 2: Seleccion de Modelo y Datos
+% TFP - Rubrica: 1 punto
+% ============================================================================
+\section{Selecci\'on de modelo y datos}
+
+% TODO: Documentar el LLM elegido (Gemini API / AWS Bedrock), arquitectura,
+% parametros, costos por token y motivo de la eleccion frente a alternativas
+% (OpenAI GPT, Anthropic Claude, Llama 3, Mistral).
+
+% TODO: Describir el dataset: fuente (SUNEDU, portales institucionales),
+% volumen, esquema de columnas (carrera, universidad, region, costo,
+% salario esperado, tasa de admision), periodo de recoleccion.
+
+% TODO: Documentar pipeline de preprocesamiento: limpieza, normalizacion,
+% imputacion de nulos, escalado, generacion de embeddings si aplica.
+
+\subsection{Modelo generativo / fundacional}
+
+[Describir el LLM elegido:
+- Proveedor: AWS Bedrock (MaaS) o Google Gemini API [definir].
+- Modelo especifico: Claude 3 / Llama 3 / Titan / Gemini Pro [definir].
+- Justificacion frente a alternativas (latencia, costo, ventana de contexto, soporte en espa\~nol).
+- Parametros: \texttt{temperature}, \texttt{top\_p}, \texttt{max\_tokens}, system prompt base.]
+
+\subsection{Dataset}
+
+[Caracterizar el dataset:
+- Fuente: scrapeo con Selenium de portales SUNEDU + ministerios + universidades.
+- Volumen: numero de universidades, carreras, registros por region.
+- Esquema: columnas del CSV normalizado.
+- Periodo de recoleccion: a\~no/semestre.
+- Almacenamiento: DVC remoto (S3) + versionado.]
+
+\subsection{Preprocesamiento y embeddings}
+
+[Pipeline de datos documentado paso a paso:
+- Limpieza (duplicados, outliers).
+- Imputacion de nulos (mediana, KNN, modelo).
+- Normalizacion / escalado (MinMax, StandardScaler).
+- Generacion de embeddings (si aplica: Sentence-Transformers para descripciones de carreras).
+- Versionado con DVC.]
+
+\begin{lstlisting}[style=pythonstyle, caption={Ejemplo: carga del dataset versionado con DVC}, label={lst:dvc-load}]
+import dvc.api
+import pandas as pd
+
+path = dvc.api.get_url(
+    "data/careers.csv",
+    repo="https://github.com/spark-match/spark-match-05-data-pipeline"
+)
+df = pd.read_csv(path)
+\end{lstlisting}

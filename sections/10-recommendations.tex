@@ -1,0 +1,51 @@
+% ============================================================================
+% Seccion 10: Recomendaciones
+% TFP - Rubrica: 1 punto
+% ============================================================================
+\section{Recomendaciones}
+
+% TODO: Listar acciones futuras concretas, oportunidades de mejora en
+% modelos / despliegue / monitoreo y potenciales nuevas aplicaciones del
+% framework Spark Match.
+
+\subsection{Acciones futuras y escalabilidad}
+
+[Roadmap a corto y mediano plazo:
+- \textbf{Corto plazo (3 meses)}:
+  - Incorporar feedback loop para fine-tuning del extractor de preferencias.
+  - Aniadir soporte para programas a distancia y semipresenciales.
+  - Implementar autenticacion con OAuth (Google) para guardar historial.
+- \textbf{Mediano plazo (6-12 meses)}:
+  - Escalar a otros paises de la region reutilizando la arquitectura.
+  - Integrar datos de empleabilidad del Ministerio de Trabajo.
+  - Modelo de matching universidad-estudiante con grafos (knowledge graph).
+- \textbf{Largo plazo (12+ meses)}:
+  - App mobile (React Native o Flutter).
+  - Asistente vocacional continuo que acompan\~ne al estudiante durante el primer anio universitario.
+  - Marketplace de becas integrado.]
+
+\subsection{Mejoras en modelos}
+
+[Optimizaciones al stack de IA:
+- Experimentar con modelos mas pequenos (Llama 3 8B, Mistral 7B) para reducir costos y latencia.
+- Fine-tuning con LoRA sobre datos anonimos de conversaciones exitosas.
+- Implementar cache semantico de prompts para evitar llamadas redundantes al LLM.
+- Evaluar el uso de Claude Sonnet vs Haiku vs Titan segun el tipo de tarea.
+- Aniadir un clasificador de intencion previo al agente para enrutar consultas simples.]
+
+\subsection{Mejoras en despliegue y monitoreo}
+
+[Optimizaciones de MLOps / DevOps:
+- Migrar de ECS Fargate a EKS si el trafico crece (mayor control de pods).
+- Adoptar GitOps con ArgoCD para sincronizar el cluster con el repo de infra.
+- Implementar feature store (Feast) para compartir features entre el scoring y el agente.
+- Aniadir canary deployments con Flagger para reducir riesgo de releases.
+- Centralizar logs en OpenSearch y trazas en AWS X-Ray.]
+
+\subsection{Potenciales nuevas aplicaciones}
+
+[Otras verticales donde el framework es aplicable:
+- \textbf{Matching laboral}: recomendar ofertas de empleo a egresados segun su perfil academico.
+- \textbf{Orientacion de posgrado}: sugerir maestrias y especializaciones segun intereses y antecedentes.
+- \textbf{Asignacion de cursos electivos}: ayudar a estudiantes universitarios a elegir cursos segun sus metas profesionales.
+- \textbf{Asesoria de becas}: emparejar estudiantes con becas internacionales segun su perfil socioeconomico y academico.]

@@ -1,0 +1,42 @@
+% ============================================================================
+% Seccion 1: Descripcion del Caso de Uso
+% TFP - Rubrica: 1 punto
+% ============================================================================
+\section{Descripci\'on del caso de uso}
+
+% TODO: Contextualizar el problema de orientacion vocacional en Peru.
+% Citar fuentes oficiales (INEI, MINEDU, SUNEDU) sobre oferta educativa,
+% tasas de desercion, dificultad de acceso a informacion comparada.
+
+% TODO: Justificar por que IA Generativa + MLOps es adecuado para este caso
+% (razonamiento conversacional, recomendaciones personalizadas, reproducibilidad).
+
+% TODO: Definir objetivo de negocio (orientar mejor al estudiante) y objetivo
+% tecnico (asistente conversacional hibrido LLM + scoring determinista).
+
+Los estudiantes preuniversitarios en el Per\'u enfrentan una dificultad significativa al momento de elegir una carrera profesional y la instituci\'on de educaci\'on superior donde cursarla. La informaci\'on oficial --- salarios de los egresados, costos de matr\'icula, tasas de admisi\'on, ubicaci\'on de sedes, modalidades de ingreso --- se encuentra dispersa en m\'ultiples portales institucionales y es dif\'icil de comparar de manera sistem\'atica.
+
+[Motivacion del proyecto: por que un copiloto conversacional resuelve este problema mejor que las evaluaciones vocacionales estaticas tradicionales.]
+
+\subsection{Problem\'atica del negocio}
+
+[Describir la problematica concreta con datos. Ejemplos:
+- Fragmentacion de la informacion oficial (SUNEDU, portales universitarios).
+- Evaluaciones vocacionales estaticas que no consideran restricciones reales (presupuesto, geografia).
+- Falta de explicabilidad en recomendaciones automatizadas.]
+
+\subsection{Objetivo de negocio}
+
+[Que decision del usuario queremos mejorar. Ej: reducir el tiempo promedio de decision vocacional, aumentar la satisfaccion con la carrera elegida, etc.]
+
+\subsection{Objetivo t\'ecnico}
+
+[Construir un sistema que:
+- Interprete lenguaje natural del estudiante (filtros + chat libre).
+- Genere pesos din'amicos para un motor de scoring determinista.
+- Devuelva un ranking Top-N de combinaciones Carrera-Universidad con justificacion en lenguaje natural.
+- Sea reproducible, versionado y desplegado en AWS.]
+
+\subsection{Fuentes de relevancia}
+
+[Listar fuentes que respalden la relevancia del caso. Ej: estudios de desercion universitaria, reportes de SUNEDU sobre la oferta educativa, papers sobre sistemas de recomendacion en educacion (EdTech).]

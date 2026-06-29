@@ -1,0 +1,92 @@
+% =============================================================================
+% Spark Match - Copiloto de Orientacion Vocacional con IA Generativa
+% Trabajo de Fin de Programa - II Programa de Especializacion en IA Generativa
+% y Machine Learning Ops - Universidad Nacional de Ingenieria (UNI)
+% =============================================================================
+
+\input{config/preamble}
+
+\begin{document}
+
+% --- Portada ---
+\begin{titlepage}
+    \centering
+    \vspace*{1.5cm}
+
+    \rule{\linewidth}{0.5pt}\\[0.4cm]
+    {\Large \textbf{Universidad Nacional de Ingenier\'ia}}\\[0.2cm]
+    {\large Facultad de Ingenier\'ia Econ\'omica, Estad\'istica y Ciencias Sociales}\\[0.1cm]
+    {\normalsize Centro de Formaci\'on Continua}\\[0.1cm]
+    {\normalsize II Programa de Especializaci\'on en IA Generativa y Machine Learning Ops}\\
+    \rule{\linewidth}{0.5pt}\\[2cm]
+
+    {\LARGE \textbf{Spark Match}}\\[0.5cm]
+    {\Large Copiloto Inteligente para la Elecci\'on de Carrera Profesional\\basado en IA Generativa y Recomendaci\'on H\'ibrida}\\[1cm]
+    {\normalsize Trabajo de Fin de Programa: dise\~no, implementaci\'on, despliegue y evaluaci\'on\\
+    de un sistema de orientaci\'on vocacional con agentes LLM, RAG y MLOps en AWS}\\[3cm]
+
+    \begin{tabular}{rl}
+        \textbf{Docente:}      & [Nombre del Docente] \\[0.3cm]
+        \textbf{Integrantes:}  & Angel Eduardo Hincho Jove \\
+                                & [Integrante 2 - Apellido2] \\
+                                & [Integrante 3 - Apellido3] \\
+                                & [Integrante 4 - Apellido4] \\
+                                & [Integrante 5 - Apellido5] \\[0.3cm]
+        \textbf{Programa:}     & II Programa de Especializaci\'on en IA Generativa y MLOps \\[0.3cm]
+        \textbf{Ciclo:}        & 2026-I \\[0.3cm]
+        \textbf{Fecha:}        & 09 de agosto de 2026 \\
+    \end{tabular}
+
+    \vfill
+
+    \rule{\linewidth}{0.5pt}\\[0.2cm]
+    {\small Lima, Per\'u --- 2026}
+\end{titlepage}
+
+% --- Tabla de contenidos ---
+\tableofcontents
+\newpage
+
+% --- Resumen ---
+\section*{Resumen}
+
+[Resumen del proyecto Spark Match: 250-350 palabras. Describir el problema de orientacion vocacional en Peru, la propuesta hibrida (LLM + motor de scoring determinista), la arquitectura general (Angular + FastAPI + LangChain + Bedrock + MLflow), los resultados principales y las contribuciones. Mencionar el stack cloud (AWS) y las practicas MLOps aplicadas.]
+
+\vspace{0.5cm}
+\noindent\textbf{Palabras clave:} orientaci\'on vocacional, sistemas de recomendaci\'on, IA generativa, LangChain, LLM, RAG, MLOps, AWS Bedrock, FastAPI, Docker.
+
+\newpage
+
+% --- Repositorios del proyecto ---
+\begin{tcolorbox}[title=Repositorios y recursos del proyecto, breakable, colback=blue!2, colframe=blue!40!black]
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{@{} >{\bfseries}l l @{}}
+    Organizaci\'on & \url{https://github.com/spark-match} \\
+    DevOps (CI/CD) & \url{https://github.com/spark-match/spark-match-01-devops} \\
+    Infraestructura (Terraform/AWS) & \url{https://github.com/spark-match/spark-match-02-infrastructure} \\
+    Backend (FastAPI) & \url{https://github.com/spark-match/spark-match-03-backend} \\
+    Frontend (Angular) & \url{https://github.com/spark-match/spark-match-04-frontend} \\
+    Pipeline de Datos (DVC) & \url{https://github.com/spark-match/spark-match-05-data-pipeline} \\
+    Entrenamiento de Modelos (MLflow) & \url{https://github.com/spark-match/spark-match-06-model-training} \\
+    Este art\'iculo (LaTeX) & \url{https://github.com/spark-match/spark-match-07-article} \\
+\end{tabular}
+\end{tcolorbox}
+
+% --- Secciones ---
+\input{sections/01-use-case}
+\input{sections/02-model-data}
+\input{sections/03-prompts}
+\input{sections/04-implementation}
+\input{sections/05-orchestration}
+\input{sections/06-monitoring}
+\input{sections/07-evaluation}
+\input{sections/08-results}
+\input{sections/09-conclusions}
+\input{sections/10-recommendations}
+
+% --- Bibliografia ---
+\newpage
+\bibliographystyle{apalike}
+\bibliography{references}
+
+\end{document}
