@@ -1,8 +1,18 @@
-# CODEOWNERS - Spark Match
+# CODEOWNERS - Spark Match Article
 # Aprobaciones requeridas para PRs en este repositorio.
 
-# Propietarios por defecto (Product Owners aprueban cualquier cambio)
-*       @spark-match/product-owners
+# Catch-all: cualquier contribuidor al artículo aprueba cambios
+*       @spark-match/article-authors
 
-# Equipo principal responsable de este repositorio
-/*      @spark-match/article-authors
+# Decisiones de contenido (estructura del paper): requieren product-owners
+/sections/                         @spark-match/product-owners @spark-match/article-authors
+/sections/**/*                     @spark-match/product-owners @spark-match/article-authors
+/bibliography/                     @spark-match/product-owners @spark-match/article-authors
+/bibliography/**/*                 @spark-match/product-owners @spark-match/article-authors
+/main.tex                          @spark-match/product-owners @spark-match/article-authors
+/preamble.tex                      @spark-match/product-owners @spark-match/article-authors
+
+# Configuración crítica
+/.github/workflows/                @spark-match/devops
+/.github/workflows/**/*            @spark-match/devops
+/.github/CODEOWNERS                @spark-match/devops
