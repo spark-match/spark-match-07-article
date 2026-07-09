@@ -1,8 +1,12 @@
-# CODEOWNERS - Spark Match
-# Aprobaciones requeridas para PRs en este repositorio.
+# CODEOWNERS — Spark Match Article (07)
+#
+# Política de aprobación (ADR-003 branch-based deployment):
+# - dev: 1 aprobación del CODE OWNER técnico (article-authors) es suficiente.
+# - main: 1 CODE OWNER review (article-authors) + reviewer manual de
+#   @spark-match/product-owners (solicitado por el autor al abrir el PR).
+#
+# CODE OWNERS del repo: @spark-match/article-authors
+#   Miembros actuales: TODOS los miembros de la org (es contribution abierta)
 
-# Propietarios por defecto (Product Owners aprueban cualquier cambio)
-*       @spark-match/product-owners
-
-# Equipo principal responsable de este repositorio
-/*      @spark-match/article-authors
+# Catch-all: cualquier archivo es responsabilidad de article-authors
+*       @spark-match/article-authors
