@@ -38,9 +38,12 @@
 
 % --- Colores y enlaces ---
 \usepackage{xcolor}
+\PassOptionsToPackage{hyphens}{url} % permitir cortar URLs en los guiones
 \usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
 \usepackage{url}
 \urlstyle{same}
+% Permitir que las URLs largas partan en guiones y barras (evita que se salgan de las cajas)
+\Urlmuskip=0mu plus 1mu\relax
 
 % --- Codigo fuente ---
 \usepackage{listings}
