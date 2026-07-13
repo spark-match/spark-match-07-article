@@ -4,70 +4,62 @@
 % ============================================================================
 \section{Evaluaci\'on de la aplicaci\'on}
 
-% TODO: Documentar las metricas de evaluacion (BLEU/ROUGE/F1 para la
-% justificacion en lenguaje natural; NDCG/MAP para el ranking; precision/
-% recall del extractor de preferencias), los casos de prueba, las
-% comparaciones entre enfoques y las limitaciones detectadas.
+La evaluaci\'on combina indicadores t\'ecnicos y de negocio. Dado que en esta
+etapa el sistema es un prototipo, se describe el \emph{marco de evaluaci\'on}
+definido; los valores medidos se completar\'an con las pruebas finales.
 
 \subsection{M\'etricas empleadas}
 
-[Tabla de metricas por componente:
+\paragraph{Recuperaci\'on y ranking.} Para el motor de scoring (ranking Top-N) se
+emplean m\'etricas como \textbf{Recall@K} y relevancia frente a un conjunto de
+casos de referencia, evaluando si las carreras pertinentes aparecen en el Top-N.
 
-\textbf{Motor de Scoring (ranking Top-N)}:
-- NDCG@5 y NDCG@10 (calidad del ranking vs ground truth).
-- MAP@K (Mean Average Precision).
-- Precision@K y Recall@K.
+\paragraph{Extractor de preferencias (LLM).} Se mide la correcci\'on de los
+campos estructurados (regi\'on, presupuesto, pesos, c\'odigo RIASEC) y la tasa de
+JSON malformado.
 
-\textbf{Extractor de preferencias (LLM)}:
-- Exact Match de campos estructurados.
-- F1-score por campo (region, presupuesto, pesos).
-- Tasa de JSON malformado.
+\paragraph{Justificaci\'on en lenguaje natural (LLM).} Se usa un componente de
+\textbf{LLM-as-judge} que puntu\'a las explicaciones del agente, complementado con
+evaluaci\'on humana de claridad, relevancia y \emph{factualidad} (que la
+explicaci\'on se sustente en los datos del ranking y no invente cifras).
 
-\textbf{Justificacion en lenguaje natural (LLM)}:
-- ROUGE-L vs respuestas de referencia.
-- BLEU-4.
-- Evaluacion humana (Likert 1-5) sobre coherencia, relevancia y fidelidad a los datos del ranking.
+\paragraph{Negocio.} Satisfacci\'on del usuario, pertinencia percibida de la
+recomendaci\'on y, a futuro, tasa de aceptaci\'on de la carrera sugerida.
 
-\textbf{Satisfaccion del usuario}:
-- Thumbs up/down al final de cada conversacion.
-- NPS (Net Promoter Score).
-- Tiempo medio de sesion.]
+\subsection{Costos como KPI}
+
+Se consideran KPI de costo el costo mensual de infraestructura (con \emph{AWS
+Budgets} como control) y el consumo de tokens del LLM (observado v\'ia LangSmith).
+Estos indicadores son relevantes por tratarse de un proyecto acad\'emico con
+presupuesto acotado.
 
 \subsection{Casos de prueba y validaci\'on}
 
-[Listar los casos de prueba representativos:
-- \texttt{test\_scoring\_peru\_south.py}: estudiante de Arequipa con presupuesto bajo y prioridad en salario.
-- \texttt{test\_scoring\_lima\_premium.py}: estudiante de Lima sin restricciones economicas, prioridad en calidad academica.
-- \texttt{test\_prompt\_extraction.py}: 20 mensajes canonicos con sus JSON esperados.
-- \texttt{test\_rag\_retrieval.py}: 10 consultas con los chunks esperados en el top-5.
-- \texttt{test\_e2e\_chat.py}: simulacion completa de una conversacion de 3 turnos.]
-
-\begin{lstlisting}[style=pythonstyle, caption={Test del extractor de preferencias}, label={lst:test-extract}]
-def test_extract_preferences_south_low_budget():
-    msg = "Soy de Arequipa, mi familia no puede pagar mas de 500 mensuales"
-    result = extract_preferences(msg)
-    assert result.region == "Arequipa"
-    assert result.presupuesto_max <= 500
-    assert result.peso_costo >= 0.3
-\end{lstlisting}
+La evaluaci\'on se apoya en un dataset de casos representativos que cubren
+distintos perfiles de estudiante (por regi\'on, presupuesto y prioridades), sobre
+los cuales se ejecuta el flujo completo (extracci\'on de preferencias
+$\rightarrow$ scoring $\rightarrow$ justificaci\'on) y se contrastan las salidas
+con lo esperado.
 
 \subsection{Comparaci\'on de enfoques}
 
-[Tabla comparativa de enfoques:
-- Baseline 1: recomendaciones aleatorias.
-- Baseline 2: ranking por salario esperado unicamente.
-- Enfoque A: motor de scoring con pesos estaticos iguales.
-- Enfoque B: motor de scoring con pesos generados por el LLM (propuesto).
-- Enfoque C: enfoque B + RAG con descripciones de carreras.
-
-Mostrar NDCG@5, latencia y costo por consulta para cada uno.]
+El dise\~no permite comparar el enfoque propuesto (pesos din\'amicos inferidos por
+el LLM sobre el motor de scoring) frente a alternativas m\'as simples, como pesos
+est\'aticos iguales o el ordenamiento por un solo criterio (p.ej. solo ingreso).
+% TODO (equipo): completar la tabla comparativa (Recall@K, latencia, costo) con
+% los resultados medidos.
 
 \subsection{Limitaciones detectadas}
 
-[Listar las limitaciones conocidas:
-- Dataset inicial limitado a X universidades / Y carreras (cobertura parcial).
-- LLM puede generar pesos incoherentes en mensajes ambiguos.
-- No se considera la calidad real del plan de estudios (solo metadata oficial).
-- Sin soporte para programas a distancia o semipresenciales.
-- Evaluacion humana limitada a N usuarios.
-- Sesgo potencial: el dataset refleja la oferta actual, no necesariamente la mejor para el perfil del estudiante.]
+\begin{itemize}[noitemsep]
+  \item Los datos de salario reflejan solo el empleo formal y pueden subestimar
+        ingresos reales en ciertos rubros.
+  \item Las carreras o universidades con pocos egresados producen promedios poco
+        confiables.
+  \item Los pesos y la f\'ormula de scoring de esta etapa son ilustrativos y
+        requieren calibraci\'on con usuarios reales.
+  \item El LLM puede generar pesos incoherentes ante mensajes ambiguos; por ello
+        la explicaci\'on se ancla siempre en datos verificables del ranking.
+  \item La evaluaci\'on humana est\'a limitada a un n\'umero reducido de usuarios
+        de prueba en esta fase.
+\end{itemize}
