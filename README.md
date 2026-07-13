@@ -167,11 +167,11 @@ El documento cubre las 12 secciones de la r\'ubrica del Trabajo de Fin de Progra
 
 ## Autores
 
-- Angel Eduardo Hincho Jove
-- [Integrante 2 - Apellido2]
-- [Integrante 3 - Apellido3]
-- [Integrante 4 - Apellido4]
-- [Integrante 5 - Apellido5]
+- Fabiola G. Tapara Quispe
+- Angel E. Hincho Jove
+- Andy B. Huamani Tacoma
+- Nikolai A. Asencios Garc\'ia
+- David Barreto Lara
 
 **Programa:** II Programa de Especializaci\'on en IA Generativa y Machine Learning Ops
 **Instituci\'on:** Universidad Nacional de Ingenier\'ia (UNI) -- Facultad de Ingenier\'ia Econ\'omica, Estad\'istica y Ciencias Sociales
