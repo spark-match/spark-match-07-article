@@ -28,9 +28,12 @@
 \begin{itemize}[noitemsep]
   \item Calibrar los pesos y la f\'ormula de scoring con usuarios reales, ya que
         los valores actuales son ilustrativos.
-  \item Evaluar modelos alternativos dentro de Bedrock seg\'un el tipo de tarea
-        (interpretaci\'on vs.\ redacci\'on), aprovechando que Bedrock act\'ua como
-        pasarela y el cambio de modelo no impacta el n\'ucleo.
+  \item Incorporar un \textbf{enrutador de modelos} que, seg\'un el tipo de tarea,
+        derive cada llamada al modelo m\'as adecuado dentro de Bedrock (p.ej.\
+        \emph{Haiku} para tareas simples, \emph{Sonnet}/\emph{Opus} para las
+        complejas). As\'i se \textbf{optimiza el costo} sin enviar todo al modelo
+        m\'as caro, aprovechando que Bedrock act\'ua como pasarela y el cambio de
+        modelo no impacta el n\'ucleo.
   \item Considerar un ajuste ligero (p.ej.\ LoRA) del extractor de preferencias
         cuando exista suficiente historial de conversaciones exitosas.
 \end{itemize}

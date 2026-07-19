@@ -29,6 +29,16 @@ estructurada y ejemplos \emph{few-shot} que anclan el formato esperado:
         formato de entrada--salida y reduce la tasa de JSON malformado.
 \end{itemize}
 
+\paragraph{Entrevista escalonada.} La extracci\'on no se resuelve con un \'unico
+prompt directo (``a partir de todo lo conversado, dame los pesos''), que es
+propenso a error. En su lugar, el agente conduce una \textbf{entrevista
+escalonada} con retroalimentaci\'on: si el estudiante no ha dado suficiente
+informaci\'on, \emph{repregunta} (presupuesto, regi\'on, intereses) antes de
+inferir los pesos. Esto habilita un razonamiento por etapas (estilo
+\emph{Chain-of-Thought}): primero se caracteriza el perfil (nivel de presupuesto,
+afinidad vocacional, prioridades) y reci\'en despu\'es se traducen esas
+conclusiones en los cinco pesos, lo que reduce las asignaciones incoherentes.
+
 \begin{lstlisting}[style=pythonstyle, caption={System prompt para extraccion estructurada de preferencias (esquema de 5 pesos)}, label={lst:prompt-extract}]
 EXTRACTOR_SYSTEM_PROMPT = """
 Eres un asistente que convierte mensajes libres de un estudiante

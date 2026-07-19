@@ -46,7 +46,12 @@ Las m\'etricas operativas y de negocio previstas son:
         LangSmith).
   \item Costo del LLM por conversaci\'on y costo mensual de infraestructura (v\'ia
         AWS Budgets).
-  \item Satisfacci\'on del usuario y pertinencia percibida de la recomendaci\'on.
+  \item \textbf{Costo por usuario:} como cada estudiante se registra con un
+        identificador, se atribuye el consumo (tokens y costo) a cada usuario, lo
+        que permite conocer qu\'e perfil de cliente resulta m\'as o menos costoso y
+        sustentar el control de costos.
+  \item Satisfacci\'on del usuario (feedback \emph{Likert} 1--5 sobre la
+        recomendaci\'on final) y pertinencia percibida de la recomendaci\'on.
   \item Tasa de \'exito de las invocaciones y tasa de JSON malformado del
         extractor de preferencias.
 \end{itemize}

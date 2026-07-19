@@ -39,7 +39,17 @@ La evaluaci\'on se apoya en un dataset de casos representativos que cubren
 distintos perfiles de estudiante (por regi\'on, presupuesto y prioridades), sobre
 los cuales se ejecuta el flujo completo (extracci\'on de preferencias
 $\rightarrow$ scoring $\rightarrow$ justificaci\'on) y se contrastan las salidas
-con lo esperado.
+con lo esperado. Se contemplan del orden de \textbf{5--6 casos can\'onicos} (por
+ejemplo, el estudiante de Cusco con presupuesto acotado de la Secci\'on~8).
+
+\paragraph{Reto de los \emph{evals} en un sistema conversacional.} A diferencia de
+una interacci\'on simple de pregunta--respuesta, aqu\'i la conversaci\'on es
+\textbf{multi-turno}: para que un \emph{eval} sea representativo debe simular
+varios mensajes del estudiante (saludo, aporte de preferencias, aclaraciones),
+no un \'unico JSON de entrada. Por ello los casos de prueba se construyen como
+\emph{guiones de conversaci\'on} y se eval\'uan con el \emph{LLM-as-judge}. Este
+componente se implementa del lado de AWS y queda \textbf{pendiente} hasta que el
+agente est\'e desplegado.
 
 \subsection{Comparaci\'on de enfoques}
 
