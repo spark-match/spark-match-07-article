@@ -26,10 +26,13 @@ sam deploy --config-env prod    # ambiente productivo (aprobacion manual)
 \subsection{Agente y motor de scoring (Python)}
 
 El agente conversacional y el motor de scoring se ejecutan en Python. El agente
-usa LangGraph/\texttt{deepagents} sobre Bedrock (AgentCore) y \texttt{langmem}
-para la persistencia del perfil; el motor de scoring opera sobre
-\texttt{features.csv} con Pandas/NumPy. Estos componentes se integran con el
-backend serverless y con Bedrock para las invocaciones al LLM.
+usa el \emph{harness} \texttt{deepagents} sobre Bedrock (AgentCore) y
+\texttt{langmem} para la persistencia del perfil; el motor de scoring opera sobre
+\texttt{features.csv} con Pandas/NumPy. Es importante notar que el agente
+\textbf{no expone un framework web tradicional} (no usa FastAPI ni Flask): corre
+como c\'odigo Python dentro del harness, y la exposici\'on HTTP la provee el
+backend \emph{serverless} (API Gateway + Lambda). Estos componentes se integran con
+Bedrock para las invocaciones al LLM.
 
 \subsection{Infraestructura como c\'odigo (Terraform)}
 
@@ -68,6 +71,21 @@ jobs:
       - run: tflint --recursive
       - run: checkov -d infra/
 \end{lstlisting}
+
+\subsection{Escalabilidad}
+
+El sistema \textbf{no utiliza Kubernetes}: la escalabilidad se apoya en servicios
+\emph{serverless} autoadministrados de AWS. El backend (AWS Lambda + API Gateway) y
+el agente (Bedrock AgentCore) escalan autom\'aticamente seg\'un la demanda, sin
+administrar servidores ni cl\'usteres. Esto ofrece una escalabilidad adecuada para
+el alcance del proyecto, con l\'imites conocidos: AWS Lambda admite \textbf{100
+ejecuciones concurrentes} en cuentas gratuitas (\textbf{1000} en cuentas de pago),
+ampliables bajo solicitud. Para cargas de millones de usuarios simult\'aneos se
+requerir\'ia una arquitectura orientada a contenedores (p.ej.\ Kubernetes/EKS); en
+este proyecto, \textbf{AgentCore y Lambda cumplen una funci\'on equivalente}
+---orquestaci\'on y escalado autom\'atico--- sin el costo operativo de administrar
+un cl\'uster. Se trata, por tanto, de una escalabilidad \emph{media} suficiente
+para la demostraci\'on.
 
 \subsection{Despliegue en la nube (AWS)}
 

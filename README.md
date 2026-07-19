@@ -2,7 +2,7 @@
 
 Trabajo de Fin de Programa del **II Programa de Especializaci\'on en IA Generativa y Machine Learning Ops** de la **Universidad Nacional de Ingenier\'ia (UNI)**.
 
-Art\'iculo acad\'emico que documenta el dise\~no, implementaci\'on, despliegue y evaluaci\'on de **Spark Match**, un sistema h\'ibrido que combina un agente conversacional basado en LLMs (LangGraph + AWS Bedrock) con un motor de scoring determinista para recomendar combinaciones *Carrera - Universidad* a estudiantes preuniversitarios peruanos.
+Art\'iculo acad\'emico que documenta el dise\~no, implementaci\'on, despliegue y evaluaci\'on de **Spark Match**, un sistema h\'ibrido que combina un agente conversacional basado en LLMs (harness `deepagents` + AWS Bedrock) con un motor de scoring determinista para recomendar combinaciones *Carrera - Universidad* a estudiantes preuniversitarios peruanos.
 
 ---
 
@@ -10,8 +10,8 @@ Art\'iculo acad\'emico que documenta el dise\~no, implementaci\'on, despliegue y
 
 | Capa | Tecnolog\'ia |
 |:---|:---|
-| IA Generativa | AWS Bedrock (Claude), LangGraph / Deep Agents, langmem |
-| Agente y scoring | Python (LangGraph, Pandas, NumPy) |
+| IA Generativa | AWS Bedrock (Claude), Deep Agents (harness `deepagents`), langmem |
+| Agente y scoring | Python (harness `deepagents`, Pandas, NumPy) |
 | Backend | TypeScript serverless (AWS Lambda, EventBridge, AWS SAM, DDD) |
 | Frontend | Angular 21 + Angular Material |
 | Datos | Ponte en Carrera (features.csv), Selenium, Pandas, Aurora PostgreSQL |
@@ -34,7 +34,7 @@ Este art\'iculo forma parte del ecosistema **`spark-match`**:
 | Pipeline de Datos | [`spark-match-05-data-pipeline`](https://github.com/spark-match/spark-match-05-data-pipeline) | ETL + scraping con Selenium + etiquetado RIASEC |
 | Entrenamiento | [`spark-match-06-model-training`](https://github.com/spark-match/spark-match-06-model-training) | Experimentos y seguimiento con Weights & Biases |
 | Art\'iculo | [`spark-match-07-article`](https://github.com/spark-match/spark-match-07-article) | Este repositorio -- LaTeX con CI/CD |
-| Agente conversacional | [`spark-match-08-deep-agent`](https://github.com/spark-match/spark-match-08-deep-agent) | Deep Agent (LangGraph) + langmem + evals |
+| Agente conversacional | [`spark-match-08-deep-agent`](https://github.com/spark-match/spark-match-08-deep-agent) | Deep Agent (harness `deepagents`) + langmem + evals |
 
 ---
 

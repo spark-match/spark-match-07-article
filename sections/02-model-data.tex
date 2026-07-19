@@ -55,9 +55,12 @@ departamentos).
 
 \paragraph{Nota sobre la fuente.} El MTPE ha consolidado recientemente el portal
 \emph{Mi Carrera} como nuevo observatorio oficial del mercado laboral, relegando
-a \emph{Ponte en Carrera}. Para esta entrega se \textbf{congela} el dataset ya
-descargado de \emph{Ponte en Carrera} (garantizando reproducibilidad), y se deja
-la migraci\'on a \emph{Mi Carrera} como trabajo futuro.
+a \emph{Ponte en Carrera}. El pipeline \textbf{versiona y vigila} el dataset de
+forma continua mediante \emph{snapshots} fechados, de modo que cualquier
+actualizaci\'on de la fuente puede incorporarse y reproducirse (no es una descarga
+\'unica y est\'atica). Para esta entrega se \textbf{congela} el \'ultimo snapshot
+descargado (garantizando reproducibilidad), y la migraci\'on a \emph{Mi Carrera}
+queda como trabajo futuro.
 
 \subsection{Preprocesamiento}
 
