@@ -62,6 +62,18 @@ actualizaci\'on de la fuente puede incorporarse y reproducirse (no es una descar
 descargado (garantizando reproducibilidad), y la migraci\'on a \emph{Mi Carrera}
 queda como trabajo futuro.
 
+\paragraph{Arquitectura de fuentes intercambiables.} Dado que el portal oficial
+puede quedar inaccesible (de hecho \emph{Ponte en Carrera} fue relegado), el
+\emph{pipeline} adopta un \textbf{registro de fuentes} (\emph{source registry}):
+cada fuente de datos es un componente enchufable con una interfaz com\'un, lo que
+permite (i)~cambiar el mecanismo de scraping ---por ejemplo de \emph{Selenium} a
+\emph{Playwright}, m\'as robusto para p\'aginas que renderizan con JavaScript y
+m\'as apto para ejecuci\'on \emph{headless} en el backend---, (ii)~a\~nadir
+\emph{Mi Carrera} como nueva fuente, y (iii)~definir un \textbf{fallback}: si la
+descarga en vivo falla, el pipeline recupera el \'ultimo \emph{snapshot} desde un
+bucket S3. As\'i el sistema es resiliente ante ca\'idas de la fuente sin
+convertirse en un simple dato est\'atico.
+
 \subsection{Preprocesamiento}
 
 La gesti\'on de datos ya est\'a implementada en el m\'odulo \texttt{data\_pipeline}
