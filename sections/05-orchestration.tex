@@ -4,124 +4,103 @@
 % ============================================================================
 \section{Orquestaci\'on y despliegue}
 
-% TODO: Documentar el Dockerfile del backend, docker-compose para desarrollo
-% local, manifest de Kubernetes (o ECS Fargate) para produccion, y los
-% GitHub Actions workflows (build, test, deploy).
+El despliegue se apoya en un enfoque \emph{serverless} sobre AWS e infraestructura
+como c\'odigo con Terraform, con dos ambientes (\texttt{dev} y \texttt{prod}) y
+automatizaci\'on mediante GitHub Actions.
 
-\subsection{API REST con FastAPI}
+\subsection{Backend serverless (TypeScript + AWS SAM)}
 
-[Detallar la implementacion de FastAPI:
-- Estructura del proyecto: routers, services, repositories, models.
-- Validacion con Pydantic v2.
-- Documentacion automatica OpenAPI en \texttt{/docs}.
-- Middlewares: CORS, logging, rate limiting, autenticacion (si aplica).
-- Tests: pytest + httpx.AsyncClient con coverage $\geq$ 80\%.]
+El backend de plataforma est\'a escrito en \textbf{TypeScript} y sigue un dise\~no
+orientado a dominios (DDD). Se despliega como funciones \textbf{AWS Lambda}
+orquestadas con \textbf{EventBridge} y empaquetadas con \textbf{AWS SAM}. Este
+modelo evita administrar servidores, escala autom\'aticamente con la demanda y
+solo factura por invocaci\'on, lo que resulta conveniente para un proyecto
+acad\'emico con tr\'afico intermitente.
 
-\begin{lstlisting}[style=bashstyle, caption={Ejecucion local de la API}, label={lst:run-api}]
-uvicorn spark_match.main:app --reload --host 0.0.0.0 --port 8000
-# Swagger UI: http://localhost:8000/docs
+\begin{lstlisting}[style=bashstyle, caption={Build y despliegue del backend con AWS SAM}, label={lst:sam-deploy}]
+sam build
+sam deploy --config-env dev     # ambiente de desarrollo
+sam deploy --config-env prod    # ambiente productivo (aprobacion manual)
 \end{lstlisting}
 
-\subsection{Contenerizaci\'on con Docker}
+\subsection{Agente y motor de scoring (Python)}
 
-[Describir el Dockerfile:
-- Imagen base: \texttt{python:3.12-slim}.
-- Multi-stage build para reducir tamano final.
-- Usuario no-root para seguridad.
-- Capa de dependencias separada del codigo (cache de capas).
-- Healthcheck definido.
-- Variables de entorno via \texttt{env\_file}.]
+El agente conversacional y el motor de scoring se ejecutan en Python. El agente
+usa el \emph{harness} \texttt{deepagents} sobre Bedrock (AgentCore) y
+\texttt{langmem} para la persistencia del perfil; el motor de scoring opera sobre
+\texttt{features.csv} con Pandas/NumPy. Es importante notar que el agente
+\textbf{no expone un framework web tradicional} (no usa FastAPI ni Flask): corre
+como c\'odigo Python dentro del harness, y la exposici\'on HTTP la provee el
+backend \emph{serverless} (API Gateway + Lambda). Estos componentes se integran con
+Bedrock para las invocaciones al LLM.
 
-\begin{lstlisting}[style=yamlstyle, caption={docker-compose.yml para desarrollo local}, label={lst:compose}]
-version: "3.9"
-services:
-  api:
-    build: ./spark-match-03-backend
-    ports: ["8000:8000"]
-    env_file: .env
-    depends_on: [postgres, chromadb]
-  frontend:
-    build: ./spark-match-04-frontend
-    ports: ["4200:4200"]
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: sparkmatch
-      POSTGRES_PASSWORD: dev
-    volumes: ["pgdata:/var/lib/postgresql/data"]
-volumes:
-  pgdata:
-\end{lstlisting}
+\subsection{Contenerizaci\'on (Docker)}
+
+Aunque el modelo de despliegue es \emph{serverless}, la contenerizaci\'on con
+\textbf{Docker} est\'a presente en el ciclo: \texttt{aws sam build} empaqueta las
+funciones Lambda como \textbf{im\'agenes de contenedor} (usando Docker localmente
+para reproducir el entorno de ejecuci\'on), y el agente se ejecuta como un
+\textbf{contenedor gestionado} en Bedrock AgentCore. As\'i se garantiza que el
+entorno sea reproducible entre desarrollo y producci\'on sin administrar servidores
+ni un orquestador de contenedores propio.
 
 \subsection{Infraestructura como c\'odigo (Terraform)}
 
-[Detcribir los recursos provisionados en AWS:
-- VPC con subnets publicas/privadas.
-- ECS Fargate (o EKS) para el backend.
-- RDS PostgreSQL (multi-AZ).
-- S3 para datasets versionados (DVC remote).
-- CloudFront + S3 para el frontend Angular.
-- Secrets Manager para API keys.
-- IAM roles con least privilege.]
-
-\begin{lstlisting}[style=yamlstyle, caption={Modulo Terraform: ECS Fargate service}, label={lst:tf-ecs}]
-resource "aws_ecs_service" "spark_match_api" {
-  name            = "spark-match-api"
-  cluster         = aws_ecs_cluster.main.id
-  task_definition = aws_ecs_task_definition.api.arn
-  desired_count   = 2
-  launch_type     = "FARGATE"
-
-  network_configuration {
-    subnets         = aws_subnet.private[*].id
-    security_groups = [aws_security_group.api.id]
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.api.arn
-    container_name   = "api"
-    container_port   = 8000
-  }
-}
-\end{lstlisting}
+La infraestructura se provisiona con \textbf{Terraform}, con m\'odulos separados
+por ambiente (\texttt{dev} y \texttt{prod}). Se emplea \textbf{AWS Budgets} como
+control de costos. Entre los recursos: funciones Lambda y reglas de EventBridge
+del backend, base de datos \textbf{Aurora PostgreSQL}, almacenamiento en S3 para
+snapshots del dataset, e IAM con privilegios m\'inimos. La calidad de la
+infraestructura se refuerza con escaneo de seguridad (\emph{checkov}) y
+\emph{linting} de Terraform (\emph{tflint}).
 
 \subsection{CI/CD con GitHub Actions}
 
-[Detallar los workflows:
-- \texttt{ci.yml} (reusable): lint + tests + build de imagen Docker.
-- \texttt{deploy-staging.yml}: push a staging tras merge a \texttt{main}.
-- \texttt{deploy-prod.yml}: despliegue a produccion con aprobacion manual.
-- Versionado semantico automatico con release-please.
-- Escaneo de vulnerabilidades: Trivy + Snyk.]
+El c\'odigo se organiza en la organizaci\'on de GitHub \texttt{spark-match}, con
+repositorios separados por dominio. \textbf{GitHub Actions} ejecuta las pruebas
+autom\'aticas y las validaciones de infraestructura en cada cambio, siguiendo la
+estrategia de ramas del equipo (rama de integraci\'on \texttt{dev} y promoci\'on
+a \texttt{prod}).
 
-\begin{lstlisting}[style=yamlstyle, caption={Workflow reutilizable de CI}, label={lst:gh-actions}]
+\begin{lstlisting}[style=yamlstyle, caption={Workflow de CI (ejemplo simplificado)}, label={lst:gh-actions}]
 name: CI
-on:
-  workflow_call:
+on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
       - run: pip install -r requirements.txt
-      - run: pytest --cov=app --cov-fail-under=80
-  docker:
-    needs: test
+      - run: pytest
+  infra:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - run: docker build -t $IMAGE:${{ github.sha }} .
-      - run: docker push $IMAGE:${{ github.sha }}
+      - uses: actions/checkout@v4
+      - run: tflint --recursive
+      - run: checkov -d infra/
 \end{lstlisting}
+
+\subsection{Escalabilidad}
+
+El sistema \textbf{no utiliza Kubernetes}: la escalabilidad se apoya en servicios
+\emph{serverless} autoadministrados de AWS. El backend (AWS Lambda + API Gateway) y
+el agente (Bedrock AgentCore) escalan autom\'aticamente seg\'un la demanda, sin
+administrar servidores ni cl\'usteres. Esto ofrece una escalabilidad adecuada para
+el alcance del proyecto, con l\'imites conocidos: AWS Lambda admite \textbf{100
+ejecuciones concurrentes} en cuentas gratuitas (\textbf{1000} en cuentas de pago),
+ampliables bajo solicitud. Para cargas de millones de usuarios simult\'aneos se
+requerir\'ia una arquitectura orientada a contenedores (p.ej.\ Kubernetes/EKS); en
+este proyecto, \textbf{AgentCore y Lambda cumplen una funci\'on equivalente}
+---orquestaci\'on y escalado autom\'atico--- sin el costo operativo de administrar
+un cl\'uster. Se trata, por tanto, de una escalabilidad \emph{media} suficiente
+para la demostraci\'on.
 
 \subsection{Despliegue en la nube (AWS)}
 
-[Resumen del entorno productivo:
-- Region: us-east-1 (o sa-east-1 para menor latencia en Per'u).
-- Cluster: ECS Fargate con auto-scaling (CPU 70\%).
-- Base de datos: RDS PostgreSQL 16.
-- CDN: CloudFront.
-- Costos estimados: USD/mes [definir tras el despliegue].
-- URL de demo: \url{https://spark-match.app} [placeholder].]
+El entorno productivo se aloja en AWS. La estrategia de dos ambientes
+(\texttt{dev} y \texttt{prod}) permite validar cambios antes de promoverlos a
+producci\'on, y \textbf{AWS Budgets} vigila el gasto mensual. Los costos exactos
+de operaci\'on y la URL de demo se documentar\'an tras el despliegue final.
+% TODO (equipo): completar costos mensuales reales y URL de demo tras el deploy.

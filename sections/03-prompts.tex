@@ -4,27 +4,42 @@
 % ============================================================================
 \section{Ingenier\'ia de prompts y adaptaci\'on}
 
-% TODO: Documentar las estrategias de prompting usadas:
-% - System prompt para extraccion de restricciones estructuradas.
-% - Chain-of-Thought para justificar el ranking.
-% - Few-shot examples con respuestas canonicas.
-% - Funcion de salida estructurada (JSON Schema / Pydantic) para los pesos.
-
-% TODO: Documentar ajustes finos si se aplican (LoRA, adapters) o justificar
-% por que se opto por prompting puro (costo, tiempo, datos disponibles).
-
-% TODO: Describir la base vectorial: ChromaDB / FAISS / Pinecone,
-% esquema de chunking, modelo de embeddings, estrategia de retrieval (top-k,
-% MMR, reranking).
+El sistema desacopla la interpretaci\'on del lenguaje (agente LLM) de la
+decisi\'on de ranking (motor de scoring determin\'istico). El LLM interviene en
+dos momentos: al inicio, para descubrir el perfil del estudiante y traducir sus
+prioridades en pesos, y al final, para redactar la explicaci\'on. Ambas tareas se
+resuelven mediante \emph{prompting} (sin ajuste fino), estrategia adecuada para
+un proyecto acad\'emico por su bajo costo y su rapidez de iteraci\'on.
 
 \subsection{Estrategia de prompting}
 
-[Detallar los templates de prompt empleados:
-- \texttt{system\_prompt\_extractor.py}: convierte el mensaje libre del usuario en un JSON estructurado (region, presupuesto, peso\_salario, peso\_costo, ...).
-- \texttt{justification\_prompt.py}: recibe el ranking Top-N y redacta la explicacion en lenguaje natural con chain-of-thought.
-- Few-shot examples: 3-5 ejemplos canonicos para anclar el formato.]
+Se emplean \emph{system prompts} versionados en el repositorio, con salida
+estructurada y ejemplos \emph{few-shot} que anclan el formato esperado:
 
-\begin{lstlisting}[style=pythonstyle, caption={System prompt para extraccion estructurada de preferencias}, label={lst:prompt-extract}]
+\begin{itemize}[noitemsep]
+  \item \textbf{Extracci\'on de preferencias:} convierte el mensaje libre del
+        estudiante en un perfil estructurado (afinidad/RIASEC y pesos por
+        criterio). La salida se fuerza a JSON validable para integrarse con el
+        motor de scoring.
+  \item \textbf{Justificaci\'on:} recibe el ranking Top-N y redacta la
+        explicaci\'on en lenguaje natural, citando datos verificables del propio
+        ranking (ingreso, costo, afinidad) para evitar afirmaciones no
+        sustentadas.
+  \item \textbf{Few-shot:} un peque\~no conjunto de ejemplos can\'onicos ancla el
+        formato de entrada--salida y reduce la tasa de JSON malformado.
+\end{itemize}
+
+\paragraph{Entrevista escalonada.} La extracci\'on no se resuelve con un \'unico
+prompt directo (``a partir de todo lo conversado, dame los pesos''), que es
+propenso a error. En su lugar, el agente conduce una \textbf{entrevista
+escalonada} con retroalimentaci\'on: si el estudiante no ha dado suficiente
+informaci\'on, \emph{repregunta} (presupuesto, regi\'on, intereses) antes de
+inferir los pesos. Esto habilita un razonamiento por etapas (estilo
+\emph{Chain-of-Thought}): primero se caracteriza el perfil (nivel de presupuesto,
+afinidad vocacional, prioridades) y reci\'en despu\'es se traducen esas
+conclusiones en los cinco pesos, lo que reduce las asignaciones incoherentes.
+
+\begin{lstlisting}[style=pythonstyle, caption={System prompt para extraccion estructurada de preferencias (esquema de 5 pesos)}, label={lst:prompt-extract}]
 EXTRACTOR_SYSTEM_PROMPT = """
 Eres un asistente que convierte mensajes libres de un estudiante
 peruano en preferencias estructuradas para un motor de recomendacion.
@@ -33,29 +48,43 @@ Devuelve un JSON con este esquema:
 {
   "region": str | null,
   "presupuesto_max": float | null,
-  "peso_salario": float,    # 0.0 - 1.0
+  "riasec": str | null,      # codigo Holland de 3 letras, p.ej. "IRE"
+  "peso_afinidad": float,    # 0.0 - 1.0
+  "peso_ingreso": float,
   "peso_costo": float,
   "peso_admision": float,
-  "peso_ubicacion": float
+  "peso_duracion": float
 }
 
-La suma de los cuatro pesos debe ser 1.0.
+La suma de los cinco pesos debe ser 1.0. Un peso puede ser 0 si el
+estudiante indica que ese criterio no le importa.
 """
 \end{lstlisting}
 
-\subsection{Flujo RAG (Retrieval-Augmented Generation)}
+El c\'odigo RIASEC extraido alimenta el t\'ermino de \emph{afinidad} del motor de
+scoring, mientras que los pesos $w_1,\dots,w_5$ modulan din\'amicamente la
+importancia de cada criterio en cada sesi\'on (ver Secci\'on~4).
 
-[Describir la base vectorial:
-- Tecnologia: ChromaDB (local) o Pinecone (gestionado) [definir].
-- Documentos indexados: descripciones de carreras, planes de estudio, testimonios.
-- Modelo de embeddings: \texttt{sentence-transformers/all-MiniLM-L6-v2} o similar.
-- Estrategia de retrieval: top-k=5, filtrado por metadata (region, area).
-- Re-ranking: opcional con cross-encoder.]
+\subsection{Flujo RAG (trabajo futuro)}
 
-\subsection{Ajustes finos (fine-tuning / LoRA)}
+En esta etapa, la recuperaci\'on de informaci\'on se resuelve como una
+\emph{herramienta} del agente que consulta directamente el dataset estructurado
+(\texttt{features.csv}); no se emplea a\'un una base vectorial dedicada. La
+generaci\'on aumentada por recuperaci\'on (RAG) \cite{gao2024, fan2024} se
+contempla como l\'inea de mejora: indexar las fichas descriptivas de carreras y
+universidades en un \emph{vector store} para que el agente ancle sus
+explicaciones en texto oficial adicional. La tecnolog\'ia concreta del vector
+store queda \emph{por definir}; se descart\'o \texttt{pgvector} sobre Aurora como
+opci\'on \'unica y la decisi\'on final se documentar\'a en la bit\'acora de
+arquitectura del equipo.
 
-[Documentar si se realizo fine-tuning:
-- Sobre que modelo base: [definir].
-- Dataset de entrenamiento: tamano, origen.
-- Hiperparametros: learning rate, epochs, LoRA rank.
-- Justificacion si NO se realizo: costo, datos insuficientes, baseline suficiente.]
+\subsection{Ajustes finos (fine-tuning)}
+
+No se realiz\'o fine-tuning. Las dos tareas del LLM (interpretar preferencias y
+explicar resultados) se resuelven satisfactoriamente mediante \emph{prompting} y
+\emph{few-shot}, sin necesidad de reentrenar el modelo. El fine-tuning se
+descarta en esta etapa por su costo, por la ausencia de un dataset etiquetado de
+conversaciones y porque el \emph{baseline} basado en prompting es suficiente para
+el prototipo. A futuro, con suficiente historial de conversaciones exitosas,
+podr\'ia evaluarse un ajuste ligero (p.ej. LoRA) sobre el extractor de
+preferencias.

@@ -4,67 +4,72 @@
 % ============================================================================
 \section{Resultados y demostraci\'on}
 
-% TODO: Incluir capturas de pantalla de la aplicacion corriendo, ejemplos
-% reales de conversaciones con el agente, graficos de metricas (Grafana),
-% tabla con el Top-N recomendado para un caso canonico y enlace a la demo.
+\subsection{Estado del prototipo}
 
-\subsection{Outputs principales}
+El c\'odigo del proyecto se organiza en la organizaci\'on de GitHub
+\texttt{spark-match}, con repositorios separados por dominio (datos, backend,
+agente, frontend, infraestructura, DevOps y art\'iculo). A la fecha est\'an
+implementados:
 
-[Mostrar ejemplos canonicos de salida del sistema. Ejemplo:
+\begin{itemize}[noitemsep]
+  \item el \emph{pipeline de datos} que produce \texttt{features.csv} (6\,208
+        combinaciones carrera--instituci\'on, 554 carreras \'unicas);
+  \item el \emph{etiquetado RIASEC} de las carreras mediante el LLM en Bedrock;
+  \item el \emph{agente conversacional} con sus herramientas, trazado con
+        LangSmith y un framework de evaluaci\'on;
+  \item los \emph{scaffolds} del backend serverless (TypeScript) y del frontend
+        (Angular 21);
+  \item la \emph{infraestructura} en Terraform con ambientes \texttt{dev} y
+        \texttt{prod}.
+\end{itemize}
 
-\textbf{Caso:} Estudiante de Cusco, presupuesto max. S/600/mes, prioridad en salario y cercania geografica.
+\subsection{Ejemplo de salida (caso can\'onico)}
 
-\textbf{Prompt del usuario:} "Vivo en Cusco y mi presupuesto maximo es 600 soles al mes. Me interesa algo con buenos sueldos pero tambien quiero quedarme cerca de casa."
+\textbf{Caso:} estudiante de Cusco, presupuesto m\'aximo S/600/mes, prioridad en
+salario y cercan\'ia geogr\'afica.
 
-\textbf{Pesos extraidos por el LLM:}
+\textbf{Mensaje del usuario:} \textit{``Vivo en Cusco y mi presupuesto m\'aximo es
+600 soles al mes. Me interesa algo con buenos sueldos pero tambi\'en quiero
+quedarme cerca de casa''.}
+
+\textbf{Preferencias extra\'idas por el LLM:}
 \begin{lstlisting}[style=jsonstyle, caption={JSON de preferencias extraidas}, label={lst:json-prefs}]
 {
   "region": "Cusco",
   "presupuesto_max": 600,
-  "peso_salario": 0.45,
-  "peso_costo": 0.35,
+  "peso_afinidad": 0.15,
+  "peso_ingreso": 0.45,
+  "peso_costo": 0.30,
   "peso_admision": 0.05,
-  "peso_ubicacion": 0.15
+  "peso_duracion": 0.05
 }
 \end{lstlisting}
 
-\textbf{Top-5 recomendado (Carrera - Universidad - Score):}
-\begin{enumerate}
-    \item Ingenieria de Minas -- Universidad Nacional de San Antonio Abad del Cusco -- Score: 0.87
-    \item Administracion de Empresas -- Universidad Andina del Cusco -- Score: 0.81
-    \item Contabilidad -- Universidad Nacional de San Antonio Abad del Cusco -- Score: 0.78
-    \item [...]
-\end{enumerate}
-
-\textbf{Justificacion generada por el LLM:}
-``Basandome en tu preferencia por salarios competitivos y tu cercania a Cusco, te recomiendo en primer lugar Ingenieria de Minas en la UNSAAC porque...'']
+El motor de scoring aplica los filtros duros (regi\'on Cusco, presupuesto) y
+ordena las combinaciones carrera--universidad por su puntaje, generando un ranking
+Top-N. Finalmente, el agente redacta una justificaci\'on en lenguaje natural que
+cita los datos que sustentan cada recomendaci\'on (ingreso promedio, costo,
+afinidad).
 
 \begin{figure}[H]
     \centering
     % \includegraphics[width=0.95\linewidth]{chat-screenshot.png}
-    \caption{Captura de la interfaz conversacional de Spark Match.}
+    \caption{Captura de la interfaz conversacional de Spark Match (por incluir).}
     \label{fig:chat}
 \end{figure}
+% TODO (equipo): reemplazar por capturas reales de la app corriendo, el ranking
+% Top-N de un caso real y el enlace a la demo/video.
 
 \subsection{Evidencia funcional}
 
-[Proveer evidencia funcional del sistema desplegado:
-- \textbf{Demo en la nube:} \url{https://demo.spark-match.app} [actualizar tras el despliegue].
-- \textbf{Video demostrativo:} [enlace al video de $\leq$15 min, subido a YouTube/Loom, mostrando la app corriendo en VS Code (terminal), navegador y Postman].
-- \textbf{Repositorio:} \url{https://github.com/spark-match}.
+La demostraci\'on final mostrar\'a el flujo de extremo a extremo: el estudiante
+conversa con el orientador, el agente construye su perfil y prioridades, el motor
+de scoring genera el ranking Top-N sobre datos reales y el agente entrega las
+recomendaciones explicadas. La evidencia incluir\'a:
 
-\textbf{Capturas a incluir}:
-- Terminal con el backend levantandose (\texttt{uvicorn spark\_match.main:app --reload}).
-- Documentacion OpenAPI en \texttt{/docs}.
-- Conversacion real con el agente en el frontend.
-- Prueba de un endpoint en Postman.
-- Dashboard de Grafana con metricas en tiempo real.]
-
-\subsection{M\'etricas de adopci\'on (si aplica)}
-
-[Si se realizo un piloto con usuarios reales:
-- Numero de usuarios de prueba.
-- Conversaciones completadas.
-- Tasa de satisfaccion.
-- Tiempo promedio de sesion.
-- Carrera finalmente elegida vs recomendada (tasa de coincidencia).]
+\begin{itemize}[noitemsep]
+  \item \textbf{Repositorios:} \url{https://github.com/spark-match}.
+  \item \textbf{Demo / video:} enlace por definir tras el despliegue.
+  \item \textbf{Capturas:} conversaci\'on real con el agente, ranking Top-N y
+        trazas de observabilidad en LangSmith.
+\end{itemize}

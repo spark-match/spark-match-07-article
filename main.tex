@@ -23,15 +23,15 @@
     {\LARGE \textbf{Spark Match}}\\[0.5cm]
     {\Large Copiloto Inteligente para la Elecci\'on de Carrera Profesional\\basado en IA Generativa y Recomendaci\'on H\'ibrida}\\[1cm]
     {\normalsize Trabajo de Fin de Programa: dise\~no, implementaci\'on, despliegue y evaluaci\'on\\
-    de un sistema de orientaci\'on vocacional con agentes LLM, RAG y MLOps en AWS}\\[3cm]
+    de un sistema de orientaci\'on vocacional con agentes LLM y MLOps en AWS}\\[3cm]
 
     \begin{tabular}{rl}
         \textbf{Docente:}      & [Nombre del Docente] \\[0.3cm]
-        \textbf{Integrantes:}  & Angel Eduardo Hincho Jove \\
-                                & [Integrante 2 - Apellido2] \\
-                                & [Integrante 3 - Apellido3] \\
-                                & [Integrante 4 - Apellido4] \\
-                                & [Integrante 5 - Apellido5] \\[0.3cm]
+        \textbf{Integrantes:}  & Fabiola G. Tapara Quispe \\
+                                & Angel E. Hincho Jove \\
+                                & Andy B. Huamani Tacoma \\
+                                & Nikolai A. Asencios Garc\'ia \\
+                                & David Barreto Lara \\[0.3cm]
         \textbf{Programa:}     & II Programa de Especializaci\'on en IA Generativa y MLOps \\[0.3cm]
         \textbf{Ciclo:}        & 2026-I \\[0.3cm]
         \textbf{Fecha:}        & 09 de agosto de 2026 \\
@@ -50,26 +50,44 @@
 % --- Resumen ---
 \section*{Resumen}
 
-[Resumen del proyecto Spark Match: 250-350 palabras. Describir el problema de orientacion vocacional en Peru, la propuesta hibrida (LLM + motor de scoring determinista), la arquitectura general (Angular + FastAPI + LangChain + Bedrock + MLflow), los resultados principales y las contribuciones. Mencionar el stack cloud (AWS) y las practicas MLOps aplicadas.]
+Spark Match (CareerMatch Per\'u) es un asistente conversacional basado en IA
+generativa que orienta a estudiantes y padres de familia en la elecci\'on de
+carrera y universidad en el Per\'u. El sistema combina un agente de lenguaje
+(un LLM \emph{Claude}, servido mediante \emph{AWS Bedrock}), que interpreta en
+lenguaje natural las preferencias del estudiante y luego explica los resultados,
+con un motor de recomendaci\'on transparente en Python que asigna un puntaje a
+cada combinaci\'on carrera--universidad usando datos oficiales del portal
+\emph{Ponte en Carrera} (MINEDU). A diferencia de los sistemas con pesos fijos,
+los pesos de cada criterio son inferidos din\'amicamente por el LLM a partir de la
+conversaci\'on, y la afinidad vocacional se modela con el esquema RIASEC de
+Holland. La plataforma se apoya en un backend \emph{serverless} en TypeScript
+(AWS Lambda + EventBridge + SAM), un frontend en Angular y un agente en Python
+(harness \emph{deepagents}). El proyecto incorpora pr\'acticas de MLOps mediante el versionado de
+prompts, f\'ormula de scoring y datos, la observabilidad del agente con LangSmith,
+el seguimiento de experimentos con Weights \& Biases y CI/CD e infraestructura
+como c\'odigo (Terraform) sobre AWS. Este documento presenta el caso de uso, la
+selecci\'on de modelo y datos, la ingenier\'ia de prompts, la arquitectura, el
+prototipo, la evaluaci\'on y las recomendaciones.
 
 \vspace{0.5cm}
-\noindent\textbf{Palabras clave:} orientaci\'on vocacional, sistemas de recomendaci\'on, IA generativa, LangChain, LLM, RAG, MLOps, AWS Bedrock, FastAPI, Docker.
+\noindent\textbf{Palabras clave:} orientaci\'on vocacional, sistemas de recomendaci\'on, IA generativa, LLM, agentes, RIASEC, MLOps, AWS Bedrock, serverless, LangSmith.
 
 \newpage
 
 % --- Repositorios del proyecto ---
 \begin{tcolorbox}[title=Repositorios y recursos del proyecto, breakable, colback=blue!2, colframe=blue!40!black]
 \renewcommand{\arraystretch}{1.4}
-\begin{tabular}{@{} >{\bfseries}l l @{}}
+\begin{tabularx}{\linewidth}{@{} >{\bfseries}l >{\raggedright\arraybackslash}X @{}}
     Organizaci\'on & \url{https://github.com/spark-match} \\
     DevOps (CI/CD) & \url{https://github.com/spark-match/spark-match-01-devops} \\
     Infraestructura (Terraform/AWS) & \url{https://github.com/spark-match/spark-match-02-infrastructure} \\
-    Backend (FastAPI) & \url{https://github.com/spark-match/spark-match-03-backend} \\
+    Backend (Serverless TypeScript) & \url{https://github.com/spark-match/spark-match-03-backend} \\
     Frontend (Angular) & \url{https://github.com/spark-match/spark-match-04-frontend} \\
-    Pipeline de Datos (DVC) & \url{https://github.com/spark-match/spark-match-05-data-pipeline} \\
-    Entrenamiento de Modelos (MLflow) & \url{https://github.com/spark-match/spark-match-06-model-training} \\
+    Pipeline de Datos & \url{https://github.com/spark-match/spark-match-05-data-pipeline} \\
+    Entrenamiento de Modelos & \url{https://github.com/spark-match/spark-match-06-model-training} \\
     Este art\'iculo (LaTeX) & \url{https://github.com/spark-match/spark-match-07-article} \\
-\end{tabular}
+    Agente conversacional (Deep Agent) & \url{https://github.com/spark-match/spark-match-08-deep-agent} \\
+\end{tabularx}
 \end{tcolorbox}
 
 % --- Secciones ---

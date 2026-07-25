@@ -1,60 +1,85 @@
 % ============================================================================
-% Referencias Bibliograficas - Formato BibTeX (APA)
-% Articulo: Spark Match - Copiloto de Orientacion Vocacional con IA Generativa
+% Referencias Bibliograficas - Formato BibTeX (APA / apalike)
+% Articulo: CareerMatch Peru - Asistente de orientacion vocacional con IA
 % ============================================================================
-% Minimo 5 referencias exigidas por el TFP. Completar y verificar antes de
-% la entrega final. Usar normas APA: https://normas-apa.org/referencias/
+% 8 referencias reales verificadas (el TFP exige un minimo de 5).
+% Estilo: \bibliographystyle{apalike} en main.tex.
+%
+% NOTA: para que aparezcan en el PDF, el texto debe citarlas con \cite{clave}
+% (ver claves abajo). Si aun no estan cableadas todas, agregar \nocite{*}
+% antes de \bibliography{references} las incluye a todas temporalmente.
+% Claves: ezz2020, aldossari2020, esteban2020, bender2021, bommasani2021,
+%         huang2024, gao2024, fan2024
 % ============================================================================
 
-% --- Ejemplo: articulo de revista ---
-@article{ejemplo2024articulo,
-  author    = {Apellido, A. and Otro, B.},
-  title     = {Titulo del articulo en minuscula excepto la primera letra},
-  journal   = {Nombre de la Revista},
-  volume    = {X},
-  number    = {Y},
-  pages     = {1--20},
-  year      = {2024},
-  doi       = {10.XXXX/XXXXX}
+@article{ezz2020,
+  author  = {Ezz, Mohamed and Elshenawy, Ayman},
+  title   = {Adaptive recommendation system using machine learning algorithms for predicting student's best academic program},
+  journal = {Education and Information Technologies},
+  volume  = {25},
+  number  = {4},
+  pages   = {2733--2746},
+  year    = {2020}
 }
 
-% --- Ejemplo: libro ---
-@book{ejemplo2023libro,
-  author    = {Apellido, N.},
-  title     = {Titulo del libro en cursiva},
-  edition   = {2},
-  publisher = {Editorial},
-  address   = {Ciudad},
-  year      = {2023},
-  isbn      = {978-X-XXXX-XXXX-X}
+@article{aldossari2020,
+  author  = {Al-Dossari, Hmood and Abu Nughaymish, Fatima and Al-Qahtani, Ziyad and Alkahlifah, Maram and Alqahtani, Abdulaziz},
+  title   = {A machine learning approach to career path choice for information technology graduates},
+  journal = {Engineering, Technology \& Applied Science Research},
+  volume  = {10},
+  number  = {6},
+  pages   = {6589--6596},
+  year    = {2020}
 }
 
-% --- Ejemplo: conferencia ---
-@inproceedings{ejemplo2025conference,
-  author    = {Apellido, C. and Otro, D.},
-  title     = {Titulo del paper de conferencia},
-  booktitle = {Proceedings of the XXXX Conference},
-  pages     = {100--110},
-  year      = {2025},
+@article{esteban2020,
+  author  = {Esteban, Aurora and Zafra, Amelia and Romero, Crist{\'o}bal},
+  title   = {Helping university students to choose elective courses by using a hybrid multi-criteria recommendation system with genetic optimization},
+  journal = {Knowledge-Based Systems},
+  volume  = {194},
+  pages   = {105385},
+  year    = {2020},
+  note    = {https://doi.org/10.1016/j.knosys.2020.105385}
+}
+
+@inproceedings{bender2021,
+  author    = {Bender, Emily M. and Gebru, Timnit and McMillan-Major, Angelina and Shmitchell, Shmargaret},
+  title     = {On the dangers of stochastic parrots: Can language models be too big?},
+  booktitle = {Proceedings of the 2021 ACM Conference on Fairness, Accountability, and Transparency},
+  pages     = {610--623},
+  year      = {2021},
   publisher = {ACM},
-  address   = {New York, NY, USA},
-  doi       = {10.XXXX/XXXXX}
+  note      = {https://doi.org/10.1145/3442188.3445922}
 }
 
-% --- Ejemplo: recurso web / documentacion tecnica ---
-@misc{ejemplo2024web,
-  author       = {{Organizacion o Autor}},
-  title        = {Titulo del recurso},
-  year         = {2024},
-  url          = {https://ejemplo.com/recurso},
-  note         = {Accedido el 2026-06-29}
+@misc{bommasani2021,
+  author       = {Bommasani, Rishi and Hudson, Drew A. and Adeli, Ehsan and Altman, Russ and Arora, Simran and others},
+  title        = {On the opportunities and risks of foundation models},
+  howpublished = {arXiv},
+  year         = {2021},
+  note         = {https://arxiv.org/abs/2108.07258}
 }
 
-% --- Ejemplo: reporte tecnico ---
-@techreport{ejemplo2024tech,
-  author      = {Apellido, E.},
-  title       = {Titulo del reporte tecnico},
-  institution = {Institucion},
-  year        = {2024},
-  number      = {TR-2024-01}
+@article{huang2024,
+  author  = {Huang, Chengkai and Yu, Tong and Xie, Kaige and Zhang, Shuai and Yao, Lina and McAuley, Julian},
+  title   = {Foundation models for recommender systems: A survey and new perspectives},
+  journal = {arXiv preprint arXiv:2402.11143},
+  year    = {2024},
+  note    = {https://arxiv.org/abs/2402.11143}
+}
+
+@article{gao2024,
+  author  = {Gao, Yunfan and Xiong, Yun and Gao, Xinyu and Jia, Kangxiang and Pan, Jinliu and Bi, Yuxi and Dai, Yi and Sun, Jiawei and Wang, Meng and Wang, Haofen},
+  title   = {Retrieval-augmented generation for large language models: A survey},
+  journal = {arXiv preprint arXiv:2312.10997},
+  year    = {2024},
+  note    = {https://arxiv.org/abs/2312.10997}
+}
+
+@inproceedings{fan2024,
+  author    = {Fan, Wenqi and Ding, Yujuan and Ning, Liangbo and Wang, Shijie and Li, Hengyun and Yin, Dawei and Chua, Tat-Seng and Li, Qing},
+  title     = {A survey on {RAG} meeting {LLMs}: Towards retrieval-augmented large language models},
+  booktitle = {Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining},
+  year      = {2024},
+  note      = {https://arxiv.org/abs/2405.06211}
 }

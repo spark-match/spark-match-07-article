@@ -4,29 +4,33 @@
 % ============================================================================
 \section{Implementaci\'on de la aplicaci\'on}
 
-% TODO: Documentar el flujo completo de la solucion con un diagrama de
-% arquitectura (TikZ o figura PNG). Incluir:
-%   Frontend Angular -> FastAPI -> LangChain Agent -> [LLM Bedrock | Motor
-%   de Scoring Pandas] -> Base Vectorial -> Respuesta.
-
-% TODO: Listar los endpoints de FastAPI (OpenAPI/Swagger), modelos Pydantic,
-% manejo de errores, autenticacion (si aplica).
-
-% TODO: Documentar el agente LangChain: tools disponibles, prompt template,
-% parser de salida, manejo de memoria conversacional.
+El sistema desacopla la interpretaci\'on del lenguaje (agente LLM) de la
+decisi\'on de ranking (motor de scoring determin\'istico), lo que garantiza
+transparencia y reproducibilidad: el LLM interpreta y explica, pero no decide el
+orden de las recomendaciones.
 
 \subsection{Arquitectura general de la soluci\'on}
 
-[Diagrama de arquitectura en TikZ o figura referenciada desde figures/.
-Mostrar las 4 capas:
-1. Capa de presentacion: Angular SPA.
-2. Capa API: FastAPI (endpoints REST + WebSocket para streaming).
-3. Capa de IA: LangChain agent + AWS Bedrock LLM + base vectorial.
-4. Capa de datos: PostgreSQL (sesiones) + S3/DVC (datasets) + ChromaDB (embeddings).]
+El flujo principal de la soluci\'on es el siguiente:
+
+\begin{enumerate}[noitemsep]
+  \item El usuario expresa sus preferencias en \emph{lenguaje natural} desde el
+        frontend Angular.
+  \item El agente conversacional descubre el perfil vocacional (RIASEC) y las
+        prioridades del estudiante. El perfil se \emph{persiste} a lo largo de la
+        conversaci\'on con la librer\'ia \texttt{langmem} y puede actualizarse.
+  \item El agente traduce las prioridades en \emph{pesos} din\'amicos para cada
+        criterio.
+  \item El motor de scoring (Python) asigna un puntaje a cada
+        carrera--universidad sobre \texttt{features.csv}, aplicando adem\'as
+        filtros duros (regi\'on, tipo de instituci\'on, presupuesto).
+  \item Se construye un ranking Top-N con los mayores puntajes.
+  \item El agente redacta una explicaci\'on personalizada citando datos
+        verificables.
+\end{enumerate}
 
 \begin{figure}[H]
     \centering
-    % \includegraphics[width=0.95\linewidth]{architecture.png}
     \begin{tikzpicture}[
         node distance=1cm and 1.5cm,
         block/.style={rectangle, draw, rounded corners, minimum width=2.8cm, minimum height=0.9cm, align=center, fill=blue!10},
@@ -35,73 +39,99 @@ Mostrar las 4 capas:
         arrow/.style={->, >=Stealth, thick}
     ]
         \node[block] (ui) {Angular\\(UI)};
-        \node[block, right=of ui] (api) {FastAPI\\(API)};
-        \node[block, right=of api] (agent) {LangChain\\(Agent)};
-        \node[llm, above=of agent] (llm) {AWS Bedrock\\(LLM)};
-        \node[block, below=of agent] (score) {Motor de\\(Scoring)};
-        \node[data, below=of score] (db) {PostgreSQL};
-        \node[data, left=of score] (vec) {ChromaDB\\(Vectores)};
-        \node[data, right=of score] (dvc) {DVC / S3\\(Dataset)};
+        \node[block, right=of ui] (api) {Backend\\serverless (TS)};
+        \node[block, right=of api] (agent) {Deep Agent\\(deepagents)};
+        \node[llm, above=of agent] (llm) {AWS Bedrock\\(Claude)};
+        \node[block, below=of agent] (score) {Motor de\\Scoring};
+        \node[data, below=of score] (db) {Aurora\\PostgreSQL};
+        \node[data, left=of score] (feat) {features.csv\\(dataset)};
 
         \draw[arrow] (ui) -- (api);
         \draw[arrow] (api) -- (agent);
         \draw[arrow] (agent) -- (llm);
         \draw[arrow] (agent) -- (score);
         \draw[arrow] (score) -- (db);
-        \draw[arrow] (agent) -- (vec);
-        \draw[arrow] (score) -- (dvc);
+        \draw[arrow] (score) -- (feat);
     \end{tikzpicture}
-    \caption{Arquitectura general de Spark Match.}
+    \caption{Arquitectura general de Spark Match (componentes principales).}
     \label{fig:architecture}
 \end{figure}
+% TODO (equipo): agregar diagramas mas detallados generados desde los repos
+% (diagrama de flujo, diagrama de estados y user journey) en mermaid renderizado.
 
-\subsection{Agente LangChain / LangGraph}
+\subsection{Agente conversacional (Deep Agent / deepagents)}
 
-[Detallar la implementacion del agente:
-- Tipo: \texttt{AgentExecutor} (ReAct) o \texttt{LangGraph} state machine [definir].
-- Tools registradas: \texttt{extract\_preferences}, \texttt{query\_careers}, \texttt{score\_rank}, \texttt{justify\_results}.
-- Prompt template del agente (system + few-shot).
-- Parser de salida: Pydantic / JSON.
-- Memoria: \texttt{ConversationBufferMemory} con resumen periodico.]
+El agente se implementa en \textbf{Python} como un \emph{Deep Agent} construido con
+el \emph{harness} \texttt{deepagents} ---del ecosistema \emph{LangChain/LangGraph}---
+sobre Bedrock AgentCore, que delega en subagentes especializados (evaluaci\'on del
+perfil y \emph{matching} de carreras). El perfil del estudiante se persiste con
+\texttt{langmem}, de modo que la conversaci\'on puede refinar las preferencias sin
+perder el contexto. El LLM (Claude en Bedrock) se accede mediante
+\texttt{ChatBedrock}.
 
-\begin{lstlisting}[style=pythonstyle, caption={Definicion del agente LangChain}, label={lst:agent}]
-from langchain.agents import create_tool_calling_agent, AgentExecutor
+\begin{lstlisting}[style=pythonstyle, caption={Acceso al LLM mediante ChatBedrock}, label={lst:agent}]
 from langchain_aws import ChatBedrock
 
 llm = ChatBedrock(
-    model_id="anthropic.claude-3-haiku-20240307-v1:0",
+    model_id="us.anthropic.claude-sonnet-4-20250514",
     region_name="us-east-1",
     model_kwargs={"temperature": 0.2, "max_tokens": 2048},
 )
-
-tools = [extract_preferences, query_careers, score_rank, justify_results]
-agent = create_tool_calling_agent(llm, tools, prompt)
-executor = AgentExecutor(agent=agent, tools=tools, verbose=True, max_iterations=5)
 \end{lstlisting}
 
-\subsection{Endpoints de la API}
+\subsection{Motor de scoring (5 criterios)}
 
-[Tabla con los endpoints REST:
-- \texttt{GET /health} -- liveness/readiness probes.
-- \texttt{POST /chat} -- mensaje del estudiante -> respuesta estructurada.
-- \texttt{GET /careers} -- listado paginado con filtros.
-- \texttt{GET /universities/\{id\}} -- detalle de universidad.
-- \texttt{POST /feedback} -- feedback del usuario para re-ranking.]
+Cuando el agente entrega los pesos, el motor le pone un puntaje a cada
+combinaci\'on carrera--universidad. La f\'ormula, con cinco criterios, es:
 
-\subsection{Frontend (Angular)}
+\[
+\text{Score} = w_1\,\text{Afinidad} + w_2\,\text{Ingreso} + w_3\,\text{Costo}
+             + w_4\,\text{Admisi\'on} + w_5\,\text{Duraci\'on}
+\]
 
-[Stack del frontend:
-- Angular 18+ con standalone components.
-- Angular Material para UI.
-- RxJS para manejo de streams.
-- Comunicacion con FastAPI via HTTP client + SSE para respuestas streaming.
-- Estado: NgRx o signals [definir].]
+donde la \textbf{Afinidad} se calcula con el modelo \emph{RIASEC} de Holland
+(compatibilidad entre el c\'odigo de 3 letras del estudiante y el de la carrera);
+el \textbf{Ingreso} usa el sueldo promedio de egresados; el \textbf{Costo}
+favorece las opciones m\'as accesibles; la \textbf{Admisi\'on} se basa en la tasa
+de ingresantes/postulantes; y la \textbf{Duraci\'on} favorece carreras m\'as
+cortas. Todas las variables vienen normalizadas en $[0,1]$ desde el pipeline. Los
+pesos $w_1,\dots,w_5$ \textbf{no son fijos}: los infiere din\'amicamente el LLM en
+cada sesi\'on, suman 1 y pueden ser 0 si el estudiante indica que un criterio no
+le importa.
 
-\subsection{Dise\~no modular y escalable}
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+\textbf{Carrera -- Universidad} & \textbf{Afin.} & \textbf{Ing.} & \textbf{Costo} & \textbf{Adm.} & \textbf{Dur.} & \textbf{Score} \\
+\midrule
+Estad\'istica -- UNMSM     & 95 & 85 & 90 & 60 & 80 & \textbf{86.0} \\
+Econom\'ia -- UNMSM        & 80 & 82 & 88 & 55 & 80 & 79.2 \\
+Ing.\ Industrial -- UNI    & 70 & 80 & 70 & 50 & 60 & 69.0 \\
+\bottomrule
+\end{tabular}
+\caption{Ejemplo ilustrativo con pesos $(0.35, 0.25, 0.15, 0.10, 0.15)$. Los valores se muestran en escala 0--100 para facilitar la lectura; el pipeline trabaja en $[0,1]$.}
+\label{tab:scoring-example}
+\end{table}
 
-[Principios de diseno:
-- Separacion de responsabilidades (capas UI/API/Agente/Scoring/Datos).
-- Inyeccion de dependencias (FastAPI Depends, Angular DI).
-- Configuracion por variables de entorno (12-factor app).
-- Stateless API (sesiones en BD, no en memoria).
-- Observabilidad: logs estructurados, trazas, metricas.]
+El sistema ordena los resultados de mayor a menor y genera un ranking Top-N.
+Luego el agente redacta la justificaci\'on, por ejemplo: \textit{``Te
+recomendamos Estad\'istica en la UNMSM porque presenta una fuerte alineaci\'on
+con tus intereses cuantitativos, tiene uno de los mejores ingresos promedio
+dentro de las carreras anal\'iticas y mantiene costos relativamente bajos''.}
+
+\subsection{Backend serverless y frontend}
+
+El backend de plataforma (operaciones CRUD, gesti\'on de sesiones) sigue un
+enfoque \emph{serverless} orientado a dominios (DDD): \textbf{TypeScript} sobre
+AWS Lambda + EventBridge, empaquetado con AWS SAM. El frontend es una SPA en
+\textbf{Angular 21} con Angular Material, que consume la API del backend. El
+dise\~no privilegia la separaci\'on de responsabilidades (UI / API / agente /
+scoring / datos), la configuraci\'on por variables de entorno y una API sin
+estado (las sesiones se persisten en base de datos, no en memoria).
+
+\paragraph{Lenguaje del n\'ucleo.} El \textbf{n\'ucleo de IA/ML del proyecto est\'a
+implementado en Python}: el agente conversacional (\texttt{deepagents}), el motor
+de scoring (Pandas/NumPy), el \emph{pipeline} de datos y el framework de
+evaluaci\'on. El backend de plataforma en TypeScript cumple \'unicamente el rol de
+capa de exposici\'on y operaciones CRUD, sin l\'ogica de IA.

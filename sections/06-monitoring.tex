@@ -4,68 +4,76 @@
 % ============================================================================
 \section{Monitoreo y mantenimiento}
 
-% TODO: Documentar las herramientas de monitoreo elegidas, las metricas
-% capturadas (latencia, throughput, tasa de exito, uso de tokens, costos
-% LLM), la gestion de drift en el dataset y los mecanismos de alerta.
+El proyecto aplica MLOps sobre los componentes que cambian con el tiempo y sobre
+la operaci\'on del agente, priorizando la observabilidad del LLM, el seguimiento
+de experimentos y el control de costos.
 
-\subsection{Estrategia de monitoreo}
+\subsection{Estrategia de monitoreo y observabilidad}
 
-[Describir el stack de observabilidad:
-- \textbf{MLflow Tracking}: experimentos, parametros, metricas, artefactos del motor de scoring.
-- \textbf{LangSmith} o \textbf{Bedrock Agents tracing}: trazas de invocaciones del LLM (latencia, tokens, costo por llamada).
-- \textbf{Prometheus}: metricas de aplicacion (request rate, error rate, latency).
-- \textbf{Grafana}: dashboards operativos.
-- \textbf{CloudWatch}: logs y metricas de infraestructura AWS.
-- \textbf{Sentry}: captura de excepciones en frontend y backend.]
+El stack de observabilidad se compone de:
 
-\begin{lstlisting}[style=pythonstyle, caption={Tracking de un experimento de motor de scoring con MLflow}, label={lst:mlflow}]
-import mlflow
+\begin{itemize}[noitemsep]
+  \item \textbf{LangSmith}: traza las peticiones del agente (mensajes,
+        herramientas invocadas, consumo de tokens y latencia por llamada). Es la
+        fuente principal de observabilidad de la parte generativa.
+  \item \textbf{Weights \& Biases (W\&B)}: plataforma de seguimiento de
+        experimentos y m\'etricas, equivalente en la nube a MLflow (con capa
+        gratuita), usada para registrar corridas de la parte generativa y del
+        motor de scoring.
+  \item \textbf{AWS Budgets / CloudWatch}: control de costos y m\'etricas de
+        infraestructura del backend serverless.
+\end{itemize}
 
-mlflow.set_tracking_uri("https://mlflow.spark-match.app")
-mlflow.set_experiment("scoring-engine")
+\subsection{Versionado (prompts, scoring y datos)}
 
-with mlflow.start_run(run_name="weighted-v3"):
-    mlflow.log_param("weights", {"salario": 0.4, "costo": 0.3, ...})
-    mlflow.log_metric("ndcg@5", 0.82)
-    mlflow.log_metric("mae_salary", 312.5)
-    mlflow.sklearn.log_model(model, "model")
-\end{lstlisting}
+\begin{itemize}[noitemsep]
+  \item \textbf{Versionado de prompts:} los \emph{system prompts} se mantienen
+        como archivos versionados en el repositorio, lo que permite comparar
+        estrategias de prompting.
+  \item \textbf{Versionado de la f\'ormula de scoring:} distintas versiones del
+        motor (pesos, variables como la duraci\'on) quedan registradas.
+  \item \textbf{Versionado de datos:} en cada corrida se guardan snapshots con
+        fecha y hora del dataset y de la configuraci\'on de imputaci\'on; se
+        contempla \emph{DVC} con almacenamiento remoto en S3 para el dataset.
+\end{itemize}
 
-\subsection{M\'etricas de desempe\~no en producci\'on}
+\subsection{M\'etricas de desempe\~no}
 
-[Tabla de SLIs/SLOs:
-- Latencia p50/p95/p99 del endpoint \texttt{/chat} (<2s / <5s / <10s).
-- Throughput: requests/minuto.
-- Tasa de exito (HTTP 2xx) > 99\%.
-- Tokens consumidos por conversacion (mediana).
-- Costo LLM por conversacion (USD).
-- Satisfaccion del usuario (thumbs up/down post-respuesta).
-- Precision del Top-N vs decision final del usuario (medido por feedback).]
+Las m\'etricas operativas y de negocio previstas son:
 
-\subsection{Gesti\'on de drift}
+\begin{itemize}[noitemsep]
+  \item Latencia y consumo de tokens por conversaci\'on (observados v\'ia
+        LangSmith).
+  \item Costo del LLM por conversaci\'on y costo mensual de infraestructura (v\'ia
+        AWS Budgets).
+  \item \textbf{Costo por usuario:} como cada estudiante se registra con un
+        identificador, se atribuye el consumo (tokens y costo) a cada usuario, lo
+        que permite conocer qu\'e perfil de cliente resulta m\'as o menos costoso y
+        sustentar el control de costos.
+  \item Satisfacci\'on del usuario (feedback \emph{Likert} 1--5 sobre la
+        recomendaci\'on final) y pertinencia percibida de la recomendaci\'on.
+  \item Tasa de \'exito de las invocaciones y tasa de JSON malformado del
+        extractor de preferencias.
+\end{itemize}
+% TODO (equipo): completar los valores medidos de estas metricas tras las pruebas.
 
-[Politica de monitoreo de drift:
-- \textbf{Drift de datos}: comparacion semanal de la distribucion de features (KS test, PSI) entre el dataset actual y el de entrenamiento.
-- \textbf{Drift de modelo}: degradacion sostenida del feedback positivo (umbral: <70\% durante 7 dias).
-- \textbf{Drift de concepto}: cambios en la oferta educativa (nuevas carreras, universidades cerradas) detectados por DVC diff.
-- Reentrenamiento: pipeline automatizado en GitHub Actions al detectar drift $>$ umbral.]
+\subsection{Evaluaci\'on autom\'atica y gesti\'on de drift}
 
-\subsection{Logging y alertas}
-
-[Configuracion de logging y alertas:
-- Logs estructurados JSON (nivel INFO/WARN/ERROR).
-- Correlacion con \texttt{trace\_id} propagado desde el frontend.
-- Alertas en CloudWatch + Slack webhook:
-  - Latencia p95 > 5s durante 5 min.
-  - Error rate > 5\% durante 5 min.
-  - Costo LLM diario > USD 50.
-  - Drift detectado por el job semanal.]
+Un componente de \emph{LLM-as-judge} eval\'ua las respuestas del agente contra un
+dataset de casos, permitiendo detectar regresiones al cambiar prompts o modelo.
+En cuanto al \emph{drift}, dado que el dataset se congela para la demo, el
+mantenimiento de datos se concentra en la actualizaci\'on peri\'odica de la fuente
+(alineada con el calendario acad\'emico) y en la futura migraci\'on a \emph{Mi
+Carrera}. Los snapshots versionados permiten comparar distribuciones entre
+descargas sucesivas.
 
 \subsection{Plan de mantenimiento}
 
-[Calendario de mantenimiento:
-- Parches de seguridad: semanal (Dependabot + auto-merge de patches).
-- Reentrenamiento del motor de scoring: mensual o por drift.
-- Actualizacion del dataset: cada semestre (alineado con calendario academico).
-- Rotacion de secretos: trimestral.
-- Disaster recovery: backup diario de RDS + replicacion cross-region.]
+\begin{itemize}[noitemsep]
+  \item Actualizaci\'on del dataset por semestre (calendario acad\'emico).
+  \item Revisi\'on de prompts y de la f\'ormula de scoring segn\'un el feedback de
+        evaluaci\'on.
+  \item Parches de seguridad de dependencias e infraestructura (checkov/tflint en
+        CI).
+  \item Control de costos continuo con AWS Budgets.
+\end{itemize}

@@ -4,33 +4,48 @@
 % ============================================================================
 \section{Conclusiones}
 
-% TODO: Redactar 1-2 parrafos reflexivos sobre los logros principales,
-% dificultades encontradas durante el desarrollo y principales aprendizajes.
-% Cerrar con la evaluacion del impacto del proyecto.
+Spark Match (CareerMatch Per\'u) transforma informaci\'on educativa dispersa en
+recomendaciones personalizadas, explicables y basadas en datos oficiales,
+manteniendo el LLM desacoplado de la decisi\'on de ranking para garantizar
+transparencia y reproducibilidad.
 
 \subsection{Logros principales}
 
-[Resumen ejecutivo de lo que se logro:
-- Sistema Spark Match desplegado end-to-end (Angular + FastAPI + LangChain + AWS).
-- Pipeline de datos versionado con DVC y motor de scoring reproducible con MLflow.
-- Agente conversacional capaz de interpretar preferencias libres y devolver rankings explicables.
-- Evaluacion cuantitativa que muestra que el enfoque hibrido (LLM + scoring) supera a las baselines en NDCG@5.
-- Practicas MLOps aplicadas: CI/CD, IaC, monitoreo, gestion de drift.]
+\begin{itemize}[noitemsep]
+  \item Un \emph{pipeline de datos} reproducible sobre \emph{Ponte en Carrera}
+        que produce \texttt{features.csv} (6\,208 combinaciones, 554 carreras
+        \'unicas) con snapshots versionados.
+  \item El \emph{etiquetado vocacional RIASEC} de las carreras mediante el LLM en
+        Bedrock, que habilita el t\'ermino de afinidad del scoring.
+  \item Un \emph{agente conversacional} (Deep Agent / \texttt{deepagents}) que interpreta
+        preferencias en lenguaje natural, persiste el perfil con \texttt{langmem}
+        y traduce prioridades en pesos din\'amicos.
+  \item Un \emph{motor de scoring} transparente de 5 criterios (afinidad,
+        ingreso, costo, admisi\'on, duraci\'on) que produce rankings explicables.
+  \item Pr\'acticas de \emph{MLOps}: versionado de prompts, scoring y datos;
+        observabilidad con LangSmith; experimentos con W\&B; CI/CD e IaC con
+        Terraform (ambientes \texttt{dev} y \texttt{prod}).
+\end{itemize}
 
 \subsection{Dificultades y aprendizajes}
 
-[Reflexion honesta sobre lo que costo del proyecto:
-- Curva de aprendizaje de LangChain y AWS Bedrock.
-- Conseguir un dataset limpio y representativo de la oferta educativa peruana.
-- Balancear latencia vs calidad en las llamadas al LLM.
-- Costos de API del LLM: optimizacion con cache de prompts y seleccion de modelo mas barato.
-- Coordinacion del equipo de 5 integrantes: division de responsabilidades por repositorio.
-- Configuracion inicial de la infraestructura AWS con Terraform (VPC, IAM, Fargate).]
+\begin{itemize}[noitemsep]
+  \item Integrar el LLM (Bedrock/Claude) con el resto de la arquitectura AWS y
+        con el etiquetado de datos.
+  \item Conseguir un dataset limpio y representativo de la oferta educativa
+        peruana, con una imputaci\'on por etapas que preserve la trazabilidad de
+        los datos completados.
+  \item Balancear costo y calidad en las llamadas al LLM, apoy\'andose en la
+        observabilidad y en el control de presupuesto.
+  \item Coordinar un equipo de 5 integrantes mediante la divisi\'on por
+        repositorios y una estrategia de ramas com\'un.
+\end{itemize}
 
 \subsection{Impacto del proyecto}
 
-[Evaluar el impacto potencial en el negocio / industria:
-- Beneficio para el estudiante: decision vocacional informada en $<$ 10 minutos vs $>$ 20 horas de investigacion manual.
-- Beneficio para las universidades: canal de descubrimiento para programas menos conocidos.
-- Beneficio para el estado: datos anonimizados sobre las preferencias de los estudiantes para politica educativa.
-- Escalabilidad: el mismo framework puede adaptarse a otros paises de la region (Chile, Colombia, Mexico) cambiando solo el dataset.]
+Al mantener el LLM desacoplado del ranking, el sistema evita el riesgo de
+respuestas plausibles pero incorrectas \cite{bender2021}, ya que la explicaci\'on
+se sustenta en datos verificables. El beneficio directo es una decisi\'on
+vocacional informada para el estudiante, con recomendaciones comparables y
+explicadas. Adem\'as, la arquitectura es reutilizable: el mismo marco puede
+adaptarse a otras fuentes o pa\'ises cambiando principalmente el dataset.

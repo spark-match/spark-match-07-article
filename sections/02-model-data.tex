@@ -4,50 +4,112 @@
 % ============================================================================
 \section{Selecci\'on de modelo y datos}
 
-% TODO: Documentar el LLM elegido (Gemini API / AWS Bedrock), arquitectura,
-% parametros, costos por token y motivo de la eleccion frente a alternativas
-% (OpenAI GPT, Anthropic Claude, Llama 3, Mistral).
-
-% TODO: Describir el dataset: fuente (SUNEDU, portales institucionales),
-% volumen, esquema de columnas (carrera, universidad, region, costo,
-% salario esperado, tasa de admision), periodo de recoleccion.
-
-% TODO: Documentar pipeline de preprocesamiento: limpieza, normalizacion,
-% imputacion de nulos, escalado, generacion de embeddings si aplica.
-
 \subsection{Modelo generativo / fundacional}
 
-[Describir el LLM elegido:
-- Proveedor: AWS Bedrock (MaaS) o Google Gemini API [definir].
-- Modelo especifico: Claude 3 / Llama 3 / Titan / Gemini Pro [definir].
-- Justificacion frente a alternativas (latencia, costo, ventana de contexto, soporte en espa\~nol).
-- Parametros: \texttt{temperature}, \texttt{top\_p}, \texttt{max\_tokens}, system prompt base.]
+El LLM cumple dos tareas de lenguaje: (i)~interpretar las preferencias del
+estudiante (texto libre $\rightarrow$ perfil y pesos) y (ii)~redactar la
+explicaci\'on final. Ambas son en espa\~nol, no requieren ajuste fino, y deben
+ser de bajo costo por tratarse de un proyecto acad\'emico con numerosas consultas
+de prueba.
+
+Bajo los criterios de selecci\'on (tipo de tarea, costo de inferencia, hardware,
+idioma, licencia), se elige \textbf{AWS Bedrock} como plataforma de modelos, con
+\textbf{Claude} (Anthropic) como LLM principal, accedido mediante
+\texttt{ChatBedrock}. Las razones son: (i)~es un servicio gestionado, sin costo de
+hardware ni GPU local; (ii)~Claude maneja el espa\~nol con buena calidad y sigue
+bien las instrucciones; (iii)~al ser AWS-nativo se integra con el resto de la
+arquitectura (Lambda, Aurora) sin credenciales de terceros; y (iv)~unifica el
+proveedor entre el agente conversacional y el etiquetado de datos. Es importante
+notar que Bedrock funciona como \emph{pasarela} de modelos (no es un modelo en
+s\'i), por lo que cambiar de modelo no impacta el n\'ucleo del sistema. Se
+mantiene la arquitectura desacoplada: el LLM solo interpreta y explica, no decide
+el ranking.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Plataforma / Modelo} & \textbf{Costo} & \textbf{Hardware} & \textbf{Rol} \\
+\midrule
+AWS Bedrock -- Claude & Pago por uso (cr\'editos AWS) & Ninguno (gestionado) & \textbf{Principal} \\
+AWS Bedrock -- otros  & Pago por uso                  & Ninguno (gestionado) & Alternativa \\
+Llama 3 (local)       & Sin costo de API              & GPU local            & Futuro / privacidad \\
+\bottomrule
+\end{tabular}
+\caption{Comparaci\'on de opciones de modelo seg\'un los criterios de selecci\'on.}
+\label{tab:model-comparison}
+\end{table}
+
+Se descarta depender de \textbf{Llama 3 local} como opci\'on principal porque
+exige GPU/infraestructura que el equipo no necesita en esta etapa (queda como
+alternativa para privacidad u operaci\'on \emph{offline}).
 
 \subsection{Dataset}
 
-[Caracterizar el dataset:
-- Fuente: scrapeo con Selenium de portales SUNEDU + ministerios + universidades.
-- Volumen: numero de universidades, carreras, registros por region.
-- Esquema: columnas del CSV normalizado.
-- Periodo de recoleccion: a\~no/semestre.
-- Almacenamiento: DVC remoto (S3) + versionado.]
+El sistema utiliza informaci\'on oficial del portal \emph{Ponte en Carrera}
+(MINEDU): universidades, carreras, ingreso promedio de egresados, costos de
+estudio, porcentaje de ingresantes, ubicaci\'on geogr\'afica, tipo de gesti\'on y
+duraci\'on. El dataset procesado contiene \textbf{6\,208} combinaciones
+carrera--instituci\'on (\textbf{554} carreras \'unicas en \textbf{25}
+departamentos).
 
-\subsection{Preprocesamiento y embeddings}
+\paragraph{Nota sobre la fuente.} El MTPE ha consolidado recientemente el portal
+\emph{Mi Carrera} como nuevo observatorio oficial del mercado laboral, relegando
+a \emph{Ponte en Carrera}. El pipeline \textbf{versiona y vigila} el dataset de
+forma continua mediante \emph{snapshots} fechados, de modo que cualquier
+actualizaci\'on de la fuente puede incorporarse y reproducirse (no es una descarga
+\'unica y est\'atica). Para esta entrega se \textbf{congela} el \'ultimo snapshot
+descargado (garantizando reproducibilidad), y la migraci\'on a \emph{Mi Carrera}
+queda como trabajo futuro.
 
-[Pipeline de datos documentado paso a paso:
-- Limpieza (duplicados, outliers).
-- Imputacion de nulos (mediana, KNN, modelo).
-- Normalizacion / escalado (MinMax, StandardScaler).
-- Generacion de embeddings (si aplica: Sentence-Transformers para descripciones de carreras).
-- Versionado con DVC.]
+\paragraph{Arquitectura de fuentes intercambiables.} Dado que el portal oficial
+puede quedar inaccesible (de hecho \emph{Ponte en Carrera} fue relegado), el
+\emph{pipeline} adopta un \textbf{registro de fuentes} (\emph{source registry}):
+cada fuente de datos es un componente enchufable con una interfaz com\'un, lo que
+permite (i)~cambiar el mecanismo de scraping ---por ejemplo de \emph{Selenium} a
+\emph{Playwright}, m\'as robusto para p\'aginas que renderizan con JavaScript y
+m\'as apto para ejecuci\'on \emph{headless} en el backend---, (ii)~a\~nadir
+\emph{Mi Carrera} como nueva fuente, y (iii)~definir un \textbf{fallback}: si la
+descarga en vivo falla, el pipeline recupera el \'ultimo \emph{snapshot} desde un
+bucket S3. As\'i el sistema es resiliente ante ca\'idas de la fuente sin
+convertirse en un simple dato est\'atico.
 
-\begin{lstlisting}[style=pythonstyle, caption={Ejemplo: carga del dataset versionado con DVC}, label={lst:dvc-load}]
-import dvc.api
-import pandas as pd
+\subsection{Preprocesamiento}
 
-path = dvc.api.get_url(
-    "data/careers.csv",
-    repo="https://github.com/spark-match/spark-match-05-data-pipeline"
-)
-df = pd.read_csv(path)
-\end{lstlisting}
+La gesti\'on de datos ya est\'a implementada en el m\'odulo \texttt{data\_pipeline}
+del repositorio y se divide en las siguientes etapas:
+
+\begin{description}[leftmargin=1.5em, style=nextline]
+  \item[Recolecci\'on (\texttt{ingestion.py})] Se descarga el Excel oficial de
+        \emph{Ponte en Carrera} de forma autom\'atica usando Selenium, y se guarda
+        una copia con fecha y hora en \texttt{snapshots/}. As\'i siempre es posible
+        volver a la versi\'on exacta de datos con la que se obtuvo un resultado.
+  \item[Limpieza (\texttt{data\_clean.py})] Se estandarizan los nombres de las
+        columnas, se convierten las variables num\'ericas a su tipo correcto y se
+        descartan los registros incompletos.
+  \item[Construcci\'on de variables (\texttt{feature\_engineering.py})] Antes de
+        calcular los puntajes se completan los datos faltantes con una imputaci\'on
+        por etapas: primero la mediana por familia de carrera e instituci\'on, si
+        no hay suficiente la mediana por familia de carrera, y como \'ultimo
+        recurso un valor por defecto configurable. Cada dato imputado queda marcado
+        con un \emph{flag} para poder revisarlo despu\'es.
+  \item[Normalizaci\'on] Las variables del score se llevan al rango 0--1 con
+        Min--Max. Al ingreso y al costo se les aplica primero un logaritmo, para
+        que los montos muy altos no se coman al resto. El costo y la duraci\'on se
+        invierten (un valor m\'as alto pasa a significar una mejor opci\'on),
+        mientras que la tasa de admisi\'on se deja tal cual, porque una admisi\'on
+        m\'as alta ya quiere decir que es m\'as f\'acil entrar. Todas las variables
+        normalizadas quedan orientadas ``mayor = mejor para el estudiante''.
+  \item[Etiquetado vocacional (RIASEC)] Como el dataset econ\'omico no trae la
+        dimensi\'on vocacional, se etiqueta cada carrera con su c\'odigo
+        \emph{RIASEC} de Holland (3 letras) mediante el LLM en Bedrock, sobre las
+        554 carreras \'unicas, con validaci\'on por muestra. Este c\'odigo alimenta
+        el t\'ermino de afinidad del scoring.
+\end{description}
+
+\paragraph{Sesgos y limitaciones de los datos.} El salario que publica el portal
+es de empleo formal, as\'i que deja fuera a los informales y a los independientes.
+Tambi\'en hay que tener cuidado con las carreras o universidades con pocos
+egresados, porque sus promedios son poco confiables, y con que el portal puede
+estar algo desactualizado. La configuraci\'on de imputaci\'on y los snapshots
+quedan versionados para poder reproducir cualquier resultado.

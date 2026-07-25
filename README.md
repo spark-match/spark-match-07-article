@@ -2,7 +2,7 @@
 
 Trabajo de Fin de Programa del **II Programa de Especializaci\'on en IA Generativa y Machine Learning Ops** de la **Universidad Nacional de Ingenier\'ia (UNI)**.
 
-Art\'iculo acad\'emico que documenta el dise\~no, implementaci\'on, despliegue y evaluaci\'on de **Spark Match**, un sistema h\'ibrido que combina un agente conversacional basado en LLMs (LangChain + AWS Bedrock) con un motor de scoring determinista para recomendar combinaciones *Carrera - Universidad* a estudiantes preuniversitarios peruanos.
+Art\'iculo acad\'emico que documenta el dise\~no, implementaci\'on, despliegue y evaluaci\'on de **Spark Match**, un sistema h\'ibrido que combina un agente conversacional basado en LLMs (harness `deepagents` + AWS Bedrock) con un motor de scoring determinista para recomendar combinaciones *Carrera - Universidad* a estudiantes preuniversitarios peruanos.
 
 ---
 
@@ -10,13 +10,14 @@ Art\'iculo acad\'emico que documenta el dise\~no, implementaci\'on, despliegue y
 
 | Capa | Tecnolog\'ia |
 |:---|:---|
-| IA Generativa | LangChain, AWS Bedrock (Claude / Llama / Titan) |
-| Backend | Python, FastAPI, Pydantic, Pandas, NumPy |
-| Frontend | Angular |
-| Datos | PostgreSQL, DVC, AWS S3, ChromaDB |
-| MLOps | MLflow, DVC, GitHub Actions |
-| DevOps | Docker, Terraform, AWS ECS Fargate, CloudWatch |
-| Documentaci\'on | LaTeX (art\'iculo), OpenAPI (API) |
+| IA Generativa | AWS Bedrock (Claude), Deep Agents (harness `deepagents`), langmem |
+| Agente y scoring | Python (harness `deepagents`, Pandas, NumPy) |
+| Backend | TypeScript serverless (AWS Lambda, EventBridge, AWS SAM, DDD) |
+| Frontend | Angular 21 + Angular Material |
+| Datos | Ponte en Carrera (features.csv), Selenium, Pandas, Aurora PostgreSQL |
+| MLOps | LangSmith, Weights & Biases, GitHub Actions |
+| DevOps | Terraform (dev/prod), AWS, checkov, tflint, AWS Budgets |
+| Documentaci\'on | LaTeX (art\'iculo) |
 
 ---
 
@@ -28,11 +29,12 @@ Este art\'iculo forma parte del ecosistema **`spark-match`**:
 |:---|:---|:---|
 | DevOps / CI/CD | [`spark-match-01-devops`](https://github.com/spark-match/spark-match-01-devops) | GitHub Actions reutilizables, Apidog tests |
 | Infraestructura | [`spark-match-02-infrastructure`](https://github.com/spark-match/spark-match-02-infrastructure) | Terraform para AWS (VPC, ECS, RDS, S3) |
-| Backend | [`spark-match-03-backend`](https://github.com/spark-match/spark-match-03-backend) | FastAPI + LangChain agent + motor de scoring |
+| Backend | [`spark-match-03-backend`](https://github.com/spark-match/spark-match-03-backend) | Serverless TypeScript (Lambda + EventBridge + SAM) |
 | Frontend | [`spark-match-04-frontend`](https://github.com/spark-match/spark-match-04-frontend) | Angular SPA conversacional |
-| Pipeline de Datos | [`spark-match-05-data-pipeline`](https://github.com/spark-match/spark-match-05-data-pipeline) | ETL + DVC + scraping con Selenium |
-| Entrenamiento | [`spark-match-06-model-training`](https://github.com/spark-match/spark-match-06-model-training) | Experimentos MLflow, LoRA fine-tuning |
+| Pipeline de Datos | [`spark-match-05-data-pipeline`](https://github.com/spark-match/spark-match-05-data-pipeline) | ETL + scraping con Selenium + etiquetado RIASEC |
+| Entrenamiento | [`spark-match-06-model-training`](https://github.com/spark-match/spark-match-06-model-training) | Experimentos y seguimiento con Weights & Biases |
 | Art\'iculo | [`spark-match-07-article`](https://github.com/spark-match/spark-match-07-article) | Este repositorio -- LaTeX con CI/CD |
+| Agente conversacional | [`spark-match-08-deep-agent`](https://github.com/spark-match/spark-match-08-deep-agent) | Deep Agent (harness `deepagents`) + langmem + evals |
 
 ---
 
@@ -167,11 +169,11 @@ El documento cubre las 12 secciones de la r\'ubrica del Trabajo de Fin de Progra
 
 ## Autores
 
-- Angel Eduardo Hincho Jove
-- [Integrante 2 - Apellido2]
-- [Integrante 3 - Apellido3]
-- [Integrante 4 - Apellido4]
-- [Integrante 5 - Apellido5]
+- Fabiola G. Tapara Quispe
+- Angel E. Hincho Jove
+- Andy B. Huamani Tacoma
+- Nikolai A. Asencios Garc\'ia
+- David Barreto Lara
 
 **Programa:** II Programa de Especializaci\'on en IA Generativa y Machine Learning Ops
 **Instituci\'on:** Universidad Nacional de Ingenier\'ia (UNI) -- Facultad de Ingenier\'ia Econ\'omica, Estad\'istica y Ciencias Sociales

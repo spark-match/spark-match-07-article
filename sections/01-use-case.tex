@@ -1,42 +1,112 @@
 % ============================================================================
-% Seccion 1: Descripcion del Caso de Uso
+% Seccion 1: Descripcion del caso de uso
 % TFP - Rubrica: 1 punto
 % ============================================================================
 \section{Descripci\'on del caso de uso}
 
-% TODO: Contextualizar el problema de orientacion vocacional en Peru.
-% Citar fuentes oficiales (INEI, MINEDU, SUNEDU) sobre oferta educativa,
-% tasas de desercion, dificultad de acceso a informacion comparada.
+Elegir una carrera profesional y una universidad es una de las decisiones m\'as
+importantes para los j\'ovenes peruanos, pero la informaci\'on disponible suele
+ser dif\'icil de comparar. El estudiante debe analizar m\'ultiples variables
+dispersas: ingresos esperados de los egresados, costos de estudio, dificultad de
+ingreso, ubicaci\'on geogr\'afica, tipo de gesti\'on (p\'ublica o privada) y
+duraci\'on de los estudios. Aunque esa informaci\'on existe en portales
+oficiales, convertirla en una decisi\'on concreta no es sencillo, y con
+frecuencia las decisiones terminan bas\'andose en recomendaciones informales,
+percepciones o informaci\'on incompleta.
 
-% TODO: Justificar por que IA Generativa + MLOps es adecuado para este caso
-% (razonamiento conversacional, recomendaciones personalizadas, reproducibilidad).
-
-% TODO: Definir objetivo de negocio (orientar mejor al estudiante) y objetivo
-% tecnico (asistente conversacional hibrido LLM + scoring determinista).
-
-Los estudiantes preuniversitarios en el Per\'u enfrentan una dificultad significativa al momento de elegir una carrera profesional y la instituci\'on de educaci\'on superior donde cursarla. La informaci\'on oficial --- salarios de los egresados, costos de matr\'icula, tasas de admisi\'on, ubicaci\'on de sedes, modalidades de ingreso --- se encuentra dispersa en m\'ultiples portales institucionales y es dif\'icil de comparar de manera sistem\'atica.
-
-[Motivacion del proyecto: por que un copiloto conversacional resuelve este problema mejor que las evaluaciones vocacionales estaticas tradicionales.]
+\textbf{Spark Match} (CareerMatch Per\'u) es un asistente conversacional basado
+en IA generativa que orienta a estudiantes preuniversitarios y a sus familias en
+la elecci\'on de carrera y universidad. El sistema combina un agente de lenguaje
+(un LLM \emph{Claude}, servido mediante \emph{AWS Bedrock}) que interpreta en
+lenguaje natural las preferencias del estudiante y luego explica los resultados,
+con un motor de recomendaci\'on transparente en Python que asigna un puntaje a
+cada combinaci\'on carrera--universidad usando datos oficiales del portal
+\emph{Ponte en Carrera} (MINEDU).
 
 \subsection{Problem\'atica del negocio}
 
-[Describir la problematica concreta con datos. Ejemplos:
-- Fragmentacion de la informacion oficial (SUNEDU, portales universitarios).
-- Evaluaciones vocacionales estaticas que no consideran restricciones reales (presupuesto, geografia).
-- Falta de explicabilidad en recomendaciones automatizadas.]
+La oferta educativa peruana es amplia y los datos relevantes est\'an dispersos y
+son heterog\'eneos. El estudiante no cuenta con una herramienta que traduzca sus
+intereses y restricciones (presupuesto, regi\'on, afinidad vocacional) en una
+recomendaci\'on comparable y explicable. Elegir carrera es, en la pr\'actica, una
+decisi\'on dif\'icil por la falta de orientaci\'on y de informaci\'on confiable
+\cite{ezz2020, aldossari2020}. A ello se suma que las evaluaciones vocacionales
+tradicionales son est\'aticas y no consideran restricciones reales del estudiante
+(presupuesto, geograf\'ia), ni ofrecen explicabilidad sobre por qu\'e se sugiere
+una opci\'on.
 
 \subsection{Objetivo de negocio}
 
-[Que decision del usuario queremos mejorar. Ej: reducir el tiempo promedio de decision vocacional, aumentar la satisfaccion con la carrera elegida, etc.]
+Ayudar al estudiante a tomar una decisi\'on vocacional informada, entregando
+recomendaciones personalizadas, explicables y fundamentadas en datos oficiales,
+a trav\'es de una conversaci\'on en lenguaje natural. La m\'etrica de \'exito es
+la pertinencia de las recomendaciones y la satisfacci\'on del usuario.
 
 \subsection{Objetivo t\'ecnico}
 
-[Construir un sistema que:
-- Interprete lenguaje natural del estudiante (filtros + chat libre).
-- Genere pesos din'amicos para un motor de scoring determinista.
-- Devuelva un ranking Top-N de combinaciones Carrera-Universidad con justificacion en lenguaje natural.
-- Sea reproducible, versionado y desplegado en AWS.]
+Dise\~nar e implementar un asistente conversacional que recomiende combinaciones
+carrera--universidad personalizadas a partir de las preferencias del estudiante y
+de datos oficiales, mediante un motor de scoring transparente cuyos pesos son
+inferidos din\'amicamente por un LLM. Como objetivos espec\'ificos:
 
-\subsection{Fuentes de relevancia}
+\begin{itemize}[noitemsep]
+  \item Interpretar preferencias en lenguaje natural y traducirlas en pesos
+        cuantificables.
+  \item Construir un motor de recomendaci\'on reproducible sobre datos de
+        \emph{Ponte en Carrera}.
+  \item Generar explicaciones comprensibles y fundamentadas en datos para cada
+        recomendaci\'on.
+  \item Aplicar pr\'acticas de MLOps para versionar prompts, f\'ormula de scoring
+        y datos, y para monitorear el sistema.
+\end{itemize}
 
-[Listar fuentes que respalden la relevancia del caso. Ej: estudios de desercion universitaria, reportes de SUNEDU sobre la oferta educativa, papers sobre sistemas de recomendacion en educacion (EdTech).]
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Elemento} & \textbf{Descripci\'on} \\
+\midrule
+Problema         & Informaci\'on educativa dispersa y dif\'icil de comparar \\
+Usuario objetivo & Estudiantes preuniversitarios y padres de familia \\
+Soluci\'on       & Asistente conversacional con motor de recomendaci\'on \\
+M\'etrica de \'exito & Pertinencia de las recomendaciones y satisfacci\'on del usuario \\
+\bottomrule
+\end{tabular}
+\caption{Formulaci\'on del caso de uso.}
+\label{tab:use-case}
+\end{table}
+
+\paragraph{Ejemplo.} Un estudiante escribe: \textit{``Me gustan las matem\'aticas
+y las ciencias sociales. Quiero una carrera con buen sueldo, pero mi presupuesto
+es limitado y no quisiera una carrera extremadamente dif\'icil de ingresar''.} El
+agente interpreta el significado del mensaje (no solo palabras clave) y concluye,
+por ejemplo: alta afinidad por carreras cuantitativas, inter\'es moderado por
+ciencias sociales, alta importancia del salario, alta sensibilidad al costo e
+importancia moderada de la facilidad de ingreso. A partir de ello asigna pesos a
+cada criterio.
+
+\subsection{Fuentes de relevancia y trabajo relacionado}
+
+La recomendaci\'on de carreras mediante aprendizaje autom\'atico es un \'area
+activa: existen sistemas que predicen el programa acad\'emico m\'as adecuado a
+partir del perfil del estudiante \cite{ezz2020} y enfoques aplicados a egresados
+de tecnolog\'ia \cite{aldossari2020}. En el \'ambito universitario, los
+recomendadores h\'ibridos multicriterio han mostrado ser eficaces para apoyar
+decisiones educativas combinando m\'ultiples criterios del estudiante y de la
+oferta \cite{esteban2020}, enfoque cercano a nuestro motor de scoring ponderado.
+Por el lado generativo, los modelos fundacionales \cite{bommasani2021} y su uso
+en sistemas de recomendaci\'on \cite{huang2024} habilitan la interpretaci\'on de
+preferencias en lenguaje natural, mientras que la generaci\'on aumentada por
+recuperaci\'on (RAG) permite anclar las respuestas en conocimiento externo y
+actualizado \cite{gao2024, fan2024}, lo que constituye una l\'inea de mejora
+futura del sistema.
+
+\paragraph{Propuesta de valor.} Las soluciones existentes tienden a caer en tres
+grupos: tests psicom\'etricos que eval\'uan intereses pero no se atan a datos
+duros de empleabilidad y costo; portales oficiales (como \emph{Ponte en Carrera})
+que ofrecen los datos sin personalizaci\'on ni conversaci\'on; y herramientas con
+IA dise\~nadas para mercados extranjeros, no aplicables al contexto peruano.
+Spark Match integra los tres frentes: datos oficiales peruanos, interpretaci\'on
+conversacional en \emph{lenguaje natural} mediante un LLM y un motor de scoring
+transparente y reproducible, sumando pr\'acticas de MLOps que hacen el resultado
+auditable.

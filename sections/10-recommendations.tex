@@ -4,48 +4,55 @@
 % ============================================================================
 \section{Recomendaciones}
 
-% TODO: Listar acciones futuras concretas, oportunidades de mejora en
-% modelos / despliegue / monitoreo y potenciales nuevas aplicaciones del
-% framework Spark Match.
+\subsection{Trabajo futuro y escalabilidad}
 
-\subsection{Acciones futuras y escalabilidad}
-
-[Roadmap a corto y mediano plazo:
-- \textbf{Corto plazo (3 meses)}:
-  - Incorporar feedback loop para fine-tuning del extractor de preferencias.
-  - Aniadir soporte para programas a distancia y semipresenciales.
-  - Implementar autenticacion con OAuth (Google) para guardar historial.
-- \textbf{Mediano plazo (6-12 meses)}:
-  - Escalar a otros paises de la region reutilizando la arquitectura.
-  - Integrar datos de empleabilidad del Ministerio de Trabajo.
-  - Modelo de matching universidad-estudiante con grafos (knowledge graph).
-- \textbf{Largo plazo (12+ meses)}:
-  - App mobile (React Native o Flutter).
-  - Asistente vocacional continuo que acompan\~ne al estudiante durante el primer anio universitario.
-  - Marketplace de becas integrado.]
+\begin{itemize}[noitemsep]
+  \item \textbf{Componente RAG:} indexar las fichas descriptivas de carreras y
+        universidades en un \emph{vector store} dedicado, para que el agente ancle
+        sus explicaciones en texto oficial adicional \cite{gao2024, fan2024}. La
+        tecnolog\'ia del vector store queda por definir (se descart\'o
+        \texttt{pgvector} como opci\'on \'unica).
+  \item \textbf{Migraci\'on de la fuente de datos:} pasar de \emph{Ponte en
+        Carrera} al nuevo observatorio \emph{Mi Carrera} (MTPE) cuando su acceso
+        est\'e consolidado, manteniendo la reproducibilidad v\'ia snapshots.
+  \item \textbf{Feedback del usuario:} incorporar un mecanismo de retroalimentaci\'on
+        que, con suficiente historial, permita entrenar un modelo propio de
+        aceptaci\'on --- m\'as econ\'omico que consultar continuamente una API en
+        la nube --- y mejorar progresivamente las recomendaciones.
+  \item \textbf{Escalabilidad regional:} adaptar la arquitectura a otras fuentes o
+        pa\'ises reutilizando el mismo marco y cambiando el dataset.
+\end{itemize}
 
 \subsection{Mejoras en modelos}
 
-[Optimizaciones al stack de IA:
-- Experimentar con modelos mas pequenos (Llama 3 8B, Mistral 7B) para reducir costos y latencia.
-- Fine-tuning con LoRA sobre datos anonimos de conversaciones exitosas.
-- Implementar cache semantico de prompts para evitar llamadas redundantes al LLM.
-- Evaluar el uso de Claude Sonnet vs Haiku vs Titan segun el tipo de tarea.
-- Aniadir un clasificador de intencion previo al agente para enrutar consultas simples.]
+\begin{itemize}[noitemsep]
+  \item Calibrar los pesos y la f\'ormula de scoring con usuarios reales, ya que
+        los valores actuales son ilustrativos.
+  \item Incorporar un \textbf{enrutador de modelos} que, seg\'un el tipo de tarea,
+        derive cada llamada al modelo m\'as adecuado dentro de Bedrock (p.ej.\
+        \emph{Haiku} para tareas simples, \emph{Sonnet}/\emph{Opus} para las
+        complejas). As\'i se \textbf{optimiza el costo} sin enviar todo al modelo
+        m\'as caro, aprovechando que Bedrock act\'ua como pasarela y el cambio de
+        modelo no impacta el n\'ucleo.
+  \item Considerar un ajuste ligero (p.ej.\ LoRA) del extractor de preferencias
+        cuando exista suficiente historial de conversaciones exitosas.
+\end{itemize}
 
 \subsection{Mejoras en despliegue y monitoreo}
 
-[Optimizaciones de MLOps / DevOps:
-- Migrar de ECS Fargate a EKS si el trafico crece (mayor control de pods).
-- Adoptar GitOps con ArgoCD para sincronizar el cluster con el repo de infra.
-- Implementar feature store (Feast) para compartir features entre el scoring y el agente.
-- Aniadir canary deployments con Flagger para reducir riesgo de releases.
-- Centralizar logs en OpenSearch y trazas en AWS X-Ray.]
+\begin{itemize}[noitemsep]
+  \item Completar la medici\'on de m\'etricas de operaci\'on (latencia, tokens,
+        costo por conversaci\'on) y consolidar tableros de observabilidad sobre
+        LangSmith y W\&B.
+  \item Reforzar el control de costos con alertas de AWS Budgets y revisi\'on
+        peri\'odica del consumo de tokens.
+  \item Automatizar la actualizaci\'on del dataset por semestre y las validaciones
+        de seguridad de infraestructura (checkov/tflint) en CI.
+\end{itemize}
 
 \subsection{Potenciales nuevas aplicaciones}
 
-[Otras verticales donde el framework es aplicable:
-- \textbf{Matching laboral}: recomendar ofertas de empleo a egresados segun su perfil academico.
-- \textbf{Orientacion de posgrado}: sugerir maestrias y especializaciones segun intereses y antecedentes.
-- \textbf{Asignacion de cursos electivos}: ayudar a estudiantes universitarios a elegir cursos segun sus metas profesionales.
-- \textbf{Asesoria de becas}: emparejar estudiantes con becas internacionales segun su perfil socioeconomico y academico.]
+El mismo marco (interpretaci\'on conversacional + motor de scoring transparente)
+es aplicable a otras verticales de orientaci\'on y \emph{matching}: recomendaci\'on
+de posgrados y especializaciones, orientaci\'on laboral para egresados, o
+asesor\'ia de becas seg\'un el perfil del estudiante.
