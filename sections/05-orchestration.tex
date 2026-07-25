@@ -34,6 +34,16 @@ como c\'odigo Python dentro del harness, y la exposici\'on HTTP la provee el
 backend \emph{serverless} (API Gateway + Lambda). Estos componentes se integran con
 Bedrock para las invocaciones al LLM.
 
+\subsection{Contenerizaci\'on (Docker)}
+
+Aunque el modelo de despliegue es \emph{serverless}, la contenerizaci\'on con
+\textbf{Docker} est\'a presente en el ciclo: \texttt{aws sam build} empaqueta las
+funciones Lambda como \textbf{im\'agenes de contenedor} (usando Docker localmente
+para reproducir el entorno de ejecuci\'on), y el agente se ejecuta como un
+\textbf{contenedor gestionado} en Bedrock AgentCore. As\'i se garantiza que el
+entorno sea reproducible entre desarrollo y producci\'on sin administrar servidores
+ni un orquestador de contenedores propio.
+
 \subsection{Infraestructura como c\'odigo (Terraform)}
 
 La infraestructura se provisiona con \textbf{Terraform}, con m\'odulos separados
