@@ -62,12 +62,13 @@ autom\'aticas y las validaciones de infraestructura en cada cambio, siguiendo la
 estrategia de ramas del equipo (rama de integraci\'on \texttt{dev} y promoci\'on
 a \texttt{prod}).
 
-Adem\'as, el pipeline de CI incorpora un an\'alisis est\'atico de c\'odigo con
-\textbf{SonarCloud} (\emph{quality gate}), que detecta \emph{code smells}, bugs
-potenciales, duplicaci\'on y problemas de seguridad/mantenibilidad antes del
-\emph{merge}. Junto con \emph{checkov} y \emph{tflint} en la infraestructura, esto
-conforma un control de calidad automatizado que refuerza las buenas pr\'acticas de
-MLOps y DevOps del proyecto.
+Adem\'as, el pipeline de CI incorpora an\'alisis est\'atico de c\'odigo:
+\textbf{SonarCloud} (\emph{quality gate}) detecta \emph{code smells}, bugs
+potenciales y duplicaci\'on, mientras que \textbf{CodeQL} (GitHub) realiza el
+escaneo de seguridad (\emph{SAST}) para identificar vulnerabilidades en el
+c\'odigo antes del \emph{merge}. Junto con \emph{checkov} y \emph{tflint} en la
+infraestructura, esto conforma un control de calidad y seguridad automatizado que
+refuerza las buenas pr\'acticas de MLOps y DevOps del proyecto.
 
 \begin{lstlisting}[style=yamlstyle, caption={Workflow de CI (ejemplo simplificado)}, label={lst:gh-actions}]
 name: CI
