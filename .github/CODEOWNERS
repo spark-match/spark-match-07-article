@@ -1,34 +1,34 @@
 # CODEOWNERS - Spark Match Article (07)
 #
-# Politica de aprobacion (configurada en branch protection):
+# Politica de aprobacion (configurada via ruleset):
 #   - dev:  required_approving_review_count: 1
-#            require_code_owner_reviews: true
+#            require_code_owner_review: true
 #   - main: required_approving_review_count: 1
-#            require_code_owner_reviews: true
-#            require_last_push_approval: true
+#            require_code_owner_review: true
 #
-# CODE OWNER del repo (catch-all): @spark-match/article-authors
+# CODE OWNER del repo: @spark-match/article-authors
 #   Miembros: dbarretol, FabiTaparaQuispe, ahincho, BriyitHT, nikolaiasencios
 #
 # Paths criticos (governance): @spark-match/product-owners
-#   - Decisiones arquitectonicas, onboarding, postmortems, docs raiz.
-#   - Miembros: dbarretol, FabiTaparaQuispe, ahincho
 #
-# Nota: el autor del PR no puede aprobar su propio PR, ni siquiera siendo
-# CODE OWNER (regla de GitHub). Por ejemplo, un PR abierto por ahincho
-# necesita la aprobacion de cualquier otro miembro del team.
+# Convencion: explicit paths, no catch-all.
 
-# =============================================================================
-# Catch-all: el equipo tecnico del repo es CODE OWNER del codigo
-# =============================================================================
-*                                          @spark-match/article-authors
-
-# =============================================================================
-# Paths criticos: product-owners revisa governance y docs raiz
-# =============================================================================
 /decisions/                                @spark-match/product-owners
 /onboarding/                               @spark-match/product-owners
 /postmortems/                              @spark-match/product-owners
-/README.md                                 @spark-match/product-owners
-/CONTRIBUTING.md                           @spark-match/product-owners
-/LICENSE                                   @spark-match/product-owners
+/README.md                                 @spark-match/article-authors @spark-match/product-owners
+/CONTRIBUTING.md                           @spark-match/article-authors @spark-match/product-owners
+/LICENSE                                   @spark-match/article-authors @spark-match/product-owners
+
+/.github/                                  @spark-match/article-authors
+/config/                                   @spark-match/article-authors
+/figures/                                  @spark-match/article-authors
+/scripts/                                  @spark-match/article-authors
+/sections/                                 @spark-match/article-authors
+
+/.gitattributes                            @spark-match/article-authors
+/.latexmkrc                                @spark-match/article-authors
+/compile.bat                               @spark-match/article-authors
+/compile.ps1                               @spark-match/article-authors
+/main.tex                                  @spark-match/article-authors
+/references.bib                            @spark-match/article-authors
