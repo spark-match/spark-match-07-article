@@ -1,14 +1,14 @@
-# Spark Match: Copiloto de Orientaci\'on Vocacional con IA Generativa
+# Spark Match: Copiloto de Orientación Vocacional con IA Generativa
 
-Trabajo de Fin de Programa del **II Programa de Especializaci\'on en IA Generativa y Machine Learning Ops** de la **Universidad Nacional de Ingenier\'ia (UNI)**.
+Trabajo de Fin de Programa del **II Programa de Especialización en IA Generativa y Machine Learning Ops** de la **Universidad Nacional de Ingeniería (UNI)**.
 
-Art\'iculo acad\'emico que documenta el dise\~no, implementaci\'on, despliegue y evaluaci\'on de **Spark Match**, un sistema h\'ibrido que combina un agente conversacional basado en LLMs (harness `deepagents` + AWS Bedrock) con un motor de scoring determinista para recomendar combinaciones *Carrera - Universidad* a estudiantes preuniversitarios peruanos.
+Artículo académico que documenta el diseño, implementación, despliegue y evaluación de **Spark Match**, un sistema híbrido que combina un agente conversacional basado en LLMs (harness `deepagents` + AWS Bedrock) con un motor de scoring determinista para recomendar combinaciones *Carrera - Universidad* a estudiantes preuniversitarios peruanos.
 
 ---
 
-## Stack T\'ecnico
+## Stack Técnico
 
-| Capa | Tecnolog\'ia |
+| Capa | Tecnología |
 |:---|:---|
 | IA Generativa | AWS Bedrock (Claude), Deep Agents (harness `deepagents`), langmem |
 | Agente y scoring | Python (harness `deepagents`, Pandas, NumPy) |
@@ -17,15 +17,15 @@ Art\'iculo acad\'emico que documenta el dise\~no, implementaci\'on, despliegue y
 | Datos | Ponte en Carrera (features.csv), Selenium, Pandas, RDS PostgreSQL |
 | MLOps | LangSmith, DVC, GitHub Actions |
 | DevOps | Terraform (dev/prod), AWS, checkov, tflint, AWS Budgets |
-| Documentaci\'on | LaTeX (art\'iculo) |
+| Documentación | LaTeX (artículo) |
 
 ---
 
 ## Ecosistema de Repositorios
 
-Este art\'iculo forma parte del ecosistema **`spark-match`**:
+Este artículo forma parte del ecosistema **`spark-match`**:
 
-| Componente | Repositorio | Descripci\'on |
+| Componente | Repositorio | Descripción |
 |:---|:---|:---|
 | DevOps / CI/CD | [`spark-match-01-devops`](https://github.com/spark-match/spark-match-01-devops) | GitHub Actions reutilizables, Apidog tests |
 | Infraestructura | [`spark-match-02-infrastructure`](https://github.com/spark-match/spark-match-02-infrastructure) | Terraform para AWS (VPC, Lambda, EventBridge, ECS Fargate, RDS PostgreSQL, S3) |
@@ -33,7 +33,7 @@ Este art\'iculo forma parte del ecosistema **`spark-match`**:
 | Frontend | [`spark-match-04-frontend`](https://github.com/spark-match/spark-match-04-frontend) | Angular SPA conversacional |
 | Pipeline de Datos | [`spark-match-05-data-pipeline`](https://github.com/spark-match/spark-match-05-data-pipeline) | ETL + scraping con Selenium + etiquetado RIASEC |
 | Entrenamiento | [`spark-match-06-model-training`](https://github.com/spark-match/spark-match-06-model-training) | Experimentos y seguimiento con Weights & Biases |
-| Art\'iculo | [`spark-match-07-article`](https://github.com/spark-match/spark-match-07-article) | Este repositorio -- LaTeX con CI/CD |
+| Artículo | [`spark-match-07-article`](https://github.com/spark-match/spark-match-07-article) | Este repositorio -- LaTeX con CI/CD |
 | Agente conversacional | [`spark-match-08-deep-agent`](https://github.com/spark-match/spark-match-08-deep-agent) | Deep Agent (harness `deepagents`) + langmem + evals |
 
 ---
@@ -57,7 +57,13 @@ spark-match-07-article/
 |   |-- 08-results.tex              # Resultados y demostracion
 |   |-- 09-conclusions.tex          # Conclusiones
 |   |-- 10-recommendations.tex      # Recomendaciones
-|-- figures/                        # Imagenes y diagramas del articulo
+|-- figures/                        # PNG que main.tex incluye
+|   |-- mermaid/                    # Fuentes .mmd de los diagramas + autocrop.py
+|-- DOCS/
+|   |-- TFP-GUIDELINES.md           # Requisitos del TFP
+|   |-- RUBRICA-PROGRAMA.md         # Rubrica de evaluacion
+|   |-- pre-evaluaciones/           # Proyecciones de nota
+|   |-- issues/issues-v1/           # Seguimiento de trabajo pendiente
 |-- compile.ps1                     # Compilador PowerShell
 |-- compile.bat                     # Compilador CMD
 |-- scripts/
@@ -65,12 +71,20 @@ spark-match-07-article/
 |   |-- clean.sh                    # Limpieza de archivos auxiliares
 |   |-- watch.sh                    # Recompilacion automatica
 |-- .latexmkrc                      # Configuracion de latexmk
-|-- .github/workflows/ci.yml        # Pipeline CI/CD
+|-- .gitattributes                  # Normalizacion de line endings
+|-- .github/
+|   |-- CODEOWNERS                  # Revisores requeridos por path
+|   |-- workflows/ci.yml            # Compila el PDF en cada pull request
+|   |-- workflows/cd.yml            # Tag + GitHub Release al mergear
 ```
+
+Los PNG de `figures/` **se generan** desde los `.mmd` de `figures/mermaid/`. Al
+cambiar un diagrama hay que editar el `.mmd`, no el PNG: ver
+`figures/mermaid/README.md`.
 
 ---
 
-## Compilaci\'on del Art\'iculo
+## Compilación del Artículo
 
 ### Requisitos
 
@@ -97,7 +111,7 @@ chmod +x scripts/*.sh
 ./scripts/build.sh
 ```
 
-### Modo watch (recompilaci\'on autom\'atica)
+### Modo watch (recompilación automática)
 
 ```bash
 ./scripts/watch.sh
@@ -105,25 +119,25 @@ chmod +x scripts/*.sh
 
 ### Resultado
 
-El PDF generado se ubica en `main.pdf` (excluido del repositorio v\'ia `.gitignore`).
+El PDF generado se ubica en `main.pdf` (excluido del repositorio vía `.gitignore`).
 
 ---
 
 ## CI/CD (GitHub Actions)
 
-El pipeline est\'a dividido en dos workflows independientes bajo `.github/workflows/`:
+El pipeline está dividido en dos workflows independientes bajo `.github/workflows/`:
 
-| Workflow | Trigger | Acci\'on |
+| Workflow | Trigger | Acción |
 |:---|:---|:---|
-| **CI** (`ci.yml`) | Pull Request `opened` / `synchronize` / `reopened` hacia `main` | Compila el PDF y lo publica como artifact `spark-match-paper-pr-<N>` para que los revisores descarguen la previsualizaci\'on. No crea tags ni releases. |
-| **CD** (`cd.yml`) | Pull Request `closed` con `merged == true` hacia `main` | Compila el PDF, hace auto-bump de la versi\'on patch desde el \'ultimo tag, crea el nuevo tag `vX.Y.Z` y publica un GitHub Release con el PDF adjunto. |
+| **CI** (`ci.yml`) | Pull Request `opened` / `synchronize` / `reopened` hacia `main` | Compila el PDF y lo publica como artifact `spark-match-paper-pr-<N>` para que los revisores descarguen la previsualización. No crea tags ni releases. |
+| **CD** (`cd.yml`) | Pull Request `closed` con `merged == true` hacia `main` | Compila el PDF, hace auto-bump de la versión patch desde el último tag, crea el nuevo tag `vX.Y.Z` y publica un GitHub Release con el PDF adjunto. |
 
-### Versionado autom\'atico
+### Versionado automático
 
-El CD lee el tag m\'as reciente (`git describe --tags --abbrev=0`) e incrementa el componente **patch**:
+El CD lee el tag más reciente (`git describe --tags --abbrev=0`) e incrementa el componente **patch**:
 
-- Sin tags previos $\rightarrow$ `v0.0.1`
-- \'Ultimo tag `v0.2.4` $\rightarrow$ `v0.2.5`
+- Sin tags previos → `v0.0.1`
+- Último tag `v0.2.4` → `v0.2.5`
 - Para un bump **major** o **minor** (ej. `v1.0.0`) crea el tag manualmente antes del merge:
 
 ```bash
@@ -135,28 +149,28 @@ git push origin v1.0.0
 
 1. Crear una rama feature: `git checkout -b feat/seccion-04`
 2. Hacer commits y push: `git push origin feat/seccion-04`
-3. Abrir Pull Request hacia `main` $\rightarrow$ **CI** compila y sube el PDF como artifact
+3. Abrir Pull Request hacia `main` → **CI** compila y sube el PDF como artifact
 4. Revisar el PDF descargado, pedir cambios o aprobar
-5. Al hacer merge $\rightarrow$ **CD** crea el release `v0.0.X` con el PDF final
+5. Al hacer merge → **CD** crea el release `v0.0.X` con el PDF final
 
 ---
 
 ## Rubrica del TFP (UNI)
 
-El documento cubre las 12 secciones de la r\'ubrica del Trabajo de Fin de Programa (20 puntos):
+El documento cubre las 12 secciones de la rúbrica del Trabajo de Fin de Programa (20 puntos):
 
-1. Descripci\'on del caso de uso (1 pt) -- `01-use-case.tex`
-2. Selecci\'on de modelo y datos (1 pt) -- `02-model-data.tex`
-3. Ingenier\'ia de prompts y adaptaci\'on (2 pt) -- `03-prompts.tex`
-4. Implementaci\'on de la aplicaci\'on (3 pt) -- `04-implementation.tex`
-5. Orquestaci\'on y despliegue (2 pt) -- `05-orchestration.tex`
+1. Descripción del caso de uso (1 pt) -- `01-use-case.tex`
+2. Selección de modelo y datos (1 pt) -- `02-model-data.tex`
+3. Ingeniería de prompts y adaptación (2 pt) -- `03-prompts.tex`
+4. Implementación de la aplicación (3 pt) -- `04-implementation.tex`
+5. Orquestación y despliegue (2 pt) -- `05-orchestration.tex`
 6. Monitoreo y mantenimiento (2 pt) -- `06-monitoring.tex`
-7. Evaluaci\'on de la aplicaci\'on (2 pt) -- `07-evaluation.tex`
-8. Resultados y demostraci\'on (2 pt) -- `08-results.tex`
+7. Evaluación de la aplicación (2 pt) -- `07-evaluation.tex`
+8. Resultados y demostración (2 pt) -- `08-results.tex`
 9. Conclusiones (1 pt) -- `09-conclusions.tex`
 10. Recomendaciones (1 pt) -- `10-recommendations.tex`
-11. Referencias bibliogr\'aficas APA (1 pt) -- `references.bib`
-12. Link de exposici\'on (2 pt) -- secci\'on *Resultados*
+11. Referencias bibliográficas APA (1 pt) -- `references.bib`
+12. Link de exposición (2 pt) -- sección *Resultados*
 
 ---
 
@@ -172,16 +186,16 @@ El documento cubre las 12 secciones de la r\'ubrica del Trabajo de Fin de Progra
 - Fabiola G. Tapara Quispe
 - Angel E. Hincho Jove
 - Andy B. Huamani Tacoma
-- Nikolai A. Asencios Garc\'ia
+- Nikolai A. Asencios García
 - David Barreto Lara
 
-**Programa:** II Programa de Especializaci\'on en IA Generativa y Machine Learning Ops
-**Instituci\'on:** Universidad Nacional de Ingenier\'ia (UNI) -- Facultad de Ingenier\'ia Econ\'omica, Estad\'istica y Ciencias Sociales
+**Programa:** II Programa de Especialización en IA Generativa y Machine Learning Ops
+**Institución:** Universidad Nacional de Ingeniería (UNI) -- Facultad de Ingeniería Económica, Estadística y Ciencias Sociales
 
 ---
 
 ## Licencia
 
-Este proyecto est\'a licenciado bajo los t\'erminos de la [Licencia MIT](https://opensource.org/licenses/MIT).
+Este proyecto está licenciado bajo los términos de la [Licencia MIT](https://opensource.org/licenses/MIT).
 
 Copyright (c) 2026 Spark Match Team.
