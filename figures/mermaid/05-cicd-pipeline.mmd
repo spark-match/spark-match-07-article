@@ -16,6 +16,7 @@ flowchart LR
     PR --> LINT["actionlint / yamllint"]
     PR --> IAC["checkov / tflint<br/>(infraestructura)"]
     PR --> EVALS["evals --mode mock<br/>29 casos, sin LLM ni AWS"]
+    EVALS -.tambien disponible,<br/>no requiere despliegue.- EVALSLIVE["evals --mode live<br/>(agente en proceso, invoca Bedrock)<br/>LLM-as-judge: afinidad (0.4), relevancia (0.3),<br/>tono (0.2), seguridad (0.1)"]
 
     TESTS & SONAR & CODEQL & LEAKS & LINT & IAC & EVALS --> GATE{"Todos los checks<br/>en verde?"}
     GATE -- No --> BLOQUEA["Bloquea el merge"]
@@ -27,8 +28,6 @@ flowchart LR
     DEPLOY --> BREAKER{"Deployment<br/>circuit breaker"}
     BREAKER -- "despliegue sano" --> LIVE["Nueva revision activa"]
     BREAKER -- "despliegue fallido" --> ROLLBACK["Rollback automatico<br/>a la revision anterior"]
-
-    EVALSLIVE["evals --mode live<br/>(agente en proceso, invoca Bedrock)<br/>LLM-as-judge: afinidad RIASEC (0.4),<br/>relevancia (0.3), tono (0.2), seguridad (0.1)"] -.opcional, no requiere<br/>agente desplegado.-> MERGE
 
     classDef gate fill:#fef9c3,stroke:#ca8a04
     class GATE,BREAKER gate

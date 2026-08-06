@@ -7,26 +7,27 @@
 %% etapa de ingesta congelada tras el decomiso del portal fuente."
 %% Label sugerido: fig:data-pipeline
 
-flowchart LR
-    MEC["Ponte en Carrera (MINEDU)<br/>portal oficial"]
-    MEC -- "HTTP 500 desde 2026-07-12<br/>(decomisionado)" --> FROZEN[/"etapa ingest: FROZEN"/]
-
-    subgraph DVC["Pipeline DVC (dvc.yaml)"]
+flowchart TB
+    subgraph FILA1[" "]
         direction LR
-        ING["ingest<br/>(ingestion.py, Selenium)"]
-        CLEAN["clean<br/>(data_clean.py)<br/>estandariza columnas y tipos,<br/>descarta incompletos"]
-        FEAT["features<br/>(feature_engineering.py)<br/>imputacion por etapas +<br/>normalizacion Min-Max [0,1]"]
-        RIASEC["riasec<br/>etiquetado LLM (Bedrock)<br/>554 carreras unicas"]
-        ING --> CLEAN --> FEAT --> RIASEC
+        MEC["Ponte en Carrera (MINEDU)<br/>portal oficial"] -- "HTTP 500 desde<br/>2026-07-12<br/>(decomisionado)" --> FROZEN[/"etapa ingest: FROZEN"/]
+        FROZEN -.->|"se reproduce solo contra<br/>el ultimo raw.xlsx historico"| ING["ingest<br/>(ingestion.py, Selenium)"]
+        ING --> CLEAN["clean<br/>(data_clean.py)<br/>estandariza columnas y tipos,<br/>descarta incompletos"]
     end
 
-    FROZEN -.->|"se reproduce solo contra<br/>el ultimo raw.xlsx historico"| ING
-    ING -.snapshot con fecha y hora.-> SNAP[("snapshots/<br/>fallback local,<br/>sin remoto S3 aun")]
-    RIASEC --> CSV[("features.csv<br/>6,208 combinaciones<br/>554 carreras / 25 departamentos")]
+    subgraph FILA2[" "]
+        direction LR
+        FEAT["features<br/>(feature_engineering.py)<br/>imputacion por etapas +<br/>normalizacion Min-Max [0,1]"] --> RIASEC["riasec<br/>etiquetado LLM (Bedrock)<br/>554 carreras unicas"]
+        RIASEC --> CSV[("features.csv<br/>6,208 combinaciones<br/>554 carreras / 25 departamentos")]
+        CSV -.->|"NO conectado aun"| AGENTE["Agente conversacional<br/>(catalogo piloto de 19 carreras)"]
+    end
 
-    CSV -.->|"NO conectado aun"| AGENTE["Agente conversacional<br/>(catalogo piloto de 19 carreras)"]
+    CLEAN --> FEAT
+    ING -.snapshot con fecha y hora.-> SNAP[("snapshots/<br/>fallback local,<br/>sin remoto S3 aun")]
 
     classDef pending fill:#fee2e2,stroke:#c00,stroke-width:1px
     classDef done fill:#dcfce7,stroke:#16a34a,stroke-width:1px
     class MEC,FROZEN pending
     class CSV,RIASEC,FEAT,CLEAN,ING done
+    style FILA1 fill:none,stroke:none
+    style FILA2 fill:none,stroke:none
