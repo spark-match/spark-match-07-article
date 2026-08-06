@@ -75,10 +75,11 @@ lo que garantiza transparencia y reproducibilidad.
 La plataforma se apoya en un backend \emph{serverless} en TypeScript (AWS Lambda
 + EventBridge + SAM), un frontend en Angular y un agente en Python (harness
 \emph{deepagents}) con persistencia de perfil mediante \texttt{langmem}. El
-proyecto incorpora pr\'acticas de MLOps mediante el versionado de prompts,
-f\'ormula de scoring y datos, la observabilidad del agente con LangSmith, el
-seguimiento de experimentos con Weights \& Biases, control de costos con AWS
-Budgets, y CI/CD e infraestructura como c\'odigo (Terraform) sobre AWS con
+proyecto incorpora pr\'acticas de MLOps mediante el versionado de prompts y de
+datos (\emph{snapshots} con fecha y un \emph{pipeline} DVC), la observabilidad
+del agente con LangSmith, un componente de \emph{LLM-as-judge} para evaluaci\'on
+autom\'atica, control de costos con AWS Budgets, y CI/CD e infraestructura como
+c\'odigo (Terraform) sobre AWS con
 an\'alisis est\'atico (SonarCloud, CodeQL) e infraestructura auditada (checkov,
 tflint). Este documento presenta el caso de uso, la selecci\'on de modelo y
 datos, la ingenier\'ia de prompts, la arquitectura del prototipo, la estrategia

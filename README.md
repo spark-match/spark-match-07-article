@@ -15,7 +15,7 @@ Art\'iculo acad\'emico que documenta el dise\~no, implementaci\'on, despliegue y
 | Backend | TypeScript serverless (AWS Lambda, EventBridge, AWS SAM, DDD) |
 | Frontend | Angular 21 + Angular Material |
 | Datos | Ponte en Carrera (features.csv), Selenium, Pandas, RDS PostgreSQL |
-| MLOps | LangSmith, Weights & Biases, GitHub Actions |
+| MLOps | LangSmith, DVC, GitHub Actions |
 | DevOps | Terraform (dev/prod), AWS, checkov, tflint, AWS Budgets |
 | Documentaci\'on | LaTeX (art\'iculo) |
 
