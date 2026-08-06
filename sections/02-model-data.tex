@@ -3,6 +3,7 @@
 % TFP - Rubrica: 1 punto
 % ============================================================================
 \section{Selecci\'on de modelo y datos}
+\label{sec:model-data}
 
 \subsection{Modelo generativo / fundacional}
 
@@ -46,12 +47,19 @@ alternativa para privacidad u operaci\'on \emph{offline}).
 
 \subsection{Dataset}
 
-El sistema utiliza informaci\'on oficial del portal \emph{Ponte en Carrera}
-(MINEDU): universidades, carreras, ingreso promedio de egresados, costos de
-estudio, porcentaje de ingresantes, ubicaci\'on geogr\'afica, tipo de gesti\'on y
-duraci\'on. El dataset procesado contiene \textbf{6\,208} combinaciones
+El \emph{pipeline} de datos consolida informaci\'on oficial del portal
+\emph{Ponte en Carrera} (MINEDU): universidades, carreras, ingreso promedio de
+egresados, costos de estudio, porcentaje de ingresantes, ubicaci\'on
+geogr\'afica, tipo de gesti\'on y duraci\'on. El dataset procesado
+(\texttt{features.csv}) contiene \textbf{6\,208} combinaciones
 carrera--instituci\'on (\textbf{554} carreras \'unicas en \textbf{25}
-departamentos).
+departamentos), con las variables de ingreso, costo, admisi\'on y duraci\'on ya
+normalizadas en $[0,1]$.
+
+\paragraph{Nota de integraci\'on.} A la fecha, este dataset es consumido por el
+\emph{pipeline} y validado de forma independiente; su conexi\'on directa con el
+agente conversacional --- que hoy razona sobre un cat\'alogo piloto de carreras
+--- est\'a en desarrollo (ver Secci\'on~\ref{sec:results}).
 
 \paragraph{Nota sobre la fuente.} El MTPE ha consolidado recientemente el portal
 \emph{Mi Carrera} como nuevo observatorio oficial del mercado laboral, relegando

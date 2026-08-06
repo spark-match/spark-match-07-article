@@ -60,6 +60,13 @@ El flujo principal de la soluci\'on (Figura~\ref{fig:architecture}) es el siguie
 % TODO (equipo): agregar diagramas mas detallados generados desde los repos
 % (diagrama de flujo, diagrama de estados y user journey) en mermaid renderizado.
 
+\emph{Nota:} la Figura~\ref{fig:architecture} representa el dise\~no objetivo de
+la arquitectura. En el prototipo actual, el agente invoca directamente la
+herramienta de afinidad RIASEC sobre un cat\'alogo piloto de carreras; la
+conexi\'on del motor de scoring con Aurora PostgreSQL y con
+\texttt{features.csv} (bloques inferiores de la figura) es trabajo en curso
+(Secci\'on~\ref{sec:results}).
+
 \subsection{Agente conversacional (Deep Agent / deepagents)}
 
 El agente se implementa en \textbf{Python} como un \emph{Deep Agent} construido con
@@ -120,6 +127,18 @@ Luego el agente redacta la justificaci\'on, por ejemplo: \textit{``Te
 recomendamos Estad\'istica en la UNMSM porque presenta una fuerte alineaci\'on
 con tus intereses cuantitativos, tiene uno de los mejores ingresos promedio
 dentro de las carreras anal\'iticas y mantiene costos relativamente bajos''.}
+
+\paragraph{Estado de implementaci\'on.} La herramienta
+\texttt{calculate\_affinity} del agente ya calcula el criterio de
+\textbf{afinidad} (similitud RIASEC posicional) y ordena un Top-N por ese
+criterio. Los criterios de \textbf{ingreso}, \textbf{costo}, \textbf{admisi\'on}
+y \textbf{duraci\'on} est\'an dise\~nados y sus variables normalizadas ya se
+calculan en el \emph{pipeline} de datos (Secci\'on~\ref{sec:model-data}), pero
+a\'un no est\'an integrados en la herramienta de scoring del agente ni conectados
+al dataset completo de \texttt{features.csv}; el ejemplo num\'erico de la
+Tabla~\ref{tab:scoring-example} es, por tanto, ilustrativo del dise\~no objetivo
+y no un resultado medido. Ver Secci\'on~\ref{sec:results} para el detalle del
+alcance implementado y el trabajo pendiente.
 
 \subsection{Backend serverless y frontend}
 

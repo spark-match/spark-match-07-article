@@ -60,15 +60,18 @@ generativa que orienta a estudiantes y padres de familia en esa decisi\'on. El
 sistema combina un agente de lenguaje (un LLM \emph{Claude}, servido mediante
 \emph{AWS Bedrock}), que interpreta en lenguaje natural las preferencias del
 estudiante y luego explica los resultados, con un motor de recomendaci\'on
-transparente en Python que asigna un puntaje a cada combinaci\'on
+transparente en Python cuyo dise\~no asigna un puntaje a cada combinaci\'on
 carrera--universidad usando datos oficiales del portal \emph{Ponte en Carrera}
-(MINEDU): 6\,208 combinaciones sobre 554 carreras \'unicas en 25 departamentos.
-A diferencia de los sistemas con pesos fijos, los pesos de cada uno de los cinco
-criterios del \emph{score} (afinidad, ingreso, costo, admisi\'on, duraci\'on) son
-inferidos din\'amicamente por el LLM a partir de la conversaci\'on, y la afinidad
-vocacional se modela con el esquema RIASEC de Holland. El LLM se mantiene
-deliberadamente desacoplado de la decisi\'on de ranking --- interpreta y explica,
-pero no decide el orden --- lo que garantiza transparencia y reproducibilidad.
+(MINEDU): el \emph{pipeline} de datos ya produce 6\,208 combinaciones sobre 554
+carreras \'unicas en 25 departamentos. El dise\~no del motor contempla cinco
+criterios ponderados (afinidad, ingreso, costo, admisi\'on, duraci\'on), con
+pesos inferidos din\'amicamente por el LLM a partir de la conversaci\'on; en el
+prototipo actual solo el criterio de afinidad --- modelado con el esquema
+RIASEC de Holland --- est\'a integrado en el agente conversacional, mientras que
+los otros cuatro y su conexi\'on con el dataset completo son trabajo en curso
+(Secci\'on~\ref{sec:results}). El LLM se mantiene deliberadamente desacoplado de
+la decisi\'on de ranking --- interpreta y explica, pero no decide el orden ---
+lo que garantiza transparencia y reproducibilidad.
 La plataforma se apoya en un backend \emph{serverless} en TypeScript (AWS Lambda
 + EventBridge + SAM), un frontend en Angular y un agente en Python (harness
 \emph{deepagents}) con persistencia de perfil mediante \texttt{langmem}. El

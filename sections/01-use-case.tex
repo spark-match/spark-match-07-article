@@ -16,12 +16,13 @@ percepciones o informaci\'on incompleta.
 
 \textbf{Spark Match} (CareerMatch Per\'u) es un asistente conversacional basado
 en IA generativa que orienta a estudiantes preuniversitarios y a sus familias en
-la elecci\'on de carrera y universidad. El sistema combina un agente de lenguaje
-(un LLM \emph{Claude}, servido mediante \emph{AWS Bedrock}) que interpreta en
-lenguaje natural las preferencias del estudiante y luego explica los resultados,
-con un motor de recomendaci\'on transparente en Python que asigna un puntaje a
-cada combinaci\'on carrera--universidad usando datos oficiales del portal
-\emph{Ponte en Carrera} (MINEDU).
+la elecci\'on de carrera y universidad. El sistema est\'a dise\~nado para
+combinar un agente de lenguaje (un LLM \emph{Claude}, servido mediante
+\emph{AWS Bedrock}) que interpreta en lenguaje natural las preferencias del
+estudiante y luego explica los resultados, con un motor de recomendaci\'on
+transparente en Python que asigne un puntaje a cada combinaci\'on
+carrera--universidad usando datos oficiales del portal \emph{Ponte en Carrera}
+(MINEDU).
 
 \subsection{Problem\'atica del negocio}
 
@@ -59,6 +60,14 @@ inferidos din\'amicamente por un LLM. Como objetivos espec\'ificos:
   \item Aplicar pr\'acticas de MLOps para versionar prompts, f\'ormula de scoring
         y datos, y para monitorear el sistema.
 \end{itemize}
+
+\paragraph{Estado actual del prototipo.} A la fecha de esta entrega, el criterio
+de afinidad vocacional (RIASEC) es el \'unico de los cinco ya integrado en el
+agente conversacional, y opera sobre un cat\'alogo piloto de carreras. Los
+criterios de ingreso, costo, admisi\'on y duraci\'on ya est\'an calculados y
+normalizados por el \emph{pipeline} de datos (Secci\'on~\ref{sec:model-data}),
+pero su integraci\'on con el agente sobre el dataset completo de 6\,208
+combinaciones es trabajo en curso, detallado en la Secci\'on~\ref{sec:results}.
 
 La Tabla~\ref{tab:use-case} resume la formulaci\'on del caso de uso.
 

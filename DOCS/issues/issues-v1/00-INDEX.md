@@ -7,11 +7,14 @@
 
 ## Orden de ejecución recomendado
 
-El orden importa: los issues 02-06 (llenar TODOs con datos reales) dependen de que el issue 01 recopile evidencia real de los otros repos del ecosistema. No redactar contenido "de relleno" — si un repo no tiene aún la evidencia, el issue debe quedar documentado como bloqueado, no inventado.
+**Actualización 2026-08-05:** al revisar el código real (no solo la documentación) de `spark-match-08-deep-agent` y `spark-match-03-backend`, se confirmó que el motor de scoring de 5 criterios que describe el informe **no está integrado** — solo el criterio de afinidad (RIASEC) está implementado, sobre un catálogo piloto de 19 carreras, desconectado de `features.csv`. Ver **issue 12**, que ahora es más urgente que el 01 porque redefine qué es "evidencia real" disponible para los issues 03-05.
+
+El orden importa: los issues 02-06 (llenar TODOs con datos reales) dependen de que el issue 01 recopile evidencia real de los otros repos del ecosistema, y el issue 01 a su vez debe partir del alcance real que fija el issue 12. No redactar contenido "de relleno" — si un repo no tiene aún la evidencia, el issue debe quedar documentado como bloqueado, no inventado.
 
 | # | Issue | Criterio rúbrica | Pts en juego | Prioridad | Depende de |
 |---|---|---|---|---|---|
-| 01 | [Recopilar evidencia real de los repos](01-recopilar-evidencia-repos.md) | Transversal | — | **Bloqueante** | — |
+| 12 | [Brecha crítica: motor de scoring no integrado](12-brecha-motor-scoring-real.md) | 4 (y transversal 1,2,7,8) | 3.0 | **Bloqueante — máxima** | — |
+| 01 | [Recopilar evidencia real de los repos](01-recopilar-evidencia-repos.md) | Transversal | — | **Bloqueante** | 12 |
 | 02 | [Video de exposición](02-video-exposicion.md) | 12 | 2.0 | **Alta** | 01 |
 | 03 | [Evaluación con resultados reales](03-evaluacion-resultados-reales.md) | 7 | 2.0 | **Alta** | 01 |
 | 04 | [Resultados y evidencia funcional](04-resultados-demo-evidencia.md) | 8 | 2.0 | **Alta** | 01 |
