@@ -2,7 +2,7 @@
 # CD - Release on Merged Pull Request
 # =============================================================================
 # Este workflow es un CALLER del reusable workflow en:
-#   spark-match/spark-match-01-devops/.github/workflows/latex-release.yml
+#   spark-match/spark-match-01-devops/.github/workflows/reusable-latex-release.yml
 # =============================================================================
 
 name: CD - Release on Merge
@@ -19,7 +19,7 @@ jobs:
   release:
     name: Build & Release PDF
     if: github.event.pull_request.merged == true
-    uses: spark-match/spark-match-01-devops/.github/workflows/latex-release.yml@main
+    uses: spark-match/spark-match-01-devops/.github/workflows/reusable-latex-release.yml@main
     with:
       root-file: main.tex
       release-name-prefix: Spark Match Paper

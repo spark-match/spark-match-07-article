@@ -2,7 +2,7 @@
 # CI - Build LaTeX PDF (Pull Request)
 # =============================================================================
 # Este workflow es un CALLER del reusable workflow en:
-#   spark-match/spark-match-01-devops/.github/workflows/latex-build.yml
+#   spark-match/spark-match-01-devops/.github/workflows/reusable-latex-build.yml
 # =============================================================================
 
 name: CI - Build PDF (Pull Request)
@@ -23,7 +23,7 @@ permissions:
 jobs:
   build:
     name: Compile LaTeX
-    uses: spark-match/spark-match-01-devops/.github/workflows/latex-build.yml@main
+    uses: spark-match/spark-match-01-devops/.github/workflows/reusable-latex-build.yml@main
     with:
       root-file: main.tex
       artifact-name: spark-match-paper-pr-${{ github.event.pull_request.number }}
