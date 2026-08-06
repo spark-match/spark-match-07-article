@@ -64,7 +64,19 @@ geogr\'afica, tipo de gesti\'on y duraci\'on. El dataset procesado
 (\texttt{features.csv}) contiene \textbf{6\,208} combinaciones
 carrera--instituci\'on (\textbf{554} carreras \'unicas en \textbf{25}
 departamentos), con las variables de ingreso, costo, admisi\'on y duraci\'on ya
-normalizadas en $[0,1]$.
+normalizadas en $[0,1]$. Un \emph{script} de verificaci\'on de calidad
+(\texttt{qa\_check\_features.py}) confirma autom\'aticamente estas propiedades
+---columnas esperadas, 25 regiones sin duplicados, rangos normalizados y conteos
+de filas y carreras--- como se muestra en la Figura~\ref{fig:ev-qa-datos}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{fig-evidencia-qa-datos.png}
+    \caption{Verificaci\'on de calidad del dataset (\texttt{qa\_check\_features.py}):
+    columnas, 25 regiones, normalizaci\'on en $[0,1]$ y conteos (6\,208 filas,
+    554 carreras) sin fallas.}
+    \label{fig:ev-qa-datos}
+\end{figure}
 
 \begin{figure}[H]
     \centering
