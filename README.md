@@ -196,6 +196,15 @@ El documento cubre las 12 secciones de la rúbrica del Trabajo de Fin de Program
 
 ## Licencia
 
-Este proyecto está licenciado bajo los términos de la [Licencia MIT](https://opensource.org/licenses/MIT).
-
 Copyright (c) 2026 Spark Match Team.
+
+Esta obra está bajo [Creative Commons Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0/) (CC BY-SA 4.0). El texto completo está en [`LICENSE`](LICENSE).
+
+Puedes copiar, redistribuir y adaptar el material, incluso comercialmente, con dos condiciones:
+
+- **Atribución** — dar crédito, enlazar la licencia e indicar si hiciste cambios.
+- **Compartir igual** — si adaptas el material, distribuir tu versión bajo esta misma licencia.
+
+El resto de repositorios de `spark-match` usan **GPL-3.0**, que es una licencia de software. Aquí no encaja: sus términos hablan de código objeto, enlazado e *installation information*, conceptos que no tienen traducción para prosa y figuras. La propia FSF recomienda Creative Commons para obras que no son software. CC BY-SA da el mismo copyleft, redactado para contenido.
+
+Los autores y la institución están en la portada del artículo (`\begin{titlepage}` en `main.tex`) y arriba en este README.
