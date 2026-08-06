@@ -1,5 +1,15 @@
 # Issue 02 — Video de exposición
 
+**Estado (2026-08-05): ⬜ Sin resolver (esperado — es logística de equipo,
+no trabajo de código).** Ver
+`DOCS/pre-evaluaciones/1ra-proyeccion-evaluacion.md` sección 1.5: se
+recomienda grabar el video **después** de cerrar la evidencia funcional real
+(Issue 04) y las métricas medidas (Issues 03/05), para no tener que
+regrabarlo. No es el foco principal de riesgo de nota — los Criterios 4 y 8
+(motor de scoring y evidencia funcional) pesan más y son la causa raíz de
+que este video, cuando se grabe, no tenga todavía una demo funcional real
+que mostrar.
+
 **Rama:** `feat/report-update`
 **Criterio rúbrica:** #12 — Link de exposición (video) — **2 pts, actualmente en 0**
 **Prioridad:** Alta (único criterio en cero absoluto)

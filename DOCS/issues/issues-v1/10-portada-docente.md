@@ -1,5 +1,12 @@
 # Issue 10 — Portada: completar nombre del docente
 
+**Estado (2026-08-05): ⬜ Sin resolver.** `main.tex:29` sigue con
+`[Nombre del Docente]`. Nota aparte: esta sesión se corrigió un bug de
+layout no relacionado en la misma portada — el bloque de la carátula se
+desbordaba a una segunda página, dejando "Lima, Perú — 2026" huérfano en la
+página 2 (se ajustaron los espacios verticales fijos para que todo quepa en
+la página 1). Sigue siendo trivial de cerrar: solo falta el nombre real.
+
 **Rama:** `feat/report-update`
 **Criterio rúbrica:** Administrativo (no puntúa directamente, pero es un placeholder visible en la primera página)
 **Prioridad:** Alta (trivial de resolver, alto impacto visual si se olvida)

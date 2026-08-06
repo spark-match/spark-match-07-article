@@ -1,21 +1,35 @@
 # Issue 09 — Prompts: decidir tecnología de vector store (RAG)
 
+**Estado (2026-08-05): ✅ Resuelto.** `sections/03-prompts.tex`, subsección
+"Flujo RAG", ya no dice "por definir" ni "se descartó pgvector". El texto
+actual documenta que **`pgvector` sobre RDS PostgreSQL es la dirección
+planeada** (no descartada), citando que el propio código de
+`search_careers` (en `spark-match-08-deep-agent`) documenta esa intención en
+su docstring. Se explica también qué resuelve hoy (búsqueda por palabra
+clave sobre el catálogo piloto) y qué falta (fecha de migración, aún no
+definida en la bitácora de arquitectura del equipo). Esto es consistente con
+la corrección equivalente ya aplicada en la Sección 10 (Recomendaciones).
+
+Sigue sin implementarse (no hay ejemplo real de consulta al vector store),
+pero el nivel "Destacado" de este criterio solo exige implementación **o**
+justificación, y la justificación ya está.
+
 **Rama:** `feat/report-update`
-**Criterio rúbrica:** #3 — Ingeniería de prompts y adaptación — **2 pts, actualmente ~1.5 (Logrado)**
-**Prioridad:** Baja (opcional para llegar a Destacado; no crítico si el tiempo apremia)
+**Criterio rúbrica:** #3 — Ingeniería de prompts y adaptación — **2 pts, antes ~1.5 (Logrado), ahora con justificación explícita hacia Destacado**
+**Prioridad:** Baja — cerrado
 **Archivo afectado:** `sections/03-prompts.tex`
 
 ## Contexto
 
-Rúbrica, nivel Destacado (100%): *"Integración de datos externos (base vectorial u otro) implementada **o justificada**."* Hoy el texto dice que la tecnología del vector store "queda por definir" y que se descartó `pgvector` — es una justificación parcial (dice qué NO se eligió, no qué SÍ se eligió ni por qué). Nivel Logrado (75%) ya está cubierto ("Base vectorial planificada"), así que este issue es para subir un nivel, no para no reprobar.
+Rúbrica, nivel Destacado (100%): *"Integración de datos externos (base vectorial u otro) implementada **o justificada**."*
 
 ## Tareas
 
-- [ ] Decidir la tecnología real de vector store si el equipo la definió en la bitácora de arquitectura mencionada en el texto (`ChromaDB` local, `pgvector` sobre Aurora, `Pinecone`, u otra).
-- [ ] Si ya se decidió: documentar la elección con justificación breve (costo, integración con Aurora existente, simplicidad).
-- [ ] Si NO se va a implementar antes de la entrega: mantener la sección como "trabajo futuro" pero agregar una justificación más completa (por qué no era prioritario para este alcance, qué se ganaría implementándolo) en vez de solo "queda por definir".
+- [x] Documentar la tecnología planeada (`pgvector` sobre RDS PostgreSQL) con justificación (ya está definida en el propio código, se integra con la infraestructura existente sin agregar un servicio nuevo).
+- [x] Reemplazar el lenguaje de "se descartó pgvector" por "es la dirección planeada, no descartada", consistente con la Sección 10.
+- [ ] Si se implementa antes de la entrega: agregar un ejemplo real de consulta al vector store (no bloqueante, mejora adicional).
 
 ## Verificación
 
-- [ ] La subsección "Flujo RAG" ya no dice literalmente "por definir" sin ningún criterio de decisión — o bien ya tiene tecnología elegida, o bien tiene una justificación explícita de por qué se pospuso.
-- [ ] Si se implementó, hay al menos un ejemplo de consulta al vector store documentado (similar al ejemplo de la sección 8).
+- [x] La subsección "Flujo RAG" ya no dice literalmente "por definir" — tiene tecnología elegida y justificada.
+- [ ] Si se implementó, hay al menos un ejemplo de consulta al vector store documentado (similar al ejemplo de la sección 8) — no implementado, no bloqueante.

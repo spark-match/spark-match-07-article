@@ -1,5 +1,19 @@
 # Issue 11 — QA final y compilación
 
+**Estado (2026-08-05): 🟡 Compilación limpia verificada en cada paso; el
+issue en sí sigue bloqueado por 02, 03, 04, 05, 06, 08 y 10.** El PDF
+recompiló sin errores ni referencias indefinidas después de cada edición de
+esta sesión (última verificación: 36 páginas, 0 errores, 0
+Citation/Reference undefined, 0 overfull hbox en las figuras nuevas). Eso
+cubre parte de la primera tarea de este checklist, pero **no** cierra el
+issue — sigue habiendo 5 TODOs reales sin resolver en el árbol de secciones
+(`grep -rn "TODO" sections/` → `04-implementation.tex` ya no tiene, pero
+`06-monitoring.tex:79`, `07-evaluation.tex:89`, `08-results.tex:102`,
+`05-orchestration.tex:163` sí) y el placeholder `[Nombre del Docente]` en
+`main.tex:29`. Ver `DOCS/pre-evaluaciones/1ra-proyeccion-evaluacion.md` para
+el desglose completo de qué falta antes de poder ejecutar este issue como
+paso de cierre.
+
 **Rama:** `feat/report-update`
 **Criterio rúbrica:** Transversal — verificación de cierre de todos los criterios 1-12
 **Prioridad:** Bloqueante final (no se entrega sin este paso)

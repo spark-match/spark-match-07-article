@@ -1,5 +1,12 @@
 # Issue 08 — Modelo y datos: agregar snippet de código
 
+**Estado (2026-08-05): ⬜ Sin resolver.** No se tocó esta sesión — sigue sin
+haber ningún `\begin{lstlisting}` en `sections/02-model-data.tex` más allá
+de la tabla de comparación de modelos (que sí se corrigió por un problema de
+layout, ver commit de esa fecha, pero eso es un asunto distinto de este
+issue). Sigue siendo la brecha de menor esfuerzo de todo el backlog: un
+único snippet real puede mover el Criterio 2 de Logrado a Destacado.
+
 **Rama:** `feat/report-update`
 **Criterio rúbrica:** #2 — Selección de modelo y datos — **1 pt, actualmente ~0.75 (Logrado)**
 **Prioridad:** Baja (mejora incremental, no bloqueante)

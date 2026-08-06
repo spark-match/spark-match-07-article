@@ -1,5 +1,17 @@
 # Issue 12 — Brecha crítica: el motor de scoring de 5 criterios no está integrado
 
+**Estado (2026-08-05): 🟡 Camino 2 aplicado en todo el informe; Camino 1 (cerrar la brecha en código) sigue sin decidirse.**
+El reencuadre honesto "diseño objetivo vs. estado real" ya se extendió más
+allá de las 5 secciones originales (Resumen, 1, 2, 4, 8) — también se aplicó
+en las Secciones 5, 6, 7, 9 y 10 durante la revisión completa del informe.
+En particular, la Sección 9 (Conclusiones) ya no presenta el motor de 5
+criterios ni "pesos dinámicos" como logros sin matiz — ese era el lugar más
+visible donde la brecha podía pasar desapercibida para un evaluador. El
+detalle completo de qué queda obligatorio vs. deseable para el 09/08, dado
+el tiempo restante, está consolidado en
+`DOCS/pre-evaluaciones/1ra-proyeccion-evaluacion.md` (sección 1.1). La
+decisión de equipo entre Camino 1 y Camino 2 sigue sin tomarse formalmente.
+
 **Criterio rúbrica:** 4 (Implementación de la aplicación, 3pt — el de mayor peso individual) y transversalmente 1, 2, 7, 8.
 **Prioridad:** **Bloqueante — más urgente que 01.** Descubierto 2026-08-05 al revisar el código real de los repos (no solo la documentación) a pedido explícito del usuario ("revisa con mucho cuidado, puede que no se haya actualizado después de haber hecho cambios al codebase").
 **Depende de:** nada. Bloquea la interpretación correcta de 01, 03, 04, 05.
@@ -79,12 +91,13 @@ Quedan dos caminos, y el equipo debe elegir uno antes del 09/08:
 
 - [x] Reencuadrar Resumen, Sección 1, Sección 2, Sección 4 y Sección 8 para
       distinguir diseño vs. estado actual, sin fabricar datos.
-- [ ] Revisar que el Issue 03 (evaluación) y el Issue 04 (resultados/demo) NO
+- [x] Revisar que el Issue 03 (evaluación) y el Issue 04 (resultados/demo) NO
       pidan medir Recall@K ni generar capturas del ranking multicriterio
-      completo, ya que ese flujo no existe — ajustar su alcance a lo que sí es
-      medible (afinidad RIASEC end-to-end).
-- [ ] Mencionar explícitamente esta limitación como línea de trabajo futuro en
-      la Sección 10 (Recomendaciones), si aún no está cubierta.
+      completo, ya que ese flujo no existe — ajustado su alcance a lo que sí es
+      medible (afinidad RIASEC end-to-end). Ver notas actualizadas en esos issues.
+- [x] Mencionar explícitamente esta limitación como línea de trabajo futuro en
+      la Sección 10 (Recomendaciones) — ya está: "integrar al agente los
+      cuatro criterios de scoring que aún no operan end-to-end".
 
 ## Verificación
 
