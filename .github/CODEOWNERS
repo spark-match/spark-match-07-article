@@ -1,25 +1,37 @@
 # CODEOWNERS - Spark Match Article (07)
 #
-# Politica de aprobacion (configurada via ruleset):
-#   - dev:  required_approving_review_count: 1
-#            require_code_owner_review: true
+# Politica de aprobacion (configurada via ruleset
+# spark-match-default-branch-protection):
 #   - main: required_approving_review_count: 1
 #            require_code_owner_review: true
+#
+# La rama dev se borro el 2026-08-06: este repo trabaja solo sobre main. Su
+# ultimo commit era del 2026-07-10, ningun pull request la apunto nunca y
+# ningun workflow la disparaba.
 #
 # CODE OWNER del repo: @spark-match/article-authors
 #   Miembros: dbarretol, FabiTaparaQuispe, ahincho, BriyitHT, nikolaiasencios
 #
 # Paths criticos (governance): @spark-match/product-owners
 #
-# Convencion: explicit paths, no catch-all.
+# Convencion: explicit paths, no catch-all. Todo path que exista debe aparecer
+# aqui, y ningun path que no exista debe aparecer. Ver
+# spark-match-01-devops/docs/GOVERNANCE-STANDARD.md seccion 3.
+#
+# Nota: el autor de un pull request no puede aprobarlo, ni siendo CODE OWNER
+# (regla de GitHub). Un pull request abierto por cualquier miembro necesita la
+# aprobacion de otro.
 
-/decisions/                                @spark-match/product-owners
-/onboarding/                               @spark-match/product-owners
-/postmortems/                              @spark-match/product-owners
+# =============================================================================
+# Governance y docs de comunidad: doble propiedad
+# =============================================================================
 /README.md                                 @spark-match/article-authors @spark-match/product-owners
-/CONTRIBUTING.md                           @spark-match/article-authors @spark-match/product-owners
 /LICENSE                                   @spark-match/article-authors @spark-match/product-owners
+/DOCS/                                     @spark-match/article-authors @spark-match/product-owners
 
+# =============================================================================
+# Contenido del articulo y toolchain: el equipo del repo
+# =============================================================================
 /.github/                                  @spark-match/article-authors
 /config/                                   @spark-match/article-authors
 /figures/                                  @spark-match/article-authors
@@ -27,6 +39,7 @@
 /sections/                                 @spark-match/article-authors
 
 /.gitattributes                            @spark-match/article-authors
+/.gitignore                                @spark-match/article-authors
 /.latexmkrc                                @spark-match/article-authors
 /compile.bat                               @spark-match/article-authors
 /compile.ps1                               @spark-match/article-authors
