@@ -5,78 +5,94 @@
 \section{Ingenier\'ia de prompts y adaptaci\'on}
 
 El sistema desacopla la interpretaci\'on del lenguaje (agente LLM) de la
-decisi\'on de ranking (motor de scoring determin\'istico). El LLM interviene en
-dos momentos: al inicio, para descubrir el perfil del estudiante y traducir sus
-prioridades en pesos, y al final, para redactar la explicaci\'on. Ambas tareas se
-resuelven mediante \emph{prompting} (sin ajuste fino), estrategia adecuada para
-un proyecto acad\'emico por su bajo costo y su rapidez de iteraci\'on.
+decisi\'on de ranking. El agente no es un \'unico prompt monol\'itico sino un
+\textbf{coordinador} que delega en tres subagentes especializados, cada uno con
+su propio \emph{system prompt} versionado como archivo \texttt{.md} en
+\texttt{src/prompts/}: \textbf{assessment} (administra el test vocacional
+RIASEC de forma conversacional), \textbf{matching} (calcula la afinidad entre
+el perfil y el cat\'alogo de carreras) y \textbf{planning} (genera un plan de
+acci\'on --- \emph{skills}, recursos y \emph{timeline} --- para la carrera que
+el estudiante elige). Todas las tareas se resuelven mediante \emph{prompting}
+(sin ajuste fino), estrategia adecuada para un proyecto acad\'emico por su bajo
+costo y su rapidez de iteraci\'on.
 
 \subsection{Estrategia de prompting}
 
-Se emplean \emph{system prompts} versionados en el repositorio, con salida
-estructurada y ejemplos \emph{few-shot} que anclan el formato esperado:
+Cada \emph{system prompt} sigue una estructura com\'un: rol \'unico y acotado
+(``tu \'unica misi\'on es...''), flujo de trabajo numerado, reglas expl\'icitas
+y, cuando aplica, un formato de salida fijo (p.ej.\ la tabla Markdown de
+ranking que redacta \texttt{matching}). El \textbf{coordinador} decide a qu\'e
+subagente delegar seg\'un la intenci\'on del mensaje (descubrir perfil
+$\rightarrow$ \texttt{assessment}; pedir recomendaciones con perfil ya
+calculado $\rightarrow$ \texttt{matching}; pedir un plan para una carrera
+elegida $\rightarrow$ \texttt{planning}), o responde \'el mismo ante preguntas
+generales.
 
-\begin{itemize}[noitemsep]
-  \item \textbf{Extracci\'on de preferencias:} convierte el mensaje libre del
-        estudiante en un perfil estructurado (afinidad/RIASEC y pesos por
-        criterio). La salida se fuerza a JSON validable para integrarse con el
-        motor de scoring.
-  \item \textbf{Justificaci\'on:} recibe el ranking Top-N y redacta la
-        explicaci\'on en lenguaje natural, citando datos verificables del propio
-        ranking (ingreso, costo, afinidad) para evitar afirmaciones no
-        sustentadas.
-  \item \textbf{Few-shot:} un peque\~no conjunto de ejemplos can\'onicos ancla el
-        formato de entrada--salida y reduce la tasa de JSON malformado.
-\end{itemize}
+\paragraph{Entrevista escalonada (assessment RIASEC).} El perfil vocacional no
+se pide con una \'unica pregunta directa (``del 1 al 10, calif\'ica cada
+dimensi\'on''), que es poco natural y propensa a respuestas planas. En su
+lugar, el subagente \texttt{assessment} conduce una \textbf{entrevista
+escalonada}: presenta el assessment, hace preguntas situacionales agrupadas en
+bloques de 2--3 (actividades preferidas, ambiente de trabajo ideal, materias y
+habilidades), infiere los seis puntajes RIASEC de forma conservadora, los
+confirma con el estudiante y reci\'en entonces invoca la herramienta
+\texttt{evaluate\_riasec\_profile}. El l\'imite es de 3--4 turnos de preguntas
+para no fatigar al estudiante.
 
-\paragraph{Entrevista escalonada.} La extracci\'on no se resuelve con un \'unico
-prompt directo (``a partir de todo lo conversado, dame los pesos''), que es
-propenso a error. En su lugar, el agente conduce una \textbf{entrevista
-escalonada} con retroalimentaci\'on: si el estudiante no ha dado suficiente
-informaci\'on, \emph{repregunta} (presupuesto, regi\'on, intereses) antes de
-inferir los pesos. Esto habilita un razonamiento por etapas (estilo
-\emph{Chain-of-Thought}): primero se caracteriza el perfil (nivel de presupuesto,
-afinidad vocacional, prioridades) y reci\'en despu\'es se traducen esas
-conclusiones en los cinco pesos, lo que reduce las asignaciones incoherentes.
+\begin{lstlisting}[style=pythonstyle, caption={Extracto real del system prompt de assessment (src/prompts/assessment.md)}, label={lst:prompt-extract}]
+## Como administrar el assessment
 
-\begin{lstlisting}[style=pythonstyle, caption={System prompt para extraccion estructurada de preferencias (esquema de 5 pesos)}, label={lst:prompt-extract}]
-EXTRACTOR_SYSTEM_PROMPT = """
-Eres un asistente que convierte mensajes libres de un estudiante
-peruano en preferencias estructuradas para un motor de recomendacion.
+1. Presenta el assessment brevemente (que es, para que sirve, ~5 min)
+2. Haz preguntas situacionales -- NO preguntes directamente "del 1 al 10..."
+   - Usa escenarios: "Si tuvieras un sabado libre, preferirias..."
+   - Agrupa 2-3 preguntas por mensaje para no alargar demasiado
+3. Infiere scores basandote en las respuestas
+4. Confirma con el estudiante: "Basandome en lo que me cuentas, veo que..."
+5. Llama a `evaluate_riasec_profile` con los 6 scores (1-10)
+6. Presenta el resultado de forma clara y positiva
 
-Devuelve un JSON con este esquema:
-{
-  "region": str | null,
-  "presupuesto_max": float | null,
-  "riasec": str | null,      # codigo Holland de 3 letras, p.ej. "IRE"
-  "peso_afinidad": float,    # 0.0 - 1.0
-  "peso_ingreso": float,
-  "peso_costo": float,
-  "peso_admision": float,
-  "peso_duracion": float
-}
-
-La suma de los cinco pesos debe ser 1.0. Un peso puede ser 0 si el
-estudiante indica que ese criterio no le importa.
-"""
+## Reglas
+- Maximo 3-4 turnos de preguntas (no hagas 20 preguntas)
+- Al inferir scores, se conservador: solo da 8-10 con senal muy clara
 \end{lstlisting}
 
-El c\'odigo RIASEC extraido alimenta el t\'ermino de \emph{afinidad} del motor de
-scoring, mientras que los pesos $w_1,\dots,w_5$ modulan din\'amicamente la
-importancia de cada criterio en cada sesi\'on (ver Secci\'on~\ref{sec:implementation}).
+El c\'odigo RIASEC resultante alimenta hoy el \'unico criterio de \emph{scoring}
+ya integrado en el agente (afinidad). El dise\~no contempla que una futura
+versi\'on de este mismo patr\'on de entrevista escalonada infiera tambi\'en los
+otros cuatro pesos $w_2,\dots,w_5$ (ingreso, costo, admisi\'on, duraci\'on), pero
+esa extracci\'on a\'un no est\'a implementada (ver Secci\'on~\ref{sec:results}).
+
+\subsection{Adaptaci\'on: idioma y \emph{guardrails}}
+
+Los cuatro \emph{system prompts} comparten una \textbf{regla de idioma de
+m\'axima prioridad}: el agente responde siempre en el mismo idioma en que
+escribe el estudiante (sin asumir espa\~nol por defecto ni traducir), lo que
+adapta autom\'aticamente la conversaci\'on a poblaci\'on biling\"ue sin
+necesidad de detectar el idioma expl\'icitamente en c\'odigo. Adem\'as, el
+agente incorpora tres capas de \emph{guardrails} que se ejecutan antes de
+invocar al modelo principal: un filtro de \emph{prompt injection}/\emph{jailbreak}
+(bilingüe), un clasificador de contenido inseguro (Claude Haiku, con
+pol\'itica \emph{fail-open} ante errores de red) y una redacci\'on de PII
+(correos, DNI y tel\'efonos peruanos) antes de persistir cualquier preferencia
+del estudiante. Estas tres capas son parte de la adaptaci\'on del sistema al
+contexto real de uso (estudiantes menores de edad, datos personales sensibles)
+y no estaban documentadas en versiones previas de este informe.
 
 \subsection{Flujo RAG (trabajo futuro)}
 
 En esta etapa, la recuperaci\'on de informaci\'on se resuelve como una
-\emph{herramienta} del agente que consulta directamente el dataset estructurado
-(\texttt{features.csv}); no se emplea a\'un una base vectorial dedicada. La
+\emph{herramienta} del agente (\texttt{search\_careers}) que hace b\'usqueda por
+palabra clave sobre el cat\'alogo piloto de carreras
+(\texttt{data/careers/*.md}, texto libre en la ficha de cada carrera); no
+consulta \texttt{features.csv} ni emplea a\'un una base vectorial. La
 generaci\'on aumentada por recuperaci\'on (RAG) \cite{gao2024, fan2024} se
-contempla como l\'inea de mejora: indexar las fichas descriptivas de carreras y
-universidades en un \emph{vector store} para que el agente ancle sus
-explicaciones en texto oficial adicional. La tecnolog\'ia concreta del vector
-store queda \emph{por definir}; se descart\'o \texttt{pgvector} sobre Aurora como
-opci\'on \'unica y la decisi\'on final se documentar\'a en la bit\'acora de
-arquitectura del equipo.
+contempla como l\'inea de mejora: el propio c\'odigo de \texttt{search\_careers}
+documenta la intenci\'on de reemplazar la b\'usqueda por palabra clave por
+\textbf{b\'usqueda sem\'antica con \texttt{pgvector}} sobre Aurora PostgreSQL en
+producci\'on --- es la direcci\'on planeada, no una opci\'on descartada --- para
+indexar las fichas de carreras y universidades y anclar las explicaciones del
+agente en texto oficial adicional. La fecha de esa migraci\'on a\'un no est\'a
+definida y se documentar\'a en la bit\'acora de arquitectura del equipo.
 
 \subsection{Ajustes finos (fine-tuning)}
 
