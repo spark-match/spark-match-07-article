@@ -5,9 +5,10 @@
 \section{Orquestaci\'on y despliegue}
 \label{sec:orchestration}
 
-El despliegue se apoya en un enfoque \emph{serverless} sobre AWS e infraestructura
-como c\'odigo con Terraform, con dos ambientes (\texttt{dev} y \texttt{prod}) y
-automatizaci\'on mediante GitHub Actions.
+El despliegue combina un backend de plataforma \emph{serverless} (AWS Lambda) con
+el agente ejecut\'andose como \textbf{contenedor en ECS Fargate}, todo sobre AWS,
+con infraestructura como c\'odigo (Terraform), dos ambientes (\texttt{dev} y
+\texttt{prod}) y automatizaci\'on mediante GitHub Actions.
 
 \subsection{Backend serverless (TypeScript + AWS SAM)}
 

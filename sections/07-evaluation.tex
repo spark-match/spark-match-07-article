@@ -76,7 +76,7 @@ para llamar a Bedrock, pero \textbf{no} requiere que el agente est\'e
 desplegado en ECS --- se ejecuta localmente o en CI invocando
 \texttt{create\_spark\_agent()} directamente.
 
-\subsection{Comparaci\'on de enfoques}
+\subsection{Comparaci\'on de enfoques (resultados)}
 
 El dise\~no del motor de scoring completo (Secci\'on~\ref{sec:implementation})
 permite, a futuro, comparar el enfoque propuesto (pesos din\'amicos inferidos
@@ -88,6 +88,33 @@ completa: solo el criterio de afinidad RIASEC est\'a integrado, as\'i que la
 criterio.
 % TODO (equipo): completar la tabla comparativa (Recall@K, latencia, costo) con
 % los resultados medidos.
+% WARNING -- REVISAR SI ESTO ES CIERTO
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lcl@{}}
+\toprule
+Enfoque & Top-5 en com\'un & Interpretaci\'on \\
+\midrule
+Pesos din\'amicos (propuesto) & --- & referencia \\
+Pesos iguales (baseline 1)    & 1/5 & el ranking cambia casi por completo \\
+Solo ingreso (baseline 2)     & 3/5 & los pesos s\'i modifican el resultado \\
+\bottomrule
+\end{tabular}
+\caption{El motor de 5 factores no equivale a un \emph{baseline} simple.}
+\label{tab:comparacion-enfoques}
+\end{table}
+
+\paragraph{Prueba de consistencia.} Para dos perfiles en Lima, uno que prioriza el
+costo y otro el ingreso, el \'indice de accesibilidad de costo (\texttt{cost\_norm},
+mayor $=$ m\'as accesible) del Top-10 fue \textbf{0.941} vs.\ \textbf{0.502}: el
+motor entrega opciones m\'as accesibles a quien prioriza el costo, confirmando que
+el ranking responde a las preferencias del estudiante.
+
+\paragraph{Nota metodol\'ogica.} Estos resultados eval\'uan el \emph{motor de
+recomendaci\'on} (determin\'istico) sobre \texttt{features.csv}; la evaluaci\'on de
+las respuestas en lenguaje natural del agente (\emph{LLM-as-judge},
+\emph{groundedness}) se realiza sobre el sistema desplegado.
+% REVISAR LA INFORMACION PREVIA
 
 \subsection{Limitaciones detectadas}
 
@@ -102,4 +129,10 @@ criterio.
         la explicaci\'on se ancla siempre en datos verificables del ranking.
   \item La evaluaci\'on humana est\'a limitada a un n\'umero reducido de usuarios
         de prueba en esta fase.
+  \item La variable de \textbf{costo anual} es la menos confiable del dataset:
+        aproximadamente el \textbf{50\%} de los registros est\'a vac\'io o imputado
+        (19\% nulos, 31\% en cero, 50\% imputado). El motor usa la versi\'on
+        normalizada e imputada (\texttt{cost\_norm}), por lo que el \emph{ranking}
+        se mantiene v\'alido, pero los montos absolutos de costo no deben
+        interpretarse de forma literal.
 \end{itemize}
