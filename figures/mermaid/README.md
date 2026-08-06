@@ -18,6 +18,7 @@ nota), siguiendo el mismo criterio de honestidad que el resto del informe.
 | 04 | `04-estados-agente.mmd` | `stateDiagram-v2` | 4 — Implementación | Máquina de estados del coordinador y los 3 subagentes (assessment/matching/planning). Pedido explícito del issue 07 ("diagrama de estados"). |
 | 05 | `05-cicd-pipeline.mmd` | `flowchart` | 5 — Orquestación y despliegue (o 6 — Monitoreo) | Quality gates en cada PR (SonarCloud, CodeQL, checkov/tflint, evals mock) + despliegue a ECS con rollback automático. |
 | 06 | `06-user-journey.mmd` | `journey` | 1 — Caso de uso (o 8 — Resultados) | Recorrido del estudiante extremo a extremo. Pedido explícito del issue 07 ("user journey"). |
+| 07 | `07-arquitectura-logica.mmd` | `flowchart` | 4 — Implementación | Reemplaza el TikZ original (`fig:architecture`), que dibujaba UI→Backend→Agent como cadena lineal — contradecía el ADR-012 ("frontend llama a ambos directamente, no hay proxy") y el propio texto de la sección. |
 
 ## Cómo renderizar
 

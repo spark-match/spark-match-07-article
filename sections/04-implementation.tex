@@ -33,40 +33,28 @@ El flujo principal de la soluci\'on (Figura~\ref{fig:architecture}) es el siguie
 
 \begin{figure}[H]
     \centering
-    \begin{tikzpicture}[
-        node distance=1cm and 1.5cm,
-        block/.style={rectangle, draw, rounded corners, minimum width=2.8cm, minimum height=0.9cm, align=center, fill=blue!10},
-        llm/.style={rectangle, draw, rounded corners, minimum width=2.8cm, minimum height=0.9cm, align=center, fill=orange!20},
-        data/.style={rectangle, draw, rounded corners, minimum width=2.8cm, minimum height=0.9cm, align=center, fill=green!15},
-        arrow/.style={->, >=Stealth, thick}
-    ]
-        \node[block] (ui) {Angular\\(UI)};
-        \node[block, right=of ui] (api) {Backend\\serverless (TS)};
-        \node[block, right=of api] (agent) {Deep Agent\\(deepagents)};
-        \node[llm, above=of agent] (llm) {AWS Bedrock\\(Claude)};
-        \node[block, below=of agent] (score) {Motor de\\Scoring};
-        \node[data, below=of score] (db) {RDS\\PostgreSQL};
-        \node[data, left=of score] (feat) {features.csv\\(dataset)};
-
-        \draw[arrow] (ui) -- (api);
-        \draw[arrow] (api) -- (agent);
-        \draw[arrow] (agent) -- (llm);
-        \draw[arrow] (agent) -- (score);
-        \draw[arrow] (score) -- (db);
-        \draw[arrow] (score) -- (feat);
-    \end{tikzpicture}
-    \caption{Arquitectura general de Spark Match (componentes principales).}
+    \includegraphics[width=0.95\linewidth]{fig-arquitectura-logica.png}
+    \caption{Arquitectura l\'ogica de componentes: el frontend se conecta
+    \textbf{directamente} al backend (autenticaci\'on/CRUD) y al agente
+    (conversaci\'on), sin proxy entre ambos.}
     \label{fig:architecture}
 \end{figure}
-% TODO (equipo): agregar diagramas mas detallados generados desde los repos
-% (diagrama de flujo, diagrama de estados y user journey) en mermaid renderizado.
 
-\emph{Nota:} la Figura~\ref{fig:architecture} representa el dise\~no objetivo de
-la arquitectura, a nivel de componentes l\'ogicos (no de despliegue). En el
+\emph{Nota:} el frontend Angular llama a \textbf{ambos servicios de forma
+directa} --- al backend serverless para autenticaci\'on y operaciones CRUD, y
+al agente (\texttt{POST /ag-ui}, \emph{streaming} SSE) para la conversaci\'on
+--- reutilizando el mismo JWT en ambas llamadas; \textbf{no hay} un
+\emph{proxy} del backend hacia el agente, decisi\'on documentada
+expl\'icitamente en el ADR-012 del backend. El agente corre detr\'as de su
+propio \emph{Application Load Balancer} p\'ublico (no detr\'as de API
+Gateway), precisamente porque el \emph{timeout} fijo de 30s de API Gateway
+HTTP API cortar\'ia el \emph{streaming} SSE de \texttt{/ag-ui}. La
+Figura~\ref{fig:architecture} representa el dise\~no objetivo de la
+arquitectura a nivel de componentes l\'ogicos (no de despliegue): en el
 prototipo actual, el agente invoca directamente la herramienta de afinidad
 RIASEC sobre un cat\'alogo piloto de carreras; la conexi\'on del motor de
-scoring con la base de datos y con \texttt{features.csv} (bloques inferiores de
-la figura) es trabajo en curso (Secci\'on~\ref{sec:results}). La base de datos
+scoring con \texttt{features.csv} (nodo derecho de la figura, marcado en
+rojo) es trabajo en curso (Secci\'on~\ref{sec:results}). La base de datos
 relacional del proyecto es \textbf{Amazon RDS para PostgreSQL} (no Aurora); se
 usa hoy para la persistencia de memoria del agente (ver subsecci\'on
 siguiente) y para el dominio \texttt{identity} del backend.

@@ -1,0 +1,34 @@
+%% Reemplaza el diagrama TikZ original (fig:architecture, Seccion 4) que
+%% dibujaba UI -> Backend -> Agent como cadena lineal. Eso contradice tanto
+%% el ADR-012 de spark-match-03-backend ("Frontend llama a ambos
+%% directamente, no hay proxy") como el propio parrafo introductorio de la
+%% Seccion 4, que ya describe al frontend hablando directo con el agente.
+%% Nombre de archivo sugerido al renderizar: fig-arquitectura-logica.png
+%% Caption sugerido: "Arquitectura logica de componentes: el frontend se
+%% conecta directamente al backend (autenticacion/CRUD) y al agente
+%% (conversacion), sin proxy entre ambos."
+%% Label sugerido: fig:architecture (mismo label que el diagrama que reemplaza)
+
+flowchart LR
+    UI["Angular UI<br/>(frontend)"]
+    BE["Backend serverless<br/>(Lambda, solo contexto identity)"]
+    AG["Deep Agent<br/>(FastAPI/uvicorn, ECS Fargate)"]
+    LLM["AWS Bedrock<br/>(Claude)"]
+    SCORE["Motor de scoring<br/>(subagente matching)"]
+    CAT["Catalogo piloto<br/>(19 carreras)"]
+    FEAT[("features.csv<br/>6,208 combinaciones")]
+    MEM[("RDS PostgreSQL<br/>langmem + identity")]
+
+    UI -- "login / CRUD<br/>(JWT)" --> BE
+    UI -- "conversacion<br/>(POST /ag-ui, streaming SSE)<br/>mismo JWT, llamada directa" --> AG
+    BE --> MEM
+    AG --> LLM
+    AG --> SCORE
+    AG --> MEM
+    SCORE --> CAT
+    SCORE -.->|"NO conectado aun<br/>(diseno objetivo)"| FEAT
+
+    classDef done fill:#dcfce7,stroke:#16a34a,stroke-width:1px
+    classDef pending fill:#fee2e2,stroke:#c00,stroke-width:1px,stroke-dasharray: 5 5
+    class UI,BE,AG,LLM,SCORE,CAT,MEM done
+    class FEAT pending
