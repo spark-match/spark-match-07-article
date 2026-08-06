@@ -1,96 +1,95 @@
-# Spark Match: Copiloto de Orientación Vocacional con IA Generativa
+# Spark Match: An AI Copilot for Career Guidance
 
-Trabajo de Fin de Programa del **II Programa de Especialización en IA Generativa y Machine Learning Ops** de la **Universidad Nacional de Ingeniería (UNI)**.
+Final project (*Trabajo de Fin de Programa*) of the **II Programa de Especializacion en IA Generativa y Machine Learning Ops** at the **Universidad Nacional de Ingenieria (UNI)**, Lima, Peru.
 
-Artículo académico que documenta el diseño, implementación, despliegue y evaluación de **Spark Match**, un sistema híbrido que combina un agente conversacional basado en LLMs (harness `deepagents` + AWS Bedrock) con un motor de scoring determinista para recomendar combinaciones *Carrera - Universidad* a estudiantes preuniversitarios peruanos.
+This repository holds the academic paper: LaTeX sources, BibTeX references, Mermaid diagram sources and the toolchain that compiles them into a PDF. **The paper itself is written in Spanish**, since that is the language of the programme it is submitted to. This README and the community documents are in English to match the rest of the `spark-match` organisation.
 
----
-
-## Stack Técnico
-
-| Capa | Tecnología |
-|:---|:---|
-| IA Generativa | AWS Bedrock (Claude), Deep Agents (harness `deepagents`), langmem |
-| Agente y scoring | Python (harness `deepagents`, Pandas, NumPy) |
-| Backend | TypeScript serverless (AWS Lambda, EventBridge, AWS SAM, DDD) |
-| Frontend | Angular 21 + Angular Material |
-| Datos | Ponte en Carrera (features.csv), Selenium, Pandas, RDS PostgreSQL |
-| MLOps | LangSmith, DVC, GitHub Actions |
-| DevOps | Terraform (dev/prod), AWS, checkov, tflint, AWS Budgets |
-| Documentación | LaTeX (artículo) |
+The paper documents the design, implementation, deployment and evaluation of **Spark Match**, a hybrid system that pairs an LLM-based conversational agent (`deepagents` harness on AWS Bedrock) with a deterministic scoring engine, to recommend *degree programme + university* combinations to Peruvian secondary-school students.
 
 ---
 
-## Ecosistema de Repositorios
+## What this repository is not
 
-Este artículo forma parte del ecosistema **`spark-match`**:
+It ships no runtime, no service and no library. Nothing here is deployed. The only build output is `main.pdf`, published as a GitHub Release on every merge.
 
-| Componente | Repositorio | Descripción |
+The platform the paper describes lives in the other repositories listed below. A finding about the agent, the API or the infrastructure belongs there, not here.
+
+---
+
+## Repository ecosystem
+
+| Component | Repository | Description |
 |:---|:---|:---|
-| DevOps / CI/CD | [`spark-match-01-devops`](https://github.com/spark-match/spark-match-01-devops) | GitHub Actions reutilizables, Apidog tests |
-| Infraestructura | [`spark-match-02-infrastructure`](https://github.com/spark-match/spark-match-02-infrastructure) | Terraform para AWS (VPC, Lambda, EventBridge, ECS Fargate, RDS PostgreSQL, S3) |
+| DevOps / CI/CD | [`spark-match-01-devops`](https://github.com/spark-match/spark-match-01-devops) | Reusable GitHub Actions workflows, governance tooling |
+| Infrastructure | [`spark-match-02-infrastructure`](https://github.com/spark-match/spark-match-02-infrastructure) | Terraform for AWS (VPC, Lambda, EventBridge, ECS Fargate, RDS PostgreSQL, S3) |
 | Backend | [`spark-match-03-backend`](https://github.com/spark-match/spark-match-03-backend) | Serverless TypeScript (Lambda + EventBridge + SAM) |
-| Frontend | [`spark-match-04-frontend`](https://github.com/spark-match/spark-match-04-frontend) | Angular SPA conversacional |
-| Pipeline de Datos | [`spark-match-05-data-pipeline`](https://github.com/spark-match/spark-match-05-data-pipeline) | ETL + scraping con Selenium + etiquetado RIASEC |
-| Entrenamiento | [`spark-match-06-model-training`](https://github.com/spark-match/spark-match-06-model-training) | Experimentos y seguimiento con Weights & Biases |
-| Artículo | [`spark-match-07-article`](https://github.com/spark-match/spark-match-07-article) | Este repositorio -- LaTeX con CI/CD |
-| Agente conversacional | [`spark-match-08-deep-agent`](https://github.com/spark-match/spark-match-08-deep-agent) | Deep Agent (harness `deepagents`) + langmem + evals |
+| Frontend | [`spark-match-04-frontend`](https://github.com/spark-match/spark-match-04-frontend) | Angular conversational SPA |
+| Data pipeline | [`spark-match-05-data-pipeline`](https://github.com/spark-match/spark-match-05-data-pipeline) | ETL, Selenium scraping, RIASEC labelling |
+| Model training | [`spark-match-06-model-training`](https://github.com/spark-match/spark-match-06-model-training) | Experiments and tracking with Weights & Biases |
+| Paper | [`spark-match-07-article`](https://github.com/spark-match/spark-match-07-article) | This repository -- LaTeX with CI/CD |
+| Conversational agent | [`spark-match-08-deep-agent`](https://github.com/spark-match/spark-match-08-deep-agent) | Deep Agent (`deepagents` harness) + langmem + evals |
+
+The stack described in the paper: AWS Bedrock (Claude) and the `deepagents` harness with langmem for the agent; Python with Pandas and NumPy for scoring; serverless TypeScript on AWS Lambda, EventBridge and SAM for the backend; Angular 21 with Angular Material for the frontend; Ponte en Carrera (MINEDU) as the data source, ingested with Selenium and Pandas into RDS PostgreSQL; LangSmith, DVC and GitHub Actions for MLOps; Terraform with checkov, tflint and AWS Budgets for infrastructure.
 
 ---
 
-## Estructura del Repositorio
+## Repository layout
 
 ```
 spark-match-07-article/
-|-- main.tex                        # Documento principal
-|-- references.bib                  # Referencias BibTeX (formato APA, min. 5)
+|-- main.tex                          Title page, abstract, resource table, \input of every section
+|-- references.bib                    BibTeX references, apalike style (8 entries)
 |-- config/
-|   |-- preamble.tex                # Paquetes y configuracion global
-|-- sections/
-|   |-- 01-use-case.tex             # Descripcion del caso de uso
-|   |-- 02-model-data.tex           # Seleccion de modelo y datos
-|   |-- 03-prompts.tex              # Ingenieria de prompts y RAG
-|   |-- 04-implementation.tex       # Implementacion de la aplicacion
-|   |-- 05-orchestration.tex        # Orquestacion y despliegue
-|   |-- 06-monitoring.tex           # Monitoreo y mantenimiento
-|   |-- 07-evaluation.tex           # Evaluacion de la aplicacion
-|   |-- 08-results.tex              # Resultados y demostracion
-|   |-- 09-conclusions.tex          # Conclusiones
-|   |-- 10-recommendations.tex      # Recomendaciones
-|-- figures/                        # PNG que main.tex incluye
-|   |-- mermaid/                    # Fuentes .mmd de los diagramas + autocrop.py
+|   |-- preamble.tex                  Packages and global configuration
+|-- sections/                         Every file is \input from main.tex, in this order
+|   |-- 01-use-case.tex               Use case description
+|   |-- 02-model-data.tex             Model and data selection
+|   |-- 03-prompts.tex                Prompt engineering and RAG
+|   |-- 04-implementation.tex         Application implementation
+|   |-- 05-orchestration.tex          Orchestration and deployment
+|   |-- 06-monitoring.tex             Monitoring and maintenance
+|   |-- 07-evaluation.tex             Application evaluation
+|   |-- 08-results.tex                Results and demo
+|   |-- 09-conclusions.tex            Conclusions
+|   |-- 10-recommendations.tex        Recommendations
+|-- figures/                          The 7 PNGs main.tex includes
+|   |-- mermaid/                      The 7 .mmd sources, autocrop.py, and their README
 |-- DOCS/
-|   |-- TFP-GUIDELINES.md           # Requisitos del TFP
-|   |-- RUBRICA-PROGRAMA.md         # Rubrica de evaluacion
-|   |-- pre-evaluaciones/           # Proyecciones de nota
-|   |-- issues/issues-v1/           # Seguimiento de trabajo pendiente
-|-- compile.ps1                     # Compilador PowerShell
-|-- compile.bat                     # Compilador CMD
+|   |-- TFP-GUIDELINES.md             Programme requirements for the final project
+|   |-- RUBRICA-PROGRAMA.md           Grading rubric
+|   |-- pre-evaluaciones/             Grade projections
+|   |-- issues/issues-v1/             Outstanding work, 00-INDEX.md plus 12 items
 |-- scripts/
-|   |-- build.sh                    # Compilador Linux/macOS
-|   |-- clean.sh                    # Limpieza de archivos auxiliares
-|   |-- watch.sh                    # Recompilacion automatica
-|-- .latexmkrc                      # Configuracion de latexmk
-|-- .gitattributes                  # Normalizacion de line endings
+|   |-- build.sh                      Linux/macOS build (latexmk, falls back to pdflatex)
+|   |-- clean.sh                      Remove LaTeX auxiliary files
+|   |-- watch.sh                      Rebuild on change (latexmk -pvc)
+|-- compile.ps1                       Windows build, PowerShell
+|-- compile.bat                       Windows build, CMD
+|-- .latexmkrc                        latexmk configuration: pdf_mode, synctex, bibtex
+|-- .gitattributes                    Line-ending normalisation
+|-- .gitignore                        Excludes main.pdf and LaTeX auxiliary files
 |-- .github/
-|   |-- CODEOWNERS                  # Revisores requeridos por path
-|   |-- workflows/ci.yml            # Compila el PDF en cada pull request
-|   |-- workflows/cd.yml            # Tag + GitHub Release al mergear
+|   |-- CODEOWNERS                    Required reviewers per path
+|   |-- workflows/ci.yml              Compiles the PDF on pull requests that touch the paper
+|   |-- workflows/cd.yml              Tag and GitHub Release on merge
+|-- LICENSE                           CC BY-SA 4.0, full legal code
+|-- README.md                         This file
+|-- CONTRIBUTING.md                   How to propose a change
+|-- CODE_OF_CONDUCT.md                Contributor Covenant 2.1
+|-- SECURITY.md                       What to report and through which private channel
 ```
 
-Los PNG de `figures/` **se generan** desde los `.mmd` de `figures/mermaid/`. Al
-cambiar un diagrama hay que editar el `.mmd`, no el PNG: ver
-`figures/mermaid/README.md`.
+The PNGs under `figures/` are **generated** from the `.mmd` sources in `figures/mermaid/`. To change a diagram, edit the `.mmd` and regenerate; editing the PNG directly is lost on the next regeneration. See [`figures/mermaid/README.md`](figures/mermaid/README.md).
 
 ---
 
-## Compilación del Artículo
+## Building the paper
 
-### Requisitos
+### Requirements
 
-- **Windows:** [MiKTeX](https://miktex.org/) con `pdflatex` y `bibtex`
-- **Linux/macOS:** [TeX Live](https://tug.org/texlive/) (`texlive-full` o equivalente)
-- **Paquetes LaTeX:** `babel-spanish`, `amsmath`, `tikz`, `listings`, `algorithms`, `booktabs`, `tcolorbox`, `hyperref`, `natbib`
+- **Windows:** [MiKTeX](https://miktex.org/) with `pdflatex` and `bibtex`
+- **Linux/macOS:** [TeX Live](https://tug.org/texlive/) (`texlive-full` or equivalent)
+- **LaTeX packages:** `babel-spanish`, `amsmath`, `tikz`, `listings`, `algorithms`, `booktabs`, `tcolorbox`, `hyperref`, `natbib`
 
 ### Windows -- PowerShell
 
@@ -107,104 +106,119 @@ compile.bat
 ### Linux / macOS
 
 ```bash
-chmod +x scripts/*.sh
-./scripts/build.sh
+chmod +x scripts/*.sh && ./scripts/build.sh
 ```
 
-### Modo watch (recompilación automática)
+### Watch mode
 
 ```bash
 ./scripts/watch.sh
 ```
 
-### Resultado
+### Output
 
-El PDF generado se ubica en `main.pdf` (excluido del repositorio vía `.gitignore`).
+`main.pdf`, at the repository root. It is excluded by `.gitignore`: the PDF is a build output, and the published copies are the GitHub Release assets.
 
 ---
 
-## CI/CD (GitHub Actions)
+## CI/CD
 
-El pipeline está dividido en dos workflows independientes bajo `.github/workflows/`:
+Two independent workflows under `.github/workflows/`. Both are thin callers of reusable workflows that live in [`spark-match-01-devops`](https://github.com/spark-match/spark-match-01-devops), so the build logic is versioned once for the whole organisation.
 
-| Workflow | Trigger | Acción |
+| Workflow | Trigger | What it does |
 |:---|:---|:---|
-| **CI** (`ci.yml`) | Pull Request `opened` / `synchronize` / `reopened` hacia `main` | Compila el PDF y lo publica como artifact `spark-match-paper-pr-<N>` para que los revisores descarguen la previsualización. No crea tags ni releases. |
-| **CD** (`cd.yml`) | Pull Request `closed` con `merged == true` hacia `main` | Compila el PDF, hace auto-bump de la versión patch desde el último tag, crea el nuevo tag `vX.Y.Z` y publica un GitHub Release con el PDF adjunto. |
+| **CI** (`ci.yml`) | Pull request `opened` / `synchronize` / `reopened` against `main`, **filtered by path** | Compiles the PDF and uploads it as artifact `spark-match-paper-pr-<N>`, retained 14 days, so reviewers read the rendered paper instead of the diff. Creates no tags and no releases. |
+| **CD** (`cd.yml`) | Pull request `closed` with `merged == true` against `main` | Compiles the PDF from the merge commit, bumps the patch version, creates tag `vX.Y.Z` and publishes a GitHub Release with the PDF attached. |
 
-### Versionado automático
+### The CI path filter, and why no check is required
 
-El CD lee el tag más reciente (`git describe --tags --abbrev=0`) e incrementa el componente **patch**:
+CI only runs when a pull request touches `**.tex`, `**.bib`, `figures/**` or `.github/workflows/**`. A pull request that only edits Markdown -- this README, `CONTRIBUTING.md`, anything under `DOCS/` -- produces **no CI run at all**, by design: there is nothing new to compile.
 
-- Sin tags previos → `v0.0.1`
-- Último tag `v0.2.4` → `v0.2.5`
-- Para un bump **major** o **minor** (ej. `v1.0.0`) crea el tag manualmente antes del merge:
+This is why the governance manifest in `spark-match-01-devops` lists **no required status checks** for this repository. A required check that a path filter can skip never reports, and GitHub blocks the pull request forever on *"Expected -- waiting for status to be reported"*. Merge protection comes from the ruleset instead: one approving review, code-owner review required, linear history, squash-only merges.
+
+### Automatic versioning
+
+CD reads the highest existing tag and increments the **patch** component. For a **major** or **minor** bump, create the tag by hand before merging:
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.0.0 && git push origin v1.0.0
 ```
 
-### Flujo de trabajo recomendado
+Two things worth knowing, both found on 2026-08-06:
 
-1. Crear una rama feature: `git checkout -b feat/seccion-04`
-2. Hacer commits y push: `git push origin feat/seccion-04`
-3. Abrir Pull Request hacia `main` → **CI** compila y sube el PDF como artifact
-4. Revisar el PDF descargado, pedir cambios o aprobar
-5. Al hacer merge → **CD** crea el release `v0.0.X` con el PDF final
+- The release is compiled from the **merge commit of its own pull request**, not from whatever `main` points at when the runner starts. Two merges in quick succession no longer produce two releases containing the same tree.
+- If the computed tag already exists, the job now **fails** instead of replacing the release attached to it. It used to overwrite the published PDF in silence, with every job green. Tags `v0.0.6` and `v0.0.7` sit on the same commit as a leftover of that bug, and the asset under `v0.0.7` does not correspond to the source at that tag. Releases from `v0.0.8` onward are sound.
 
----
+### Workflow
 
-## Rubrica del TFP (UNI)
+1. Branch: `git checkout -b feat/seccion-04`
+2. Commit and push
+3. Open a pull request against `main`. If it touches the paper, CI compiles it and attaches the PDF
+4. A code owner reviews the rendered PDF, not the LaTeX diff
+5. On merge, CD publishes the release
 
-El documento cubre las 12 secciones de la rúbrica del Trabajo de Fin de Programa (20 puntos):
-
-1. Descripción del caso de uso (1 pt) -- `01-use-case.tex`
-2. Selección de modelo y datos (1 pt) -- `02-model-data.tex`
-3. Ingeniería de prompts y adaptación (2 pt) -- `03-prompts.tex`
-4. Implementación de la aplicación (3 pt) -- `04-implementation.tex`
-5. Orquestación y despliegue (2 pt) -- `05-orchestration.tex`
-6. Monitoreo y mantenimiento (2 pt) -- `06-monitoring.tex`
-7. Evaluación de la aplicación (2 pt) -- `07-evaluation.tex`
-8. Resultados y demostración (2 pt) -- `08-results.tex`
-9. Conclusiones (1 pt) -- `09-conclusions.tex`
-10. Recomendaciones (1 pt) -- `10-recommendations.tex`
-11. Referencias bibliográficas APA (1 pt) -- `references.bib`
-12. Link de exposición (2 pt) -- sección *Resultados*
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full process.
 
 ---
 
-## Fechas clave
+## Programme rubric
 
-- **Avance:** domingo 14/06/2026 hasta las 23:00 horas
-- **Entrega final:** domingo 09/08/2026 a las 13:00 horas
+The paper covers the 12 sections of the final-project rubric, worth 20 points:
+
+| # | Section | Points | File |
+|:--|:---|:--|:---|
+| 1 | Use case description | 1 | `sections/01-use-case.tex` |
+| 2 | Model and data selection | 1 | `sections/02-model-data.tex` |
+| 3 | Prompt engineering and adaptation | 2 | `sections/03-prompts.tex` |
+| 4 | Application implementation | 3 | `sections/04-implementation.tex` |
+| 5 | Orchestration and deployment | 2 | `sections/05-orchestration.tex` |
+| 6 | Monitoring and maintenance | 2 | `sections/06-monitoring.tex` |
+| 7 | Application evaluation | 2 | `sections/07-evaluation.tex` |
+| 8 | Results and demo | 2 | `sections/08-results.tex` |
+| 9 | Conclusions | 1 | `sections/09-conclusions.tex` |
+| 10 | Recommendations | 1 | `sections/10-recommendations.tex` |
+| 11 | APA bibliography | 1 | `references.bib` |
+| 12 | Presentation link | 2 | Results section |
+
+Requirements and grading criteria are transcribed in [`DOCS/TFP-GUIDELINES.md`](DOCS/TFP-GUIDELINES.md) and [`DOCS/RUBRICA-PROGRAMA.md`](DOCS/RUBRICA-PROGRAMA.md). Outstanding work is tracked in [`DOCS/issues/issues-v1/00-INDEX.md`](DOCS/issues/issues-v1/00-INDEX.md).
 
 ---
 
-## Autores
+## Key dates
+
+| Milestone | Date |
+|:---|:---|
+| Progress submission | Sunday 14 June 2026, 23:00 |
+| Final submission | Sunday 9 August 2026, 13:00 |
+
+---
+
+## Authors
 
 - Fabiola G. Tapara Quispe
 - Angel E. Hincho Jove
 - Andy B. Huamani Tacoma
-- Nikolai A. Asencios García
+- Nikolai A. Asencios Garcia
 - David Barreto Lara
 
-**Programa:** II Programa de Especialización en IA Generativa y Machine Learning Ops
-**Institución:** Universidad Nacional de Ingeniería (UNI) -- Facultad de Ingeniería Económica, Estadística y Ciencias Sociales
+**Programme:** II Programa de Especializacion en IA Generativa y Machine Learning Ops
+**Institution:** Universidad Nacional de Ingenieria (UNI) -- Facultad de Ingenieria Economica, Estadistica y Ciencias Sociales
+
+Maintained by `@spark-match/article-authors`. Contact: <ahincho@unsa.edu.pe> or [@ahincho](https://github.com/ahincho).
 
 ---
 
-## Licencia
+## License
 
 Copyright (c) 2026 Spark Match Team.
 
-Esta obra está bajo [Creative Commons Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0/) (CC BY-SA 4.0). El texto completo está en [`LICENSE`](LICENSE).
+This work is licensed under [Creative Commons Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0/) (CC BY-SA 4.0). The full legal code is in [`LICENSE`](LICENSE).
 
-Puedes copiar, redistribuir y adaptar el material, incluso comercialmente, con dos condiciones:
+You may copy, redistribute and adapt the material, including commercially, under two conditions:
 
-- **Atribución** — dar crédito, enlazar la licencia e indicar si hiciste cambios.
-- **Compartir igual** — si adaptas el material, distribuir tu versión bajo esta misma licencia.
+- **Attribution** -- credit the authors, link the license, and state whether you made changes.
+- **ShareAlike** -- if you adapt the material, distribute your version under this same license.
 
-El resto de repositorios de `spark-match` usan **GPL-3.0**, que es una licencia de software. Aquí no encaja: sus términos hablan de código objeto, enlazado e *installation information*, conceptos que no tienen traducción para prosa y figuras. La propia FSF recomienda Creative Commons para obras que no son software. CC BY-SA da el mismo copyleft, redactado para contenido.
+The other `spark-match` repositories use **GPL-3.0**, which is a software license. It does not fit here: its terms speak of object code, linking and *installation information*, concepts with no meaning for prose and figures. The FSF itself recommends Creative Commons for works that are not software. CC BY-SA provides the same copyleft, written for content.
 
-Los autores y la institución están en la portada del artículo (`\begin{titlepage}` en `main.tex`) y arriba en este README.
+Authors and institution appear on the paper's title page (`\begin{titlepage}` in `main.tex`) and above in this README.
