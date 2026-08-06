@@ -57,6 +57,20 @@ para no fatigar al estudiante.
 - Al inferir scores, se conservador: solo da 8-10 con senal muy clara
 \end{lstlisting}
 
+La Figura~\ref{fig:ev-assessment} muestra la entrevista escalonada en una
+ejecuci\'on real: el agente agrupa preguntas situacionales por bloques (dise\~no
+vs.\ optimizaci\'on, trabajo individual vs.\ en equipo, estructura vs.\
+espontaneidad) en lugar de pedir una autoevaluaci\'on directa.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{fig-evidencia-assessment.png}
+    \caption{Ejecuci\'on real de la entrevista escalonada: el subagente
+    \texttt{assessment} formula preguntas situacionales agrupadas para inferir el
+    perfil RIASEC de forma conversacional.}
+    \label{fig:ev-assessment}
+\end{figure}
+
 El c\'odigo RIASEC resultante alimenta hoy el \'unico criterio de \emph{scoring}
 ya integrado en el agente (afinidad). El dise\~no contempla que una futura
 versi\'on de este mismo patr\'on de entrevista escalonada infiera tambi\'en los
