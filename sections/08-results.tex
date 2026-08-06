@@ -23,7 +23,7 @@ implementados:
         c\'alculo de afinidad vocacional (\texttt{calculate\_affinity}) y
         b\'usqueda web de respaldo (\texttt{web\_search}), servido con
         FastAPI/uvicorn sobre ECS Fargate, trazado con LangSmith y verificado
-        por un \emph{framework de evaluaci\'on} con 29 casos conversacionales
+        por un \emph{framework de evaluaci\'on} con 30 casos conversacionales
         (\texttt{evals/}) que corre autom\'aticamente en cada \emph{pull
         request} (Secci\'on~\ref{sec:prompts});
   \item el \textbf{backend serverless} (TypeScript, \'unicamente el contexto
@@ -38,6 +38,18 @@ implementados:
         Fargate + ALB + CloudFront del agente, y la base de datos RDS
         PostgreSQL compartida.
 \end{itemize}
+
+El frontend se encuentra desplegado y accesible en el ambiente \texttt{dev}
+(Figura~\ref{fig:ev-frontend}), con las vistas de inicio, filtros, chat, reporte
+y perfil operativas.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{fig-evidencia-frontend-home.png}
+    \caption{Frontend (Angular) desplegado en \texttt{dev}: p\'agina de inicio de
+    Spark Match con acceso a orientaci\'on, filtros, chat y reporte.}
+    \label{fig:ev-frontend}
+\end{figure}
 
 \paragraph{Alcance real del motor de scoring (importante).} De los cinco
 criterios dise\~nados (afinidad, ingreso, costo, admisi\'on, duraci\'on), a la
@@ -91,16 +103,88 @@ El motor de scoring aplica los filtros duros (regi\'on Cusco, presupuesto) y
 ordena las combinaciones carrera--universidad por su puntaje, generando un ranking
 Top-N. Finalmente, el agente redacta una justificaci\'on en lenguaje natural que
 cita los datos que sustentan cada recomendaci\'on (ingreso promedio, costo,
-afinidad).
+afinidad). La subsecci\'on siguiente muestra una \textbf{ejecuci\'on real} del
+agente sobre el alcance ya integrado.
+
+\subsection{Ejemplo de salida real (ejecuci\'on del agente en \texttt{dev})}
+\label{sub:evidencia-real}
+
+A diferencia del ejemplo objetivo anterior, esta subsecci\'on documenta una
+\textbf{ejecuci\'on real} del agente desplegado en el ambiente \texttt{dev}
+(\url{https://d3sx4v4l1enpvk.cloudfront.net}), capturada durante las pruebas de
+QA. Cubre el alcance actualmente integrado: la \textbf{entrevista RIASEC
+escalonada} y el \textbf{c\'alculo de afinidad} sobre el cat\'alogo piloto.
+
+\paragraph{Caso A --- perfil t\'ecnico.} El estudiante completa la entrevista
+situacional; el agente infiere el c\'odigo \textbf{ICR} (Investigativo~9,
+Convencional~8, Realista~6) en tres o cuatro turnos y lo confirma antes de
+cerrar. Al solicitar recomendaciones, el subagente \texttt{matching} calcula la
+afinidad y devuelve un ranking encabezado por \textbf{Ciencia de Datos (100\%)}
+y \textbf{Ciencias de la Computaci\'on (75\%)}. Ante la pregunta ``\textit{?`por
+qu\'e esa carrera?}'', el agente \textbf{explica el c\'alculo} (comparaci\'on
+posicional de los c\'odigos RIASEC), lo que evidencia la trazabilidad de la
+recomendaci\'on.
 
 \begin{figure}[H]
     \centering
-    % \includegraphics[width=0.95\linewidth]{chat-screenshot.png}
-    \caption{Captura de la interfaz conversacional de Spark Match (por incluir).}
-    \label{fig:chat}
+    \includegraphics[width=0.85\linewidth]{fig-evidencia-ranking-icr.png}
+    \caption{Ejecuci\'on real: ranking para el perfil ICR, encabezado por
+    Ciencia de Datos (afinidad 100\%). El agente opera sobre el cat\'alogo
+    piloto y solo aplica el criterio de afinidad RIASEC.}
+    \label{fig:ev-icr}
 \end{figure}
-% TODO (equipo): reemplazar por capturas reales de la app corriendo, el ranking
-% Top-N de un caso real y el enlace a la demo/video.
+
+\paragraph{Explicabilidad de la recomendaci\'on.} Ante la pregunta del estudiante
+por el fundamento del ranking, el agente detalla c\'omo se calcula la afinidad:
+descompone el perfil RIASEC inferido, muestra el c\'odigo de cada carrera del
+cat\'alogo y explica la comparaci\'on posicional que produce el porcentaje de
+afinidad (Figuras~\ref{fig:ev-expl-1} y~\ref{fig:ev-expl-2}). Esto materializa el
+principio de dise\~no del sistema: el LLM \textbf{interpreta y explica}, pero la
+recomendaci\'on se sustenta en un c\'alculo transparente y reproducible, no en una
+respuesta opaca del modelo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{fig-evidencia-explicacion.png}
+    \caption{Ejecuci\'on real: el agente explica el fundamento de la
+    recomendaci\'on (perfil RIASEC del estudiante y de cada carrera).}
+    \label{fig:ev-expl-1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{fig-evidencia-explicacion-2.png}
+    \caption{Ejecuci\'on real (cont.): c\'alculo de afinidad por comparaci\'on
+    posicional de c\'odigos RIASEC y validaci\'on con los intereses declarados.}
+    \label{fig:ev-expl-2}
+\end{figure}
+
+\paragraph{Caso B --- perfil social (usuario distinto).} Un segundo estudiante,
+en una \textbf{cuenta diferente}, completa la entrevista; el agente infiere el
+c\'odigo \textbf{SAE} (Social~9, Art\'istico~8, Emprendedor~7), coherente y
+opuesto al del Caso~A. El ranking resultante lo encabeza
+\textbf{Educaci\'on/Pedagog\'ia (100\%)}, seguida de Turismo, Periodismo,
+Marketing y Psicolog\'ia --- carreras sociales, \textbf{sin ninguna filtraci\'on}
+del perfil t\'ecnico del Caso~A. Esto evidencia el \textbf{aislamiento de la
+memoria por usuario} (\texttt{langmem} bajo el espacio de nombres del JWT).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{fig-evidencia-ranking-sae.png}
+    \caption{Ejecuci\'on real: ranking para el perfil SAE (usuario distinto),
+    encabezado por Educaci\'on/Pedagog\'ia (100\%). No hay filtraci\'on del
+    perfil del Caso~A, lo que confirma el aislamiento por usuario.}
+    \label{fig:ev-sae}
+\end{figure}
+
+\paragraph{Qu\'e validan estas ejecuciones (y qu\'e no).} Las capturas confirman
+que funcionan \textbf{la entrevista RIASEC escalonada}, la \textbf{inferencia
+coherente} del perfil en dos casos opuestos, la \textbf{explicabilidad} de la
+recomendaci\'on y el \textbf{aislamiento por usuario}. De forma consistente con
+el alcance descrito arriba, el ranking se basa \textbf{\'unicamente en la
+afinidad RIASEC} sobre el cat\'alogo piloto de 19 carreras (sin ingreso, costo,
+admisi\'on ni universidad); la integraci\'on del motor multicriterio sobre
+\texttt{features.csv} permanece como trabajo pendiente.
 
 \subsection{Evidencia funcional}
 
@@ -112,6 +196,7 @@ recomendaciones explicadas. La evidencia incluir\'a:
 \begin{itemize}[noitemsep]
   \item \textbf{Repositorios:} \url{https://github.com/spark-match}.
   \item \textbf{Demo / video:} enlace por definir tras el despliegue.
-  \item \textbf{Capturas:} conversaci\'on real con el agente (Figura~\ref{fig:chat}),
-        ranking Top-N y trazas de observabilidad en LangSmith.
+  \item \textbf{Capturas:} ejecuciones reales del agente
+        (Figuras~\ref{fig:ev-icr} y~\ref{fig:ev-sae}), ranking Top-N y trazas de
+        observabilidad en LangSmith.
 \end{itemize}

@@ -58,6 +58,20 @@ pendiente, no como una capacidad ya operativa.
         Secci\'on~\ref{sec:model-data}).
 \end{itemize}
 
+El versionado tambi\'en se expone en la interfaz: un modo de administraci\'on
+permite seleccionar la versi\'on de \emph{prompt} y de f\'ormula de \emph{scoring}
+activas y ajustar el umbral de relevancia en caliente
+(Figura~\ref{fig:ev-mlops}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.42\linewidth]{fig-evidencia-mlops-versionado.png}
+    \caption{Panel de administraci\'on (MLOps) en la interfaz: selecci\'on de la
+    versi\'on de \emph{prompt} (v2.4) y de \emph{scoring} (v3) y umbral de
+    relevancia, como evidencia del versionado en operaci\'on.}
+    \label{fig:ev-mlops}
+\end{figure}
+
 \subsection{M\'etricas de desempe\~no}
 
 Las m\'etricas operativas y de negocio previstas son:
@@ -81,7 +95,7 @@ Las m\'etricas operativas y de negocio previstas son:
 \subsection{Evaluaci\'on autom\'atica y gesti\'on de drift}
 
 Un componente de \emph{LLM-as-judge} (\texttt{evals/judge.py}) eval\'ua las
-respuestas del agente contra un \textbf{dataset real de 29 casos}
+respuestas del agente contra un \textbf{dataset real de 30 casos}
 conversacionales (\texttt{evals/dataset.jsonl}), permitiendo detectar
 regresiones al cambiar prompts o modelo. El juez usa \textbf{Claude Haiku 4.5}
 (el mismo modelo del enrutador de intenci\'on) sobre una r\'ubrica ponderada de
@@ -94,6 +108,26 @@ son \textbf{prospectivas} (objetivo a alcanzar) y no medidas a\'un en vivo con
 Bedrock; el equipo documenta esto expl\'icitamente en
 \texttt{docs/benchmarks.md} para no confundir cifras hist\'oricas de
 prototipos anteriores del proyecto con mediciones reales del sistema actual.
+
+\paragraph{Resultado medido de la suite (modo \emph{mock}).} La suite de
+\emph{evals} corre en modo \texttt{mock} (offline, sin LLM ni credenciales, tal
+como en CI en cada \emph{pull request}). Al ejecutarla sobre los 30 casos,
+\textbf{los 30 pasan (30/30, 100\%)}, validando la l\'ogica de \emph{handlers},
+el enrutamiento por intenci\'on, los \emph{guardrails} (inyecci\'on de
+\emph{prompt} y redacci\'on de PII), la autenticaci\'on y el control de
+\emph{budget}. Es importante ser preciso sobre su alcance: esta cifra mide la
+\textbf{correcci\'on de la l\'ogica del agente}, no la calidad de las respuestas
+del LLM; esta \'ultima corresponde al modo \texttt{live} con el
+\emph{LLM-as-judge}, pendiente de una corrida con credenciales de Bedrock.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{fig-evidencia-evals-mock.png}
+    \caption{Ejecuci\'on real de la suite de \emph{evals} en modo \texttt{mock}:
+    los 30 casos pasan (30/30), cubriendo assessment, \emph{matching},
+    \emph{guardrails}, autenticaci\'on y \emph{budget}.}
+    \label{fig:ev-evals-mock}
+\end{figure}
 
 En cuanto al \emph{drift}, dado que el dataset se congela para la demo, el
 mantenimiento de datos se concentra en la actualizaci\'on peri\'odica de la fuente

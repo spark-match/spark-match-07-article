@@ -134,6 +134,20 @@ jobs:
 \end{figure}
 \end{landscape}
 
+Como evidencia real, la Figura~\ref{fig:ev-ci} muestra el historial de
+ejecuciones de GitHub Actions del repositorio del agente, con los \emph{workflows}
+de CI, \emph{commitlint}, escaneo de vulnerabilidades y despliegue en estado
+satisfactorio.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{fig-evidencia-ci-checks.png}
+    \caption{Ejecuciones reales de GitHub Actions en el repositorio del agente:
+    los \emph{workflows} de CI, \emph{commitlint}, escaneo de vulnerabilidades y
+    despliegue pasan en verde.}
+    \label{fig:ev-ci}
+\end{figure}
+
 \subsection{Escalabilidad}
 
 El sistema \textbf{no utiliza Kubernetes}. El backend escala de forma
@@ -159,6 +173,9 @@ y el agente con capacidad fija.
 
 El entorno productivo se aloja en AWS. La estrategia de dos ambientes
 (\texttt{dev} y \texttt{prod}) permite validar cambios antes de promoverlos a
-producci\'on, y \textbf{AWS Budgets} vigila el gasto mensual. Los costos exactos
-de operaci\'on y la URL de demo se documentar\'an tras el despliegue final.
-% TODO (equipo): completar costos mensuales reales y URL de demo tras el deploy.
+producci\'on, y \textbf{AWS Budgets} vigila el gasto mensual. El ambiente
+\texttt{dev} ya se encuentra desplegado y accesible (frontend, backend y agente),
+y sobre \'el se realizaron las pruebas funcionales de la
+Secci\'on~\ref{sec:results}. Los costos mensuales exactos de operaci\'on se
+documentar\'an con las cifras de AWS Budgets tras el despliegue final.
+% TODO (equipo): completar costos mensuales reales (AWS Budgets) tras el deploy final.
