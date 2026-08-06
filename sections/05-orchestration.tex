@@ -78,6 +78,15 @@ separados para el agente). La calidad de la infraestructura se refuerza con
 escaneo de seguridad (\emph{checkov}) y \emph{linting} de Terraform
 (\emph{tflint}).
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig-arquitectura-despliegue-aws.png}
+    \caption{Arquitectura de despliegue en AWS: \emph{pipeline} serverless
+    del backend y agente conversacional en ECS Fargate detr\'as de
+    ALB/CloudFront.}
+    \label{fig:deployment-architecture}
+\end{figure}
+
 \subsection{CI/CD con GitHub Actions}
 
 El c\'odigo se organiza en la organizaci\'on de GitHub \texttt{spark-match}, con
@@ -113,6 +122,16 @@ jobs:
       - run: tflint --recursive
       - run: checkov -d infra/
 \end{lstlisting}
+
+\begin{landscape}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\linewidth]{fig-cicd-pipeline.png}
+    \caption{Pipeline de CI/CD: \emph{quality gates} en cada \emph{pull
+    request} y despliegue a ECS Fargate con \emph{rollback} autom\'atico.}
+    \label{fig:cicd-pipeline}
+\end{figure}
+\end{landscape}
 
 \subsection{Escalabilidad}
 

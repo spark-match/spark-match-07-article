@@ -71,6 +71,16 @@ relacional del proyecto es \textbf{Amazon RDS para PostgreSQL} (no Aurora); se
 usa hoy para la persistencia de memoria del agente (ver subsecci\'on
 siguiente) y para el dominio \texttt{identity} del backend.
 
+\begin{landscape}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\linewidth]{fig-secuencia-conversacion.png}
+    \caption{Secuencia de una conversaci\'on t\'ipica, desde el mensaje del
+    estudiante hasta la respuesta con recomendaciones explicadas.}
+    \label{fig:conversation-sequence}
+\end{figure}
+\end{landscape}
+
 \subsection{Agente conversacional (Deep Agent / deepagents)}
 
 El agente se implementa en \textbf{Python} como un \emph{Deep Agent} construido
@@ -111,6 +121,14 @@ intenci\'on descrito en la Secci\'on~\ref{sec:model-data} ---:
 model_id: str = "us.anthropic.claude-sonnet-4-5-20250929-v1:0"       # razonamiento
 fast_model_id: str = "us.anthropic.claude-haiku-4-5-20251001-v1:0"   # turnos simples
 \end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig-estados-agente.png}
+    \caption{M\'aquina de estados del Deep Agent: enrutamiento por intenci\'on
+    y coordinaci\'on de los tres subagentes especializados.}
+    \label{fig:agent-states}
+\end{figure}
 
 \subsection{Motor de scoring (5 criterios)}
 
