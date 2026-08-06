@@ -1,0 +1,34 @@
+%% Destino sugerido: Seccion 5 (Orquestacion y despliegue), subseccion
+%% "CI/CD con GitHub Actions" -- hoy esa subseccion solo tiene un listing YAML
+%% simplificado, no un diagrama del flujo real de calidad + despliegue.
+%% Tambien sirve de apoyo para la Seccion 6 (Monitoreo) al mostrar donde
+%% corren los evals automaticos.
+%% Nombre de archivo sugerido al renderizar: fig-cicd-pipeline.png
+%% Caption sugerido: "Pipeline de CI/CD: quality gates en cada pull request y
+%% despliegue a ECS Fargate con rollback automatico."
+%% Label sugerido: fig:cicd-pipeline
+
+flowchart LR
+    PR["Pull Request"] --> TESTS["Unit tests"]
+    PR --> SONAR["SonarCloud<br/>(quality gate)"]
+    PR --> CODEQL["CodeQL (SAST)"]
+    PR --> LEAKS["gitleaks"]
+    PR --> LINT["actionlint / yamllint"]
+    PR --> IAC["checkov / tflint<br/>(infraestructura)"]
+    PR --> EVALS["evals --mode mock<br/>29 casos, sin LLM ni AWS"]
+
+    TESTS & SONAR & CODEQL & LEAKS & LINT & IAC & EVALS --> GATE{"Todos los checks<br/>en verde?"}
+    GATE -- No --> BLOQUEA["Bloquea el merge"]
+    GATE -- Si --> MERGE["Merge a dev / prod"]
+
+    MERGE --> BUILD["Build imagen Docker<br/>(ARM64, multi-stage)"]
+    BUILD --> PUSH["Push a Amazon ECR"]
+    PUSH --> DEPLOY["Deploy a ECS Fargate"]
+    DEPLOY --> BREAKER{"Deployment<br/>circuit breaker"}
+    BREAKER -- "despliegue sano" --> LIVE["Nueva revision activa"]
+    BREAKER -- "despliegue fallido" --> ROLLBACK["Rollback automatico<br/>a la revision anterior"]
+
+    EVALSLIVE["evals --mode live<br/>(agente en proceso, invoca Bedrock)<br/>LLM-as-judge: afinidad RIASEC (0.4),<br/>relevancia (0.3), tono (0.2), seguridad (0.1)"] -.opcional, no requiere<br/>agente desplegado.-> MERGE
+
+    classDef gate fill:#fef9c3,stroke:#ca8a04
+    class GATE,BREAKER gate

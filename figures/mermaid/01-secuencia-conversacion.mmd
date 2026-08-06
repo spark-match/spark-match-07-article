@@ -1,0 +1,47 @@
+%% Destino sugerido: Seccion 4 (Implementacion), como complemento del diagrama
+%% de arquitectura TikZ ya existente (fig:architecture). Ese diagrama es de
+%% componentes; este es de flujo temporal (issue 07 pide un diagrama de
+%% secuencia distinto al de arquitectura general, para nivel "Destacado").
+%% Nombre de archivo sugerido al renderizar: fig-secuencia-conversacion.png
+%% Caption sugerido: "Secuencia de una conversacion tipica, desde el mensaje
+%% del estudiante hasta la respuesta con recomendaciones explicadas."
+%% Label sugerido: fig:conversation-sequence
+
+sequenceDiagram
+    autonumber
+    actor U as Estudiante (Angular UI)
+    participant BE as Backend serverless<br/>(Lambda, solo contexto identity)
+    participant AG as Deep Agent<br/>(FastAPI/uvicorn en ECS Fargate)
+    participant CO as Coordinador (deepagents)
+    participant AS as Subagente assessment
+    participant MA as Subagente matching
+    participant PL as Subagente planning
+    participant LLM as AWS Bedrock (Claude)
+    participant MEM as langmem (RDS PostgreSQL)
+    participant CAT as Catalogo piloto<br/>(19 carreras)
+
+    U->>BE: Login (JWT)
+    BE-->>U: Token de sesion
+    U->>AG: Mensaje en lenguaje natural<br/>(POST /ag-ui, streaming SSE)
+    AG->>CO: Enruta el turno<br/>(IntentRouterMiddleware: Haiku o Sonnet)
+    CO->>MEM: Recupera perfil previo (si existe)
+    MEM-->>CO: Perfil parcial / vacio
+
+    alt Perfil vocacional incompleto
+        CO->>AS: Continua entrevista RIASEC escalonada
+        AS->>LLM: Interpreta la respuesta libre del estudiante
+        LLM-->>AS: Intencion + rasgos RIASEC
+        AS->>MEM: Persiste perfil (PII redactada: correo, DNI, telefono)
+    else Perfil ya completo
+        CO->>MA: Solicita ranking de carreras
+        MA->>CAT: calculate_affinity (similitud RIASEC)
+        Note over MA,CAT: Solo el criterio de afinidad esta integrado.<br/>Ingreso, costo, admision y duracion:<br/>diseno objetivo, aun no conectado (Seccion 8).
+        MA-->>CO: Top-N ordenado por afinidad
+        CO->>PL: Solicita plan de accion (opcional)
+        PL-->>CO: Pasos sugeridos para postular
+    end
+
+    CO->>LLM: Redacta justificacion en lenguaje natural
+    LLM-->>CO: Explicacion citando datos verificables
+    CO-->>AG: Respuesta compuesta
+    AG-->>U: Streaming SSE con recomendaciones + explicacion
