@@ -134,6 +134,20 @@ jobs:
 \end{figure}
 \end{landscape}
 
+Como evidencia real, la Figura~\ref{fig:ev-ci} muestra el historial de
+ejecuciones de GitHub Actions del repositorio del agente, con los \emph{workflows}
+de CI, \emph{commitlint}, escaneo de vulnerabilidades y despliegue en estado
+satisfactorio.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{fig-evidencia-ci-checks.png}
+    \caption{Ejecuciones reales de GitHub Actions en el repositorio del agente:
+    los \emph{workflows} de CI, \emph{commitlint}, escaneo de vulnerabilidades y
+    despliegue pasan en verde.}
+    \label{fig:ev-ci}
+\end{figure}
+
 \subsection{Escalabilidad}
 
 El sistema \textbf{no utiliza Kubernetes}. El backend escala de forma
