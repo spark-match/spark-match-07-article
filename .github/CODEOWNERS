@@ -27,6 +27,9 @@
 # =============================================================================
 /README.md                                 @spark-match/article-authors @spark-match/product-owners
 /LICENSE                                   @spark-match/article-authors @spark-match/product-owners
+/CONTRIBUTING.md                           @spark-match/article-authors @spark-match/product-owners
+/CODE_OF_CONDUCT.md                        @spark-match/article-authors @spark-match/product-owners
+/SECURITY.md                               @spark-match/article-authors @spark-match/product-owners
 /DOCS/                                     @spark-match/article-authors @spark-match/product-owners
 
 # =============================================================================
