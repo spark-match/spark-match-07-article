@@ -4,9 +4,10 @@
 % ============================================================================
 \section{Orquestaci\'on y despliegue}
 
-El despliegue se apoya en un enfoque \emph{serverless} sobre AWS e infraestructura
-como c\'odigo con Terraform, con dos ambientes (\texttt{dev} y \texttt{prod}) y
-automatizaci\'on mediante GitHub Actions.
+El despliegue combina un backend de plataforma \emph{serverless} (AWS Lambda) con
+el agente ejecut\'andose como \textbf{contenedor en ECS Fargate}, todo sobre AWS,
+con infraestructura como c\'odigo (Terraform), dos ambientes (\texttt{dev} y
+\texttt{prod}) y automatizaci\'on mediante GitHub Actions.
 
 \subsection{Backend serverless (TypeScript + AWS SAM)}
 
@@ -26,9 +27,10 @@ sam deploy --config-env prod    # ambiente productivo (aprobacion manual)
 \subsection{Agente y motor de scoring (Python)}
 
 El agente conversacional y el motor de scoring se ejecutan en Python. El agente
-usa el \emph{harness} \texttt{deepagents} sobre Bedrock (AgentCore) y
-\texttt{langmem} para la persistencia del perfil; el motor de scoring opera sobre
-\texttt{features.csv} con Pandas/NumPy. Es importante notar que el agente
+usa el \emph{harness} \texttt{deepagents} y \texttt{langmem} para la persistencia
+del perfil, y se despliega como \textbf{contenedor en AWS ECS Fargate} (detr\'as de
+un \emph{Application Load Balancer}); el LLM se accede mediante Bedrock. El motor de
+scoring opera sobre \texttt{features.csv} con Pandas/NumPy. Es importante notar que el agente
 \textbf{no expone un framework web tradicional} (no usa FastAPI ni Flask): corre
 como c\'odigo Python dentro del harness, y la exposici\'on HTTP la provee el
 backend \emph{serverless} (API Gateway + Lambda). Estos componentes se integran con
@@ -36,13 +38,13 @@ Bedrock para las invocaciones al LLM.
 
 \subsection{Contenerizaci\'on (Docker)}
 
-Aunque el modelo de despliegue es \emph{serverless}, la contenerizaci\'on con
-\textbf{Docker} est\'a presente en el ciclo: \texttt{aws sam build} empaqueta las
-funciones Lambda como \textbf{im\'agenes de contenedor} (usando Docker localmente
-para reproducir el entorno de ejecuci\'on), y el agente se ejecuta como un
-\textbf{contenedor gestionado} en Bedrock AgentCore. As\'i se garantiza que el
-entorno sea reproducible entre desarrollo y producci\'on sin administrar servidores
-ni un orquestador de contenedores propio.
+La contenerizaci\'on con \textbf{Docker} es central en el despliegue del agente: su
+imagen se construye con Docker, se publica en \textbf{Amazon ECR} y se ejecuta como
+un servicio en \textbf{ECS Fargate}. Del lado del backend de plataforma,
+\texttt{aws sam build} tambi\'en empaqueta las funciones Lambda como im\'agenes de
+contenedor. As\'i se garantiza que el entorno sea reproducible entre desarrollo y
+producci\'on, sin administrar servidores ni un cl\'uster de contenedores propio
+(Fargate gestiona la ejecuci\'on).
 
 \subsection{Infraestructura como c\'odigo (Terraform)}
 
@@ -93,17 +95,18 @@ jobs:
 \subsection{Escalabilidad}
 
 El sistema \textbf{no utiliza Kubernetes}: la escalabilidad se apoya en servicios
-\emph{serverless} autoadministrados de AWS. El backend (AWS Lambda + API Gateway) y
-el agente (Bedrock AgentCore) escalan autom\'aticamente seg\'un la demanda, sin
-administrar servidores ni cl\'usteres. Esto ofrece una escalabilidad adecuada para
-el alcance del proyecto, con l\'imites conocidos: AWS Lambda admite \textbf{100
-ejecuciones concurrentes} en cuentas gratuitas (\textbf{1000} en cuentas de pago),
-ampliables bajo solicitud. Para cargas de millones de usuarios simult\'aneos se
-requerir\'ia una arquitectura orientada a contenedores (p.ej.\ Kubernetes/EKS); en
-este proyecto, \textbf{AgentCore y Lambda cumplen una funci\'on equivalente}
----orquestaci\'on y escalado autom\'atico--- sin el costo operativo de administrar
-un cl\'uster. Se trata, por tanto, de una escalabilidad \emph{media} suficiente
-para la demostraci\'on.
+gestionados de AWS. El backend de plataforma (AWS Lambda + API Gateway) es
+\emph{serverless} y escala por invocaci\'on; el agente corre en \textbf{ECS
+Fargate}, que ejecuta y escala los contenedores de forma gestionada (sin
+administrar servidores ni un cl\'uster propio). Esto ofrece una escalabilidad
+adecuada para el alcance del proyecto, con l\'imites conocidos: AWS Lambda admite
+\textbf{100 ejecuciones concurrentes} en cuentas gratuitas (\textbf{1000} en
+cuentas de pago), ampliables bajo solicitud, y el servicio de Fargate escala por
+n\'umero de tareas. Para cargas de millones de usuarios simult\'aneos se
+requerir\'ia una orquestaci\'on tipo Kubernetes/EKS; en este proyecto,
+\textbf{Fargate y Lambda cumplen esa funci\'on} ---orquestaci\'on y escalado
+autom\'atico--- sin el costo operativo de administrar un cl\'uster. Se trata, por
+tanto, de una escalabilidad \emph{media} suficiente para la demostraci\'on.
 
 \subsection{Despliegue en la nube (AWS)}
 
