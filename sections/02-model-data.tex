@@ -28,7 +28,7 @@ el ranking.
 
 \begin{table}[H]
 \centering
-\begin{tabular}{@{}llll@{}}
+\begin{tabularx}{\linewidth}{@{} >{\raggedright\arraybackslash}p{3.1cm} X >{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{2.6cm} @{}}
 \toprule
 \textbf{Plataforma / Modelo} & \textbf{Costo} & \textbf{Hardware} & \textbf{Rol} \\
 \midrule
@@ -36,7 +36,7 @@ AWS Bedrock -- Claude & Pago por uso (cr\'editos AWS) & Ninguno (gestionado) & \
 AWS Bedrock -- otros  & Pago por uso                  & Ninguno (gestionado) & Alternativa \\
 Llama 3 (local)       & Sin costo de API              & GPU local            & Futuro / privacidad \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \caption{Comparaci\'on de opciones de modelo seg\'un los criterios de selecci\'on.}
 \label{tab:model-comparison}
 \end{table}
