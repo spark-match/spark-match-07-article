@@ -51,13 +51,37 @@ no un \'unico JSON de entrada. Por ello los casos de prueba se construyen como
 componente se implementa del lado de AWS y queda \textbf{pendiente} hasta que el
 agente est\'e desplegado.
 
-\subsection{Comparaci\'on de enfoques}
+\subsection{Comparaci\'on de enfoques (resultados)}
 
-El dise\~no permite comparar el enfoque propuesto (pesos din\'amicos inferidos por
-el LLM sobre el motor de scoring) frente a alternativas m\'as simples, como pesos
-est\'aticos iguales o el ordenamiento por un solo criterio (p.ej. solo ingreso).
-% TODO (equipo): completar la tabla comparativa (Recall@K, latencia, costo) con
-% los resultados medidos.
+Se compar\'o el enfoque propuesto (pesos din\'amicos inferidos por el LLM) frente a
+dos \emph{baselines}, midiendo cu\'antas carreras del Top-5 comparte cada uno con el
+enfoque propuesto para el caso de Cusco (288 candidatas tras los filtros):
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lcl@{}}
+\toprule
+Enfoque & Top-5 en com\'un & Interpretaci\'on \\
+\midrule
+Pesos din\'amicos (propuesto) & --- & referencia \\
+Pesos iguales (baseline 1)    & 1/5 & el ranking cambia casi por completo \\
+Solo ingreso (baseline 2)     & 3/5 & los pesos s\'i modifican el resultado \\
+\bottomrule
+\end{tabular}
+\caption{El motor de 5 factores no equivale a un \emph{baseline} simple.}
+\label{tab:comparacion-enfoques}
+\end{table}
+
+\paragraph{Prueba de consistencia.} Para dos perfiles en Lima, uno que prioriza el
+costo y otro el ingreso, el \'indice de accesibilidad de costo (\texttt{cost\_norm},
+mayor $=$ m\'as accesible) del Top-10 fue \textbf{0.941} vs.\ \textbf{0.502}: el
+motor entrega opciones m\'as accesibles a quien prioriza el costo, confirmando que
+el ranking responde a las preferencias del estudiante.
+
+\paragraph{Nota metodol\'ogica.} Estos resultados eval\'uan el \emph{motor de
+recomendaci\'on} (determin\'istico) sobre \texttt{features.csv}; la evaluaci\'on de
+las respuestas en lenguaje natural del agente (\emph{LLM-as-judge},
+\emph{groundedness}) se realiza sobre el sistema desplegado.
 
 \subsection{Limitaciones detectadas}
 
@@ -72,4 +96,10 @@ est\'aticos iguales o el ordenamiento por un solo criterio (p.ej. solo ingreso).
         la explicaci\'on se ancla siempre en datos verificables del ranking.
   \item La evaluaci\'on humana est\'a limitada a un n\'umero reducido de usuarios
         de prueba en esta fase.
+  \item La variable de \textbf{costo anual} es la menos confiable del dataset:
+        aproximadamente el \textbf{50\%} de los registros est\'a vac\'io o imputado
+        (19\% nulos, 31\% en cero, 50\% imputado). El motor usa la versi\'on
+        normalizada e imputada (\texttt{cost\_norm}), por lo que el \emph{ranking}
+        se mantiene v\'alido, pero los montos absolutos de costo no deben
+        interpretarse de forma literal.
 \end{itemize}

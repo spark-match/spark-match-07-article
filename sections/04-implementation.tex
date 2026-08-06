@@ -63,7 +63,7 @@ El flujo principal de la soluci\'on es el siguiente:
 
 El agente se implementa en \textbf{Python} como un \emph{Deep Agent} construido con
 el \emph{harness} \texttt{deepagents} ---del ecosistema \emph{LangChain/LangGraph}---
-sobre Bedrock AgentCore, que delega en subagentes especializados (evaluaci\'on del
+desplegado como contenedor en \textbf{AWS ECS Fargate}, que delega en subagentes especializados (evaluaci\'on del
 perfil y \emph{matching} de carreras). El perfil del estudiante se persiste con
 \texttt{langmem}, de modo que la conversaci\'on puede refinar las preferencias sin
 perder el contexto. El LLM (Claude en Bedrock) se accede mediante
