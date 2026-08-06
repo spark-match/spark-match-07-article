@@ -120,15 +120,29 @@ the convention anyway: the release notes are generated from these messages.
 2. **CI compiles the PDF** and publishes it as an artifact named
    `spark-match-paper-pr-<N>`. Download it to review the rendered result rather
    than reading the diff.
-3. Request review. `CODEOWNERS` requires `@spark-match/article-authors`, and
-   `/README.md`, `/LICENSE` and `/DOCS/` additionally require
-   `@spark-match/product-owners`.
+
+   CI is filtered by path: it runs only when the pull request touches
+   `**.tex`, `**.bib`, `figures/**` or `.github/workflows/**`. A pull request
+   that only edits Markdown shows **no checks at all**, and that is correct --
+   there is nothing new to compile. Do not wait for a check that will never
+   arrive.
+3. Request review. `CODEOWNERS` requires `@spark-match/article-authors` on
+   everything. Six paths additionally require `@spark-match/product-owners`:
+   `/README.md`, `/LICENSE`, `/CONTRIBUTING.md`, `/CODE_OF_CONDUCT.md`,
+   `/SECURITY.md` and `/DOCS/`.
 4. **You cannot approve your own pull request**, even as a code owner. That is
    a GitHub rule, not a policy choice. Any of the other team members can.
 
-On merge, **CD** compiles the PDF, bumps the patch version from the latest tag,
-creates the tag and publishes a GitHub Release with the PDF attached. For a
-minor or major bump, create the tag manually before merging.
+On merge, **CD** compiles the PDF from your merge commit, bumps the patch
+component of the highest existing tag, creates that tag and publishes a GitHub
+Release with the PDF attached. For a minor or major bump, create the tag
+manually before merging.
+
+If the computed tag already exists, the job fails instead of publishing. That
+guard exists because it used to overwrite the release attached to that tag in
+silence: `v0.0.6` and `v0.0.7` still sit on the same commit as a leftover, and
+the PDF under `v0.0.7` does not match the source at that tag. Releases from
+`v0.0.8` onward are sound.
 
 ### If you add a new path
 
