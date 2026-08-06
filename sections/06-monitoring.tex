@@ -106,6 +106,15 @@ el enrutamiento por intenci\'on, los \emph{guardrails} (inyecci\'on de
 del LLM; esta \'ultima corresponde al modo \texttt{live} con el
 \emph{LLM-as-judge}, pendiente de una corrida con credenciales de Bedrock.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{fig-evidencia-evals-mock.png}
+    \caption{Ejecuci\'on real de la suite de \emph{evals} en modo \texttt{mock}:
+    los 30 casos pasan (30/30), cubriendo assessment, \emph{matching},
+    \emph{guardrails}, autenticaci\'on y \emph{budget}.}
+    \label{fig:ev-evals-mock}
+\end{figure}
+
 En cuanto al \emph{drift}, dado que el dataset se congela para la demo, el
 mantenimiento de datos se concentra en la actualizaci\'on peri\'odica de la fuente
 (alineada con el calendario acad\'emico) y en la futura migraci\'on a \emph{Mi
