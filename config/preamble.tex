@@ -157,7 +157,11 @@
 \setlength{\parindent}{0pt}
 
 % --- Bibliografia ---
-\usepackage[numbers, sort&compress]{natbib}
+% NOTA: sin la opcion "numbers" para que natbib use el modo autor-anio,
+% compatible con \bibliographystyle{apalike} (formato APA). Con "numbers"
+% las citas se verian como [1], [2]... en vez de (Autor, Anio), rompiendo
+% el formato APA exigido por el criterio 11 de la rubrica.
+\usepackage[sort&compress]{natbib}
 \setlength{\bibsep}{4pt}
 
 % --- Cajas para repositorios ---

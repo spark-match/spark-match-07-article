@@ -3,6 +3,7 @@
 % TFP - Rubrica: 3 puntos
 % ============================================================================
 \section{Implementaci\'on de la aplicaci\'on}
+\label{sec:implementation}
 
 El sistema desacopla la interpretaci\'on del lenguaje (agente LLM) de la
 decisi\'on de ranking (motor de scoring determin\'istico), lo que garantiza
@@ -11,7 +12,7 @@ orden de las recomendaciones.
 
 \subsection{Arquitectura general de la soluci\'on}
 
-El flujo principal de la soluci\'on es el siguiente:
+El flujo principal de la soluci\'on (Figura~\ref{fig:architecture}) es el siguiente:
 
 \begin{enumerate}[noitemsep]
   \item El usuario expresa sus preferencias en \emph{lenguaje natural} desde el
@@ -114,7 +115,7 @@ Ing.\ Industrial -- UNI    & 70 & 80 & 70 & 50 & 60 & 69.0 \\
 \label{tab:scoring-example}
 \end{table}
 
-El sistema ordena los resultados de mayor a menor y genera un ranking Top-N.
+Como ilustra la Tabla~\ref{tab:scoring-example}, el sistema ordena los resultados de mayor a menor y genera un ranking Top-N.
 Luego el agente redacta la justificaci\'on, por ejemplo: \textit{``Te
 recomendamos Estad\'istica en la UNMSM porque presenta una fuerte alineaci\'on
 con tus intereses cuantitativos, tiene uno de los mejores ingresos promedio

@@ -50,24 +50,38 @@
 % --- Resumen ---
 \section*{Resumen}
 
+Elegir carrera y universidad en el Per\'u es una decisi\'on dif\'icil porque la
+informaci\'on relevante --- ingresos de egresados, costos, tasas de admisi\'on,
+ubicaci\'on --- est\'a dispersa en portales oficiales y es dif\'icil de comparar,
+mientras que las evaluaciones vocacionales tradicionales son est\'aticas y no
+consideran restricciones reales del estudiante ni explican sus recomendaciones.
 Spark Match (CareerMatch Per\'u) es un asistente conversacional basado en IA
-generativa que orienta a estudiantes y padres de familia en la elecci\'on de
-carrera y universidad en el Per\'u. El sistema combina un agente de lenguaje
-(un LLM \emph{Claude}, servido mediante \emph{AWS Bedrock}), que interpreta en
-lenguaje natural las preferencias del estudiante y luego explica los resultados,
-con un motor de recomendaci\'on transparente en Python que asigna un puntaje a
-cada combinaci\'on carrera--universidad usando datos oficiales del portal
-\emph{Ponte en Carrera} (MINEDU). A diferencia de los sistemas con pesos fijos,
-los pesos de cada criterio son inferidos din\'amicamente por el LLM a partir de la
-conversaci\'on, y la afinidad vocacional se modela con el esquema RIASEC de
-Holland. La plataforma se apoya en un backend \emph{serverless} en TypeScript
-(AWS Lambda + EventBridge + SAM), un frontend en Angular y un agente en Python
-(harness \emph{deepagents}). El proyecto incorpora pr\'acticas de MLOps mediante el versionado de
-prompts, f\'ormula de scoring y datos, la observabilidad del agente con LangSmith,
-el seguimiento de experimentos con Weights \& Biases y CI/CD e infraestructura
-como c\'odigo (Terraform) sobre AWS. Este documento presenta el caso de uso, la
-selecci\'on de modelo y datos, la ingenier\'ia de prompts, la arquitectura, el
-prototipo, la evaluaci\'on y las recomendaciones.
+generativa que orienta a estudiantes y padres de familia en esa decisi\'on. El
+sistema combina un agente de lenguaje (un LLM \emph{Claude}, servido mediante
+\emph{AWS Bedrock}), que interpreta en lenguaje natural las preferencias del
+estudiante y luego explica los resultados, con un motor de recomendaci\'on
+transparente en Python que asigna un puntaje a cada combinaci\'on
+carrera--universidad usando datos oficiales del portal \emph{Ponte en Carrera}
+(MINEDU): 6\,208 combinaciones sobre 554 carreras \'unicas en 25 departamentos.
+A diferencia de los sistemas con pesos fijos, los pesos de cada uno de los cinco
+criterios del \emph{score} (afinidad, ingreso, costo, admisi\'on, duraci\'on) son
+inferidos din\'amicamente por el LLM a partir de la conversaci\'on, y la afinidad
+vocacional se modela con el esquema RIASEC de Holland. El LLM se mantiene
+deliberadamente desacoplado de la decisi\'on de ranking --- interpreta y explica,
+pero no decide el orden --- lo que garantiza transparencia y reproducibilidad.
+La plataforma se apoya en un backend \emph{serverless} en TypeScript (AWS Lambda
++ EventBridge + SAM), un frontend en Angular y un agente en Python (harness
+\emph{deepagents}) con persistencia de perfil mediante \texttt{langmem}. El
+proyecto incorpora pr\'acticas de MLOps mediante el versionado de prompts,
+f\'ormula de scoring y datos, la observabilidad del agente con LangSmith, el
+seguimiento de experimentos con Weights \& Biases, control de costos con AWS
+Budgets, y CI/CD e infraestructura como c\'odigo (Terraform) sobre AWS con
+an\'alisis est\'atico (SonarCloud, CodeQL) e infraestructura auditada (checkov,
+tflint). Este documento presenta el caso de uso, la selecci\'on de modelo y
+datos, la ingenier\'ia de prompts, la arquitectura del prototipo, la estrategia
+de monitoreo, el marco de evaluaci\'on y las recomendaciones de trabajo futuro,
+incluyendo la incorporaci\'on de un componente RAG y la migraci\'on hacia el
+observatorio oficial \emph{Mi Carrera}.
 
 \vspace{0.5cm}
 \noindent\textbf{Palabras clave:} orientaci\'on vocacional, sistemas de recomendaci\'on, IA generativa, LLM, agentes, RIASEC, MLOps, AWS Bedrock, serverless, LangSmith.
