@@ -26,44 +26,43 @@ channel.
 
 Report privately via:
 
+- **GitHub Security Advisories** (preferred):
+  <https://github.com/spark-match/spark-match-07-article/security/advisories/new>.
+  Private vulnerability reporting is enabled, so the report stays visible only
+  to you and the maintainers until a fix ships.
 - **Email**: <ahincho@unsa.edu.pe>
 - **GitHub**: mention [@ahincho](https://github.com/ahincho) and ask for a
   private channel. Send the details only once that channel exists. A mention is
   public, so it must not contain the finding itself.
 
-GitHub Security Advisories would be the better first channel, but private
-vulnerability reporting is currently **disabled** on this repository, so
-`/security/advisories/new` does not accept submissions. See below.
-
-## Current posture, and what is missing
+## Current posture
 
 Verified 2026-08-06:
 
-| Setting | State | Free for public repos? |
-|---|---|---|
-| Private vulnerability reporting | **disabled** | yes |
-| Secret scanning | **disabled** | yes |
-| Push protection | **disabled** | yes |
-| Ruleset `spark-match-default-branch-protection` | active on `main` | — |
-| Classic branch protection | removed 2026-08-06 | — |
+| Setting | State |
+|---|---|
+| Private vulnerability reporting | enabled |
+| Secret scanning | enabled |
+| Push protection | enabled |
+| Ruleset `spark-match-default-branch-protection` | active on `main` |
+| Classic branch protection | removed |
 
-The first three are free for public repositories and are already enabled on
-`spark-match-01-devops`. They are not enabled here. Push protection in
-particular is what stops a credential from reaching the remote at all, which is
-the exact risk this repository has.
+Push protection is the one that matters most here: it blocks a credential from
+reaching the remote at all, which is the concrete risk this repository has.
 
-Enabling them:
+All three were **disabled** until 2026-08-06, despite being free for public
+repositories and already enabled on `spark-match-01-devops`. They were turned
+on the same day this policy was written.
+
+This table is a checklist rather than a claim, so that turning any of them off
+makes the document visibly wrong instead of quietly wrong. Verify with:
 
 ```bash
-gh api -X PUT repos/spark-match/spark-match-07-article/private-vulnerability-reporting
-
-gh api -X PATCH repos/spark-match/spark-match-07-article \
-  -F 'security_and_analysis[secret_scanning][status]=enabled' \
-  -F 'security_and_analysis[secret_scanning_push_protection][status]=enabled'
+gh api repos/spark-match/spark-match-07-article \
+  --jq '.security_and_analysis'
+gh api repos/spark-match/spark-match-07-article/private-vulnerability-reporting \
+  --jq '.enabled'
 ```
-
-This section is written as a checklist rather than a claim so it cannot quietly
-become false. If you enable them, update the table.
 
 ## If a secret does get committed
 
