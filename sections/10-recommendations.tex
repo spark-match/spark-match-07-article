@@ -7,14 +7,23 @@
 \subsection{Trabajo futuro y escalabilidad}
 
 \begin{itemize}[noitemsep]
-  \item \textbf{Componente RAG:} indexar las fichas descriptivas de carreras y
-        universidades en un \emph{vector store} dedicado, para que el agente ancle
-        sus explicaciones en texto oficial adicional \cite{gao2024, fan2024}. La
-        tecnolog\'ia del vector store queda por definir (se descart\'o
-        \texttt{pgvector} como opci\'on \'unica).
-  \item \textbf{Migraci\'on de la fuente de datos:} pasar de \emph{Ponte en
-        Carrera} al nuevo observatorio \emph{Mi Carrera} (MTPE) cuando su acceso
-        est\'e consolidado, manteniendo la reproducibilidad v\'ia snapshots.
+  \item \textbf{Componente RAG:} reemplazar la b\'usqueda actual por palabra
+        clave (\texttt{search\_careers}, Secci\'on~\ref{sec:prompts}) por
+        b\'usqueda sem\'antica sobre las fichas de carreras y universidades,
+        para anclar las explicaciones del agente en texto oficial adicional
+        \cite{gao2024, fan2024}. La direcci\'on ya est\'a planeada en el propio
+        c\'odigo: \textbf{\texttt{pgvector}} sobre la instancia RDS
+        PostgreSQL existente (no se descart\'o, es la opci\'on hacia la que se
+        apunta); falta definir la fecha de la migraci\'on.
+  \item \textbf{Migraci\'on de la fuente de datos (urgente):} el portal
+        \emph{Ponte en Carrera} ya no responde (HTTP~500 desde el
+        12/07/2026, tras su decomisi\'on por el MINEDU); la etapa
+        \texttt{ingest} del \emph{pipeline} DVC qued\'o \texttt{frozen} y hoy
+        se reproduce solo contra el \'ultimo \texttt{raw.xlsx} hist\'orico. La
+        migraci\'on al nuevo observatorio \emph{Mi Carrera} (MTPE) deja de ser
+        una mejora deseable y pasa a ser \textbf{condici\'on para volver a
+        actualizar el dataset}, manteniendo la reproducibilidad v\'ia
+        \emph{snapshots}.
   \item \textbf{Feedback del usuario:} incorporar un mecanismo de retroalimentaci\'on
         que, con suficiente historial, permita entrenar un modelo propio de
         aceptaci\'on --- m\'as econ\'omico que consultar continuamente una API en
@@ -27,27 +36,49 @@
 
 \begin{itemize}[noitemsep]
   \item Calibrar los pesos y la f\'ormula de scoring con usuarios reales, ya que
-        los valores actuales son ilustrativos.
-  \item Incorporar un \textbf{enrutador de modelos} que, seg\'un el tipo de tarea,
-        derive cada llamada al modelo m\'as adecuado dentro de Bedrock (p.ej.\
-        \emph{Haiku} para tareas simples, \emph{Sonnet}/\emph{Opus} para las
-        complejas). As\'i se \textbf{optimiza el costo} sin enviar todo al modelo
-        m\'as caro, aprovechando que Bedrock act\'ua como pasarela y el cambio de
-        modelo no impacta el n\'ucleo.
-  \item Considerar un ajuste ligero (p.ej.\ LoRA) del extractor de preferencias
-        cuando exista suficiente historial de conversaciones exitosas.
+        los valores actuales son ilustrativos, e integrar al agente los cuatro
+        criterios de \emph{scoring} que a\'un no operan end-to-end (ingreso,
+        costo, admisi\'on, duraci\'on --- ver Secci\'on~\ref{sec:results}).
+  \item \textbf{Ya implementado, no pendiente:} el enrutador de modelos por
+        intenci\'on (\emph{Haiku} para turnos simples, \emph{Sonnet} para el
+        resto) descrito en la Secci\'on~\ref{sec:model-data} ya existe en
+        producci\'on; la recomendaci\'on hacia adelante es medir sus ganancias
+        reales de costo/latencia en el Deep Agent (hoy solo hay cifras de
+        \emph{prototipos} previos, ver Secci\'on~\ref{sec:results}) y ajustar
+        la heur\'istica de clasificaci\'on con esos datos.
+  \item Considerar un ajuste ligero (p.ej.\ LoRA) del subagente
+        \texttt{assessment} (la entrevista RIASEC escalonada, no un
+        ``extractor de preferencias'' separado --- ver
+        Secci\'on~\ref{sec:prompts}) cuando exista suficiente historial de
+        conversaciones exitosas.
 \end{itemize}
 
 \subsection{Mejoras en despliegue y monitoreo}
 
 \begin{itemize}[noitemsep]
   \item Completar la medici\'on de m\'etricas de operaci\'on (latencia, tokens,
-        costo por conversaci\'on) y consolidar tableros de observabilidad sobre
-        LangSmith y W\&B.
+        costo por conversaci\'on) sobre el Deep Agent real --- hoy las \'unicas
+        cifras disponibles son de prototipos anteriores del proyecto, no del
+        sistema actual (\texttt{docs/benchmarks.md}, ver
+        Secci\'on~\ref{sec:results}) --- y consolidar tableros de
+        observabilidad sobre LangSmith.
   \item Reforzar el control de costos con alertas de AWS Budgets y revisi\'on
         peri\'odica del consumo de tokens.
-  \item Automatizar la actualizaci\'on del dataset por semestre y las validaciones
-        de seguridad de infraestructura (checkov/tflint) en CI.
+  \item \textbf{Habilitar \emph{autoscaling} en el servicio ECS Fargate del
+        agente:} a la fecha el servicio despliega con un
+        \texttt{desired\_count} fijo (sin pol\'itica de \emph{autoscaling}
+        configurada, aunque el m\'odulo de Terraform ya deja el campo
+        preparado), por lo que la capacidad es constante y no reactiva a la
+        demanda (Secci\'on~\ref{sec:orchestration}).
+  \item Cerrar los \emph{follow-ups} de seguridad de red que el propio
+        m\'odulo de infraestructura documenta como pendientes: WAF delante del
+        ALB/CloudFront y un dominio propio con certificado ACM para terminar
+        TLS extremo a extremo hasta el contenedor (hoy el tramo ALB
+        $\rightarrow$ agente es HTTP dentro de la VPC).
+  \item Automatizar la actualizaci\'on del dataset por semestre una vez resuelta
+        la migraci\'on a \emph{Mi Carrera} (ver arriba); las validaciones de
+        seguridad de infraestructura (\emph{checkov}/\emph{tflint}) ya corren
+        autom\'aticamente en CI y no requieren trabajo adicional.
 \end{itemize}
 
 \subsection{Potenciales nuevas aplicaciones}
