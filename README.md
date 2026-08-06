@@ -14,7 +14,7 @@ Art\'iculo acad\'emico que documenta el dise\~no, implementaci\'on, despliegue y
 | Agente y scoring | Python (harness `deepagents`, Pandas, NumPy) |
 | Backend | TypeScript serverless (AWS Lambda, EventBridge, AWS SAM, DDD) |
 | Frontend | Angular 21 + Angular Material |
-| Datos | Ponte en Carrera (features.csv), Selenium, Pandas, Aurora PostgreSQL |
+| Datos | Ponte en Carrera (features.csv), Selenium, Pandas, RDS PostgreSQL |
 | MLOps | LangSmith, Weights & Biases, GitHub Actions |
 | DevOps | Terraform (dev/prod), AWS, checkov, tflint, AWS Budgets |
 | Documentaci\'on | LaTeX (art\'iculo) |
@@ -28,7 +28,7 @@ Este art\'iculo forma parte del ecosistema **`spark-match`**:
 | Componente | Repositorio | Descripci\'on |
 |:---|:---|:---|
 | DevOps / CI/CD | [`spark-match-01-devops`](https://github.com/spark-match/spark-match-01-devops) | GitHub Actions reutilizables, Apidog tests |
-| Infraestructura | [`spark-match-02-infrastructure`](https://github.com/spark-match/spark-match-02-infrastructure) | Terraform para AWS (VPC, Lambda, EventBridge, Aurora PostgreSQL, S3) |
+| Infraestructura | [`spark-match-02-infrastructure`](https://github.com/spark-match/spark-match-02-infrastructure) | Terraform para AWS (VPC, Lambda, EventBridge, ECS Fargate, RDS PostgreSQL, S3) |
 | Backend | [`spark-match-03-backend`](https://github.com/spark-match/spark-match-03-backend) | Serverless TypeScript (Lambda + EventBridge + SAM) |
 | Frontend | [`spark-match-04-frontend`](https://github.com/spark-match/spark-match-04-frontend) | Angular SPA conversacional |
 | Pipeline de Datos | [`spark-match-05-data-pipeline`](https://github.com/spark-match/spark-match-05-data-pipeline) | ETL + scraping con Selenium + etiquetado RIASEC |

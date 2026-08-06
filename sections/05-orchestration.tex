@@ -49,7 +49,7 @@ ni un orquestador de contenedores propio.
 La infraestructura se provisiona con \textbf{Terraform}, con m\'odulos separados
 por ambiente (\texttt{dev} y \texttt{prod}). Se emplea \textbf{AWS Budgets} como
 control de costos. Entre los recursos: funciones Lambda y reglas de EventBridge
-del backend, base de datos \textbf{Aurora PostgreSQL}, almacenamiento en S3 para
+del backend, base de datos \textbf{RDS PostgreSQL}, almacenamiento en S3 para
 snapshots del dataset, e IAM con privilegios m\'inimos. La calidad de la
 infraestructura se refuerza con escaneo de seguridad (\emph{checkov}) y
 \emph{linting} de Terraform (\emph{tflint}).

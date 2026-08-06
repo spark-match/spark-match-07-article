@@ -3,6 +3,7 @@
 % TFP - Rubrica: 2 puntos
 % ============================================================================
 \section{Ingenier\'ia de prompts y adaptaci\'on}
+\label{sec:prompts}
 
 El sistema desacopla la interpretaci\'on del lenguaje (agente LLM) de la
 decisi\'on de ranking. El agente no es un \'unico prompt monol\'itico sino un
@@ -88,7 +89,7 @@ consulta \texttt{features.csv} ni emplea a\'un una base vectorial. La
 generaci\'on aumentada por recuperaci\'on (RAG) \cite{gao2024, fan2024} se
 contempla como l\'inea de mejora: el propio c\'odigo de \texttt{search\_careers}
 documenta la intenci\'on de reemplazar la b\'usqueda por palabra clave por
-\textbf{b\'usqueda sem\'antica con \texttt{pgvector}} sobre Aurora PostgreSQL en
+\textbf{b\'usqueda sem\'antica con \texttt{pgvector}} sobre RDS PostgreSQL en
 producci\'on --- es la direcci\'on planeada, no una opci\'on descartada --- para
 indexar las fichas de carreras y universidades y anclar las explicaciones del
 agente en texto oficial adicional. La fecha de esa migraci\'on a\'un no est\'a
