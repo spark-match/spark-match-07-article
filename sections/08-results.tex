@@ -21,13 +21,22 @@ implementados:
         operativas: evaluaci\'on de perfil RIASEC (\texttt{evaluate\_riasec\_}
         \texttt{profile}), b\'usqueda de carreras (\texttt{search\_careers}),
         c\'alculo de afinidad vocacional (\texttt{calculate\_affinity}) y
-        b\'usqueda web de respaldo (\texttt{web\_search}), trazadas con
-        LangSmith y con un framework de evaluaci\'on;
-  \item los \emph{scaffolds} del backend serverless (TypeScript, contexto
-        \texttt{identity}: autenticaci\'on, usuarios y auditor\'ia) y del
-        frontend (Angular 21);
+        b\'usqueda web de respaldo (\texttt{web\_search}), servido con
+        FastAPI/uvicorn sobre ECS Fargate, trazado con LangSmith y verificado
+        por un \emph{framework de evaluaci\'on} con 29 casos conversacionales
+        (\texttt{evals/}) que corre autom\'aticamente en cada \emph{pull
+        request} (Secci\'on~\ref{sec:prompts});
+  \item el \textbf{backend serverless} (TypeScript, \'unicamente el contexto
+        \texttt{identity}: autenticaci\'on, usuarios y auditor\'ia; a\'un sin
+        contexto de \emph{matching}) y el \textbf{frontend} (Angular 21, con
+        m\'odulos funcionales reales para \emph{auth}, \emph{chat},
+        \emph{assessment}, \emph{careers}, \emph{filters}, \emph{results},
+        \emph{reports} y \emph{profile}, pendientes de integrarse con el
+        agente desplegado);
   \item la \emph{infraestructura} en Terraform con ambientes \texttt{dev} y
-        \texttt{prod}.
+        \texttt{prod}: Lambda/EventBridge del backend, el cl\'uster ECS
+        Fargate + ALB + CloudFront del agente, y la base de datos RDS
+        PostgreSQL compartida.
 \end{itemize}
 
 \paragraph{Alcance real del motor de scoring (importante).} De los cinco
@@ -47,7 +56,16 @@ brecha --- integrar ingreso, costo, admisi\'on y duraci\'on al agente, y
 conectar su cat\'alogo con el dataset completo --- se detalla en
 \texttt{DOCS/issues/issues-v1/}.
 
-\subsection{Ejemplo de salida (caso can\'onico)}
+\subsection{Ejemplo de salida (caso can\'onico, dise\~no objetivo)}
+
+El siguiente ejemplo ilustra el comportamiento \textbf{objetivo} del sistema
+una vez integrado el motor de scoring completo; \textbf{no} es una captura de
+una ejecuci\'on real, porque el extractor estructurado de regi\'on,
+presupuesto y los pesos de ingreso/costo/admisi\'on/duraci\'on a\'un no existe
+en el agente (Secci\'on~\ref{sec:prompts}), y el filtrado por regi\'on y
+presupuesto sobre \texttt{features.csv} tampoco est\'a conectado. Hoy el
+agente s\'olo calcula afinidad RIASEC sobre el cat\'alogo piloto de 19
+carreras.
 
 \textbf{Caso:} estudiante de Cusco, presupuesto m\'aximo S/600/mes, prioridad en
 salario y cercan\'ia geogr\'afica.
