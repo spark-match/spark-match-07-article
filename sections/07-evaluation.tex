@@ -10,13 +10,23 @@ definido; los valores medidos se completar\'an con las pruebas finales.
 
 \subsection{M\'etricas empleadas}
 
-\paragraph{Recuperaci\'on y ranking.} Para el motor de scoring (ranking Top-N) se
-emplean m\'etricas como \textbf{Recall@K} y relevancia frente a un conjunto de
-casos de referencia, evaluando si las carreras pertinentes aparecen en el Top-N.
+\paragraph{Recuperaci\'on y ranking (dise\~no objetivo).} Para el motor de
+scoring multicriterio completo (ranking Top-N sobre las 6\,208 combinaciones
+de \texttt{features.csv}) se plantean m\'etricas como \textbf{Recall@K} y
+relevancia frente a un conjunto de casos de referencia; a la fecha esta
+m\'etrica \textbf{no est\'a implementada en c\'odigo} porque el propio ranking
+multicriterio tampoco lo est\'a (solo la afinidad RIASEC opera hoy, sobre el
+cat\'alogo piloto --- ver Secci\'on~\ref{sec:results}), por lo que Recall@K
+queda como parte del plan de evaluaci\'on a activar junto con esa
+integraci\'on.
 
-\paragraph{Extractor de preferencias (LLM).} Se mide la correcci\'on de los
-campos estructurados (regi\'on, presupuesto, pesos, c\'odigo RIASEC) y la tasa de
-JSON malformado.
+\paragraph{Interpretaci\'on del perfil vocacional (LLM).} Lo que s\'i se mide
+hoy es la correcci\'on del \textbf{c\'odigo RIASEC} (3 letras) que el
+subagente \texttt{assessment} infiere de la entrevista escalonada
+(Secci\'on~\ref{sec:prompts}), verificado autom\'aticamente en el dataset de
+\emph{evals} (ver m\'as abajo). Un extractor estructurado de regi\'on,
+presupuesto y los otros cuatro pesos del ranking a\'un no existe en el
+agente; queda como trabajo pendiente junto con el resto del motor de scoring.
 
 \paragraph{Justificaci\'on en lenguaje natural (LLM).} Se usa un componente de
 \textbf{LLM-as-judge} que puntu\'a las explicaciones del agente, complementado con
@@ -35,28 +45,50 @@ presupuesto acotado.
 
 \subsection{Casos de prueba y validaci\'on}
 
-La evaluaci\'on se apoya en un dataset de casos representativos que cubren
-distintos perfiles de estudiante (por regi\'on, presupuesto y prioridades), sobre
-los cuales se ejecuta el flujo completo (extracci\'on de preferencias
-$\rightarrow$ scoring $\rightarrow$ justificaci\'on) y se contrastan las salidas
-con lo esperado. Se contemplan del orden de \textbf{5--6 casos can\'onicos} (por
-ejemplo, el estudiante de Cusco con presupuesto acotado de la Secci\'on~8).
+La evaluaci\'on se apoya en un dataset real de \textbf{29 casos}
+conversacionales versionado en el repositorio
+(\texttt{evals/dataset.jsonl}), que cubre escenarios de \emph{assessment}
+(perfil RIASEC esperado), \emph{matching} (c\'odigo de entrada y cantidad de
+carreras esperadas) y \emph{chitchat}/redirecci\'on. Sobre este dataset corre
+\texttt{evals/runner.py}, que ejecuta el flujo y contrasta la salida con lo
+esperado.
 
 \paragraph{Reto de los \emph{evals} en un sistema conversacional.} A diferencia de
 una interacci\'on simple de pregunta--respuesta, aqu\'i la conversaci\'on es
 \textbf{multi-turno}: para que un \emph{eval} sea representativo debe simular
 varios mensajes del estudiante (saludo, aporte de preferencias, aclaraciones),
 no un \'unico JSON de entrada. Por ello los casos de prueba se construyen como
-\emph{guiones de conversaci\'on} y se eval\'uan con el \emph{LLM-as-judge}. Este
-componente se implementa del lado de AWS y queda \textbf{pendiente} hasta que el
-agente est\'e desplegado.
+\emph{guiones de conversaci\'on}.
+
+\paragraph{Correcci\'on: el \emph{eval} ya corre, no depende del despliegue
+(importante).} El informe indicaba antes que el \emph{LLM-as-judge} ``se
+implementa del lado de AWS y queda pendiente hasta que el agente est\'e
+desplegado''. Verificando el c\'odigo, esto ya no es exacto (si alguna vez lo
+fue): el \emph{runner} tiene \textbf{dos modos}. En modo \texttt{mock}
+(\texttt{--mode mock}) ejecuta los \emph{handlers} reales del agente
+directamente --- sin LLM, sin credenciales de AWS y sin agente desplegado
+--- y corre autom\'aticamente en \textbf{cada} \emph{pull request} como parte
+del \emph{pipeline} de CI (\texttt{ci.yml}, \emph{job} \texttt{evals}). En
+modo \texttt{live} (\texttt{--mode live}) invoca el agente real de LangGraph
+en proceso y lo punt\'ua con el \emph{LLM-as-judge} (Claude Haiku~4.5,
+Secci\'on~\ref{sec:results}); este modo s\'i requiere credenciales de AWS
+para llamar a Bedrock, pero \textbf{no} requiere que el agente est\'e
+desplegado en ECS --- se ejecuta localmente o en CI invocando
+\texttt{create\_spark\_agent()} directamente.
 
 \subsection{Comparaci\'on de enfoques (resultados)}
 
-Se compar\'o el enfoque propuesto (pesos din\'amicos inferidos por el LLM) frente a
-dos \emph{baselines}, midiendo cu\'antas carreras del Top-5 comparte cada uno con el
-enfoque propuesto para el caso de Cusco (288 candidatas tras los filtros):
-
+El dise\~no del motor de scoring completo (Secci\'on~\ref{sec:implementation})
+permite, a futuro, comparar el enfoque propuesto (pesos din\'amicos inferidos
+por el LLM sobre los cinco criterios) frente a alternativas m\'as simples,
+como pesos est\'aticos iguales o el ordenamiento por un solo criterio (p.ej.
+solo ingreso). Hoy esa comparaci\'on todav\'ia no es posible de forma
+completa: solo el criterio de afinidad RIASEC est\'a integrado, as\'i que la
+``inferencia din\'amica de pesos'' se limita, por ahora, a ese \'unico
+criterio.
+% TODO (equipo): completar la tabla comparativa (Recall@K, latencia, costo) con
+% los resultados medidos.
+% WARNING -- REVISAR SI ESTO ES CIERTO
 \begin{table}[H]
 \centering
 \begin{tabular}{@{}lcl@{}}
@@ -82,6 +114,7 @@ el ranking responde a las preferencias del estudiante.
 recomendaci\'on} (determin\'istico) sobre \texttt{features.csv}; la evaluaci\'on de
 las respuestas en lenguaje natural del agente (\emph{LLM-as-judge},
 \emph{groundedness}) se realiza sobre el sistema desplegado.
+% REVISAR LA INFORMACION PREVIA
 
 \subsection{Limitaciones detectadas}
 

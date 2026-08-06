@@ -11,28 +11,28 @@
 % --- Portada ---
 \begin{titlepage}
     \centering
-    \vspace*{1.5cm}
+    \vspace*{0.6cm}
 
-    \rule{\linewidth}{0.5pt}\\[0.4cm]
-    {\Large \textbf{Universidad Nacional de Ingenier\'ia}}\\[0.2cm]
+    \rule{\linewidth}{0.5pt}\\[0.3cm]
+    {\Large \textbf{Universidad Nacional de Ingenier\'ia}}\\[0.15cm]
     {\large Facultad de Ingenier\'ia Econ\'omica, Estad\'istica y Ciencias Sociales}\\[0.1cm]
     {\normalsize Centro de Formaci\'on Continua}\\[0.1cm]
     {\normalsize II Programa de Especializaci\'on en IA Generativa y Machine Learning Ops}\\
-    \rule{\linewidth}{0.5pt}\\[2cm]
+    \rule{\linewidth}{0.5pt}\\[1.1cm]
 
-    {\LARGE \textbf{Spark Match}}\\[0.5cm]
-    {\Large Copiloto Inteligente para la Elecci\'on de Carrera Profesional\\basado en IA Generativa y Recomendaci\'on H\'ibrida}\\[1cm]
+    {\LARGE \textbf{Spark Match}}\\[0.4cm]
+    {\Large Copiloto Inteligente para la Elecci\'on de Carrera Profesional\\basado en IA Generativa y Recomendaci\'on H\'ibrida}\\[0.7cm]
     {\normalsize Trabajo de Fin de Programa: dise\~no, implementaci\'on, despliegue y evaluaci\'on\\
-    de un sistema de orientaci\'on vocacional con agentes LLM y MLOps en AWS}\\[3cm]
+    de un sistema de orientaci\'on vocacional con agentes LLM y MLOps en AWS}\\[1.5cm]
 
     \begin{tabular}{rl}
         \textbf{Integrantes:}  & Fabiola G. Tapara Quispe \\
                                 & Angel E. Hincho Jove \\
                                 & Andy B. Huamani Tacoma \\
                                 & Nikolai A. Asencios Garc\'ia \\
-                                & David Barreto Lara \\[0.3cm]
-        \textbf{Programa:}     & II Programa de Especializaci\'on en IA Generativa y MLOps \\[0.3cm]
-        \textbf{Ciclo:}        & 2026-I \\[0.3cm]
+                                & David Barreto Lara \\[0.25cm]
+        \textbf{Programa:}     & II Programa de Especializaci\'on en IA Generativa y MLOps \\[0.25cm]
+        \textbf{Ciclo:}        & 2026-I \\[0.25cm]
         \textbf{Fecha:}        & 09 de agosto de 2026 \\
     \end{tabular}
 
@@ -49,24 +49,42 @@
 % --- Resumen ---
 \section*{Resumen}
 
+Elegir carrera y universidad en el Per\'u es una decisi\'on dif\'icil porque la
+informaci\'on relevante --- ingresos de egresados, costos, tasas de admisi\'on,
+ubicaci\'on --- est\'a dispersa en portales oficiales y es dif\'icil de comparar,
+mientras que las evaluaciones vocacionales tradicionales son est\'aticas y no
+consideran restricciones reales del estudiante ni explican sus recomendaciones.
 Spark Match (CareerMatch Per\'u) es un asistente conversacional basado en IA
-generativa que orienta a estudiantes y padres de familia en la elecci\'on de
-carrera y universidad en el Per\'u. El sistema combina un agente de lenguaje
-(un LLM \emph{Claude}, servido mediante \emph{AWS Bedrock}), que interpreta en
-lenguaje natural las preferencias del estudiante y luego explica los resultados,
-con un motor de recomendaci\'on transparente en Python que asigna un puntaje a
-cada combinaci\'on carrera--universidad usando datos oficiales del portal
-\emph{Ponte en Carrera} (MINEDU). A diferencia de los sistemas con pesos fijos,
-los pesos de cada criterio son inferidos din\'amicamente por el LLM a partir de la
-conversaci\'on, y la afinidad vocacional se modela con el esquema RIASEC de
-Holland. La plataforma se apoya en un backend \emph{serverless} en TypeScript
-(AWS Lambda + EventBridge + SAM), un frontend en Angular y un agente en Python
-(harness \emph{deepagents}). El proyecto incorpora pr\'acticas de MLOps mediante el versionado de
-prompts, f\'ormula de scoring y datos, la observabilidad del agente con LangSmith,
-el seguimiento de experimentos con Weights \& Biases y CI/CD e infraestructura
-como c\'odigo (Terraform) sobre AWS. Este documento presenta el caso de uso, la
-selecci\'on de modelo y datos, la ingenier\'ia de prompts, la arquitectura, el
-prototipo, la evaluaci\'on y las recomendaciones.
+generativa que orienta a estudiantes y padres de familia en esa decisi\'on. El
+sistema combina un agente de lenguaje (un LLM \emph{Claude}, servido mediante
+\emph{AWS Bedrock}), que interpreta en lenguaje natural las preferencias del
+estudiante y luego explica los resultados, con un motor de recomendaci\'on
+transparente en Python cuyo dise\~no asigna un puntaje a cada combinaci\'on
+carrera--universidad usando datos oficiales del portal \emph{Ponte en Carrera}
+(MINEDU): el \emph{pipeline} de datos ya produce 6\,208 combinaciones sobre 554
+carreras \'unicas en 25 departamentos. El dise\~no del motor contempla cinco
+criterios ponderados (afinidad, ingreso, costo, admisi\'on, duraci\'on), con
+pesos inferidos din\'amicamente por el LLM a partir de la conversaci\'on; en el
+prototipo actual solo el criterio de afinidad --- modelado con el esquema
+RIASEC de Holland --- est\'a integrado en el agente conversacional, mientras que
+los otros cuatro y su conexi\'on con el dataset completo son trabajo en curso
+(Secci\'on~\ref{sec:results}). El LLM se mantiene deliberadamente desacoplado de
+la decisi\'on de ranking --- interpreta y explica, pero no decide el orden ---
+lo que garantiza transparencia y reproducibilidad.
+La plataforma se apoya en un backend \emph{serverless} en TypeScript (AWS Lambda
++ EventBridge + SAM), un frontend en Angular y un agente en Python (harness
+\emph{deepagents}) con persistencia de perfil mediante \texttt{langmem}. El
+proyecto incorpora pr\'acticas de MLOps mediante el versionado de prompts y de
+datos (\emph{snapshots} con fecha y un \emph{pipeline} DVC), la observabilidad
+del agente con LangSmith, un componente de \emph{LLM-as-judge} para evaluaci\'on
+autom\'atica, control de costos con AWS Budgets, y CI/CD e infraestructura como
+c\'odigo (Terraform) sobre AWS con
+an\'alisis est\'atico (SonarCloud, CodeQL) e infraestructura auditada (checkov,
+tflint). Este documento presenta el caso de uso, la selecci\'on de modelo y
+datos, la ingenier\'ia de prompts, la arquitectura del prototipo, la estrategia
+de monitoreo, el marco de evaluaci\'on y las recomendaciones de trabajo futuro,
+incluyendo la incorporaci\'on de un componente RAG y la migraci\'on hacia el
+observatorio oficial \emph{Mi Carrera}.
 
 \vspace{0.5cm}
 \noindent\textbf{Palabras clave:} orientaci\'on vocacional, sistemas de recomendaci\'on, IA generativa, LLM, agentes, RIASEC, MLOps, AWS Bedrock, serverless, LangSmith.

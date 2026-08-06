@@ -16,13 +16,23 @@ El stack de observabilidad se compone de:
   \item \textbf{LangSmith}: traza las peticiones del agente (mensajes,
         herramientas invocadas, consumo de tokens y latencia por llamada). Es la
         fuente principal de observabilidad de la parte generativa.
-  \item \textbf{Weights \& Biases (W\&B)}: plataforma de seguimiento de
-        experimentos y m\'etricas, equivalente en la nube a MLflow (con capa
-        gratuita), usada para registrar corridas de la parte generativa y del
-        motor de scoring.
   \item \textbf{AWS Budgets / CloudWatch}: control de costos y m\'etricas de
-        infraestructura del backend serverless.
+        infraestructura del backend serverless y del agente en ECS Fargate.
 \end{itemize}
+
+\paragraph{Correcci\'on: seguimiento de experimentos (importante).} El
+informe mencionaba anteriormente \textbf{Weights \& Biases} para registrar
+corridas del motor de scoring. Verificando el c\'odigo, esto no es exacto:
+el repositorio \texttt{spark-match-06-model-training} \textbf{a\'un no tiene
+c\'odigo} (solo archivos de gobernanza como \texttt{CODEOWNERS}), y ninguna
+dependencia de W\&B existe en ning\'un repositorio del ecosistema. La
+herramienta que s\'i est\'a planeada es distinta: el propio
+\texttt{pyproject.toml} de \texttt{spark-match-05-data-pipeline} declara un
+grupo opcional \texttt{ml} con \textbf{MLflow} (\texttt{mlflow>=3.13,<4.0}),
+\textbf{comentado} a la espera de que MLflow soporte pandas~3.x --- es decir,
+planeado para una fase futura (Fase~4 del pipeline), no instalado ni usado
+todav\'ia. El seguimiento de experimentos queda, por tanto, como trabajo
+pendiente, no como una capacidad ya operativa.
 
 \subsection{Versionado (prompts, scoring y datos)}
 
@@ -32,9 +42,20 @@ El stack de observabilidad se compone de:
         estrategias de prompting.
   \item \textbf{Versionado de la f\'ormula de scoring:} distintas versiones del
         motor (pesos, variables como la duraci\'on) quedan registradas.
-  \item \textbf{Versionado de datos:} en cada corrida se guardan snapshots con
-        fecha y hora del dataset y de la configuraci\'on de imputaci\'on; se
-        contempla \emph{DVC} con almacenamiento remoto en S3 para el dataset.
+  \item \textbf{Versionado de datos:} adem\'as de los \emph{snapshots} con
+        fecha y hora, el \emph{pipeline} ya define un \textbf{pipeline DVC}
+        real (\texttt{dvc.yaml}) con cuatro etapas encadenadas
+        (\texttt{ingest} $\rightarrow$ \texttt{clean} $\rightarrow$
+        \texttt{features} $\rightarrow$ \texttt{riasec}); a\'un no rastrea
+        los archivos de datos como \emph{outputs} de DVC (siguen versionados
+        directamente en git) ni tiene un remoto S3 configurado, lo que queda
+        para una fase posterior. Es relevante que, desde el 12/07/2026, la
+        etapa \texttt{ingest} est\'a \textbf{congelada} (\texttt{frozen}) en
+        el pipeline: el portal \emph{Ponte en Carrera} devuelve HTTP~500 tras
+        su decomisi\'on por el MINEDU, y \texttt{dvc repro} reproduce hoy las
+        etapas siguientes contra el \texttt{raw.xlsx} hist\'orico ya
+        confirmado en git, no contra una descarga en vivo (ver
+        Secci\'on~\ref{sec:model-data}).
 \end{itemize}
 
 \subsection{M\'etricas de desempe\~no}
@@ -59,8 +80,21 @@ Las m\'etricas operativas y de negocio previstas son:
 
 \subsection{Evaluaci\'on autom\'atica y gesti\'on de drift}
 
-Un componente de \emph{LLM-as-judge} eval\'ua las respuestas del agente contra un
-dataset de casos, permitiendo detectar regresiones al cambiar prompts o modelo.
+Un componente de \emph{LLM-as-judge} (\texttt{evals/judge.py}) eval\'ua las
+respuestas del agente contra un \textbf{dataset real de 29 casos}
+conversacionales (\texttt{evals/dataset.jsonl}), permitiendo detectar
+regresiones al cambiar prompts o modelo. El juez usa \textbf{Claude Haiku 4.5}
+(el mismo modelo del enrutador de intenci\'on) sobre una r\'ubrica ponderada de
+cuatro dimensiones: precisi\'on del c\'odigo RIASEC inferido (peso~0.4),
+pertinencia de las carreras recomendadas (peso~0.3), tono (peso~0.2) y
+seguridad --- ausencia de contenido da\~nino, fugas de PII o cumplimiento de
+\emph{jailbreaks} (peso~0.1) --- con un umbral de aprobaci\'on de $0.7$. A la
+fecha, las cifras de latencia, costo y \emph{helpfulness} de este Deep Agent
+son \textbf{prospectivas} (objetivo a alcanzar) y no medidas a\'un en vivo con
+Bedrock; el equipo documenta esto expl\'icitamente en
+\texttt{docs/benchmarks.md} para no confundir cifras hist\'oricas de
+prototipos anteriores del proyecto con mediciones reales del sistema actual.
+
 En cuanto al \emph{drift}, dado que el dataset se congela para la demo, el
 mantenimiento de datos se concentra en la actualizaci\'on peri\'odica de la fuente
 (alineada con el calendario acad\'emico) y en la futura migraci\'on a \emph{Mi

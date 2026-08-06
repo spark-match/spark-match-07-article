@@ -3,6 +3,7 @@
 % TFP - Rubrica: 2 puntos
 % ============================================================================
 \section{Orquestaci\'on y despliegue}
+\label{sec:orchestration}
 
 El despliegue combina un backend de plataforma \emph{serverless} (AWS Lambda) con
 el agente ejecut\'andose como \textbf{contenedor en ECS Fargate}, todo sobre AWS,
@@ -26,35 +27,66 @@ sam deploy --config-env prod    # ambiente productivo (aprobacion manual)
 
 \subsection{Agente y motor de scoring (Python)}
 
-El agente conversacional y el motor de scoring se ejecutan en Python. El agente
-usa el \emph{harness} \texttt{deepagents} y \texttt{langmem} para la persistencia
-del perfil, y se despliega como \textbf{contenedor en AWS ECS Fargate} (detr\'as de
-un \emph{Application Load Balancer}); el LLM se accede mediante Bedrock. El motor de
-scoring opera sobre \texttt{features.csv} con Pandas/NumPy. Es importante notar que el agente
-\textbf{no expone un framework web tradicional} (no usa FastAPI ni Flask): corre
-como c\'odigo Python dentro del harness, y la exposici\'on HTTP la provee el
-backend \emph{serverless} (API Gateway + Lambda). Estos componentes se integran con
-Bedrock para las invocaciones al LLM.
+El agente conversacional y el motor de scoring se ejecutan en Python. A
+diferencia de lo planeado originalmente, el agente \textbf{s\'i expone un
+framework web tradicional}: \texttt{src/api/app.py} monta una aplicaci\'on
+\textbf{FastAPI}, servida con \textbf{uvicorn}, con un endpoint
+\texttt{/ag-ui} que responde en \emph{streaming} (Server-Sent Events) y un
+endpoint \texttt{/health} para el \emph{health check} del balanceador. El
+agente usa el \emph{harness} \texttt{deepagents} y \texttt{langmem} para la
+persistencia del perfil (ver Secci\'on~\ref{sec:implementation}); Bedrock se
+usa \'unicamente como pasarela de inferencia del LLM (invocaciones a Claude),
+no como plataforma de hospedaje del contenedor. El motor de scoring, por su
+parte, opera sobre \texttt{features.csv} con Pandas/NumPy, aunque a\'un no
+est\'a conectado end-to-end con el agente (ver
+Secci\'on~\ref{sec:results}).
 
 \subsection{Contenerizaci\'on (Docker)}
 
-La contenerizaci\'on con \textbf{Docker} es central en el despliegue del agente: su
-imagen se construye con Docker, se publica en \textbf{Amazon ECR} y se ejecuta como
-un servicio en \textbf{ECS Fargate}. Del lado del backend de plataforma,
-\texttt{aws sam build} tambi\'en empaqueta las funciones Lambda como im\'agenes de
-contenedor. As\'i se garantiza que el entorno sea reproducible entre desarrollo y
-producci\'on, sin administrar servidores ni un cl\'uster de contenedores propio
-(Fargate gestiona la ejecuci\'on).
+El uso de \textbf{Docker} no es sim\'etrico entre los dos servicios del
+proyecto. El backend serverless \textbf{no se empaqueta como imagen de
+contenedor}: \texttt{aws sam build} usa \texttt{BuildMethod: esbuild} por
+funci\'on, que compila y empaqueta cada Lambda de TypeScript como un
+\textbf{artefacto ZIP} (Node.js~24.x). El agente conversacional, en cambio,
+\textbf{s\'i se conteneriza}: su \texttt{Dockerfile} (\emph{multi-stage},
+\texttt{uv} para resolver dependencias + \texttt{python:3.14-slim} para el
+\emph{runtime}, usuario no-\emph{root}, plataforma \texttt{linux/arm64}) se
+construye en CI, se publica en \textbf{Amazon ECR} y se despliega como una
+\textbf{tarea de Amazon ECS Fargate} (Graviton/ARM64) detr\'as de un
+\emph{Application Load Balancer}, con \textbf{CloudFront} delante para
+terminar TLS. La raz\'on documentada en el m\'odulo de Terraform para elegir
+ECS Fargate en vez de Bedrock AgentCore Runtime es que el agente necesita
+conexi\'on TCP directa a RDS para el \emph{checkpointer}/\emph{store} de
+LangGraph y \emph{streaming} SSE de larga duraci\'on en \texttt{/ag-ui}, algo
+que AgentCore Runtime no garantiza y que un \emph{timeout} fijo de 30s en
+API Gateway (HTTP API) cortar\'ia; el ALB permite un \emph{idle timeout}
+configurable de hasta 4000s. As\'i, la contenerizaci\'on con Docker
+garantiza que el entorno del agente sea reproducible entre desarrollo y
+producci\'on \textbf{con} un orquestador de contenedores propio (ECS), no
+sin \'el.
 
 \subsection{Infraestructura como c\'odigo (Terraform)}
 
 La infraestructura se provisiona con \textbf{Terraform}, con m\'odulos separados
 por ambiente (\texttt{dev} y \texttt{prod}). Se emplea \textbf{AWS Budgets} como
 control de costos. Entre los recursos: funciones Lambda y reglas de EventBridge
-del backend, base de datos \textbf{Aurora PostgreSQL}, almacenamiento en S3 para
-snapshots del dataset, e IAM con privilegios m\'inimos. La calidad de la
-infraestructura se refuerza con escaneo de seguridad (\emph{checkov}) y
-\emph{linting} de Terraform (\emph{tflint}).
+del backend; el \textbf{cl\'uster ECS Fargate}, el ALB, la distribuci\'on
+CloudFront y el repositorio \textbf{ECR} del agente conversacional
+(\texttt{modules/agent-service}); la base de datos \textbf{RDS PostgreSQL}
+compartida por ambos servicios; almacenamiento en S3 para \emph{snapshots} del
+dataset; e IAM con privilegios m\'inimos (roles de ejecuci\'on y de tarea
+separados para el agente). La calidad de la infraestructura se refuerza con
+escaneo de seguridad (\emph{checkov}) y \emph{linting} de Terraform
+(\emph{tflint}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig-arquitectura-despliegue-aws.png}
+    \caption{Arquitectura de despliegue en AWS: \emph{pipeline} serverless
+    del backend y agente conversacional en ECS Fargate detr\'as de
+    ALB/CloudFront.}
+    \label{fig:deployment-architecture}
+\end{figure}
 
 \subsection{CI/CD con GitHub Actions}
 
@@ -92,21 +124,36 @@ jobs:
       - run: checkov -d infra/
 \end{lstlisting}
 
+\begin{landscape}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig-cicd-pipeline.png}
+    \caption{Pipeline de CI/CD: \emph{quality gates} en cada \emph{pull
+    request} y despliegue a ECS Fargate con \emph{rollback} autom\'atico.}
+    \label{fig:cicd-pipeline}
+\end{figure}
+\end{landscape}
+
 \subsection{Escalabilidad}
 
-El sistema \textbf{no utiliza Kubernetes}: la escalabilidad se apoya en servicios
-gestionados de AWS. El backend de plataforma (AWS Lambda + API Gateway) es
-\emph{serverless} y escala por invocaci\'on; el agente corre en \textbf{ECS
-Fargate}, que ejecuta y escala los contenedores de forma gestionada (sin
-administrar servidores ni un cl\'uster propio). Esto ofrece una escalabilidad
-adecuada para el alcance del proyecto, con l\'imites conocidos: AWS Lambda admite
-\textbf{100 ejecuciones concurrentes} en cuentas gratuitas (\textbf{1000} en
-cuentas de pago), ampliables bajo solicitud, y el servicio de Fargate escala por
-n\'umero de tareas. Para cargas de millones de usuarios simult\'aneos se
-requerir\'ia una orquestaci\'on tipo Kubernetes/EKS; en este proyecto,
-\textbf{Fargate y Lambda cumplen esa funci\'on} ---orquestaci\'on y escalado
-autom\'atico--- sin el costo operativo de administrar un cl\'uster. Se trata, por
-tanto, de una escalabilidad \emph{media} suficiente para la demostraci\'on.
+El sistema \textbf{no utiliza Kubernetes}. El backend escala de forma
+autom\'atica y sin administrar servidores (AWS Lambda + API Gateway), con
+l\'imites conocidos: AWS Lambda admite \textbf{100 ejecuciones concurrentes}
+en cuentas gratuitas (\textbf{1000} en cuentas de pago), ampliables bajo
+solicitud. El agente, en cambio, corre en \textbf{ECS Fargate}, que s\'i es un
+orquestador de contenedores administrado: hoy el servicio se despliega con un
+\texttt{desired\_count} \textbf{fijo} (sin \emph{autoscaling} configurado
+todav\'ia --- el m\'odulo de Terraform deja el campo preparado con
+\texttt{lifecycle.ignore\_changes} para cuando se agregue), por lo que la
+capacidad del agente es constante y no reactiva a la demanda; s\'i cuenta con
+un \emph{deployment circuit breaker} que revierte autom\'aticamente un
+despliegue fallido a la revisi\'on anterior. Para cargas de millones de
+usuarios simult\'aneos se requerir\'ia habilitar \emph{autoscaling} en el
+servicio ECS (o migrar a una arquitectura Kubernetes/EKS); en el alcance
+actual del proyecto esto se documenta como trabajo pendiente, no como una
+funci\'on ya activa. Se trata, por tanto, de una escalabilidad \emph{media}
+suficiente para la demostraci\'on, con el backend escalando autom\'aticamente
+y el agente con capacidad fija.
 
 \subsection{Despliegue en la nube (AWS)}
 

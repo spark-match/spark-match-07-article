@@ -17,14 +17,24 @@ transparencia y reproducibilidad.
         \'unicas) con snapshots versionados.
   \item El \emph{etiquetado vocacional RIASEC} de las carreras mediante el LLM en
         Bedrock, que habilita el t\'ermino de afinidad del scoring.
-  \item Un \emph{agente conversacional} (Deep Agent / \texttt{deepagents}) que interpreta
-        preferencias en lenguaje natural, persiste el perfil con \texttt{langmem}
-        y traduce prioridades en pesos din\'amicos.
-  \item Un \emph{motor de scoring} transparente de 5 criterios (afinidad,
-        ingreso, costo, admisi\'on, duraci\'on) que produce rankings explicables.
-  \item Pr\'acticas de \emph{MLOps}: versionado de prompts, scoring y datos;
-        observabilidad con LangSmith; experimentos con W\&B; CI/CD e IaC con
-        Terraform (ambientes \texttt{dev} y \texttt{prod}).
+  \item Un \emph{agente conversacional} (Deep Agent / \texttt{deepagents}, con
+        coordinador y tres subagentes especializados) que interpreta
+        preferencias en lenguaje natural, persiste el perfil con
+        \texttt{langmem} y traduce la entrevista vocacional en un c\'odigo
+        RIASEC que alimenta hoy el \'unico criterio de \emph{scoring} ya
+        integrado (afinidad).
+  \item El \textbf{dise\~no} de un \emph{motor de scoring} transparente de 5
+        criterios (afinidad, ingreso, costo, admisi\'on, duraci\'on) que
+        produce rankings explicables; a la fecha solo el criterio de
+        afinidad RIASEC est\'a integrado end-to-end en el agente
+        (Secci\'on~\ref{sec:results}), con los otros cuatro como principal
+        trabajo pendiente.
+  \item Pr\'acticas de \emph{MLOps} ya operativas: versionado de prompts y de
+        datos (\emph{snapshots} y un \emph{pipeline} DVC de 4 etapas);
+        observabilidad del agente con LangSmith; evaluaci\'on autom\'atica con
+        un \emph{LLM-as-judge} sobre 29 casos conversacionales que corre en
+        cada \emph{pull request}; CI/CD e IaC con Terraform (Lambda, ECS
+        Fargate, RDS PostgreSQL) en ambientes \texttt{dev} y \texttt{prod}.
 \end{itemize}
 
 \subsection{Dificultades y aprendizajes}

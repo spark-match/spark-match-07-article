@@ -3,6 +3,7 @@
 % TFP - Rubrica: 1 punto
 % ============================================================================
 \section{Selecci\'on de modelo y datos}
+\label{sec:model-data}
 
 \subsection{Modelo generativo / fundacional}
 
@@ -18,7 +19,7 @@ idioma, licencia), se elige \textbf{AWS Bedrock} como plataforma de modelos, con
 \texttt{ChatBedrock}. Las razones son: (i)~es un servicio gestionado, sin costo de
 hardware ni GPU local; (ii)~Claude maneja el espa\~nol con buena calidad y sigue
 bien las instrucciones; (iii)~al ser AWS-nativo se integra con el resto de la
-arquitectura (Lambda, Aurora) sin credenciales de terceros; y (iv)~unifica el
+arquitectura (Lambda, RDS) sin credenciales de terceros; y (iv)~unifica el
 proveedor entre el agente conversacional y el etiquetado de datos. Es importante
 notar que Bedrock funciona como \emph{pasarela} de modelos (no es un modelo en
 s\'i), por lo que cambiar de modelo no impacta el n\'ucleo del sistema. Se
@@ -27,7 +28,7 @@ el ranking.
 
 \begin{table}[H]
 \centering
-\begin{tabular}{@{}llll@{}}
+\begin{tabularx}{\linewidth}{@{} >{\raggedright\arraybackslash}p{3.1cm} X >{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{2.6cm} @{}}
 \toprule
 \textbf{Plataforma / Modelo} & \textbf{Costo} & \textbf{Hardware} & \textbf{Rol} \\
 \midrule
@@ -35,23 +36,48 @@ AWS Bedrock -- Claude & Pago por uso (cr\'editos AWS) & Ninguno (gestionado) & \
 AWS Bedrock -- otros  & Pago por uso                  & Ninguno (gestionado) & Alternativa \\
 Llama 3 (local)       & Sin costo de API              & GPU local            & Futuro / privacidad \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \caption{Comparaci\'on de opciones de modelo seg\'un los criterios de selecci\'on.}
 \label{tab:model-comparison}
 \end{table}
 
-Se descarta depender de \textbf{Llama 3 local} como opci\'on principal porque
+Como resume la Tabla~\ref{tab:model-comparison}, se descarta depender de \textbf{Llama 3 local} como opci\'on principal porque
 exige GPU/infraestructura que el equipo no necesita en esta etapa (queda como
 alternativa para privacidad u operaci\'on \emph{offline}).
 
+\paragraph{Enrutador de modelos por intenci\'on.} El agente no usa un \'unico
+modelo para todos los turnos: un \texttt{IntentRouterMiddleware} clasifica cada
+turno con una heur\'istica sin costo (sin llamada adicional al LLM) y lo enruta
+a \textbf{Claude Haiku} (\texttt{fast\_model\_id}) para turnos simples (saludos,
+respuestas cortas de la evaluaci\'on RIASEC, aclaraciones de baja informaci\'on)
+o a \textbf{Claude Sonnet} (\texttt{model\_id}) para el resto. Esta estrategia
+de dos niveles reduce la latencia y el costo de inferencia sin sacrificar
+calidad en los turnos que requieren razonamiento m\'as profundo, y refuerza el
+criterio (iii) de bajo costo definido al inicio de esta secci\'on.
+
 \subsection{Dataset}
 
-El sistema utiliza informaci\'on oficial del portal \emph{Ponte en Carrera}
-(MINEDU): universidades, carreras, ingreso promedio de egresados, costos de
-estudio, porcentaje de ingresantes, ubicaci\'on geogr\'afica, tipo de gesti\'on y
-duraci\'on. El dataset procesado contiene \textbf{6\,208} combinaciones
+El \emph{pipeline} de datos consolida informaci\'on oficial del portal
+\emph{Ponte en Carrera} (MINEDU): universidades, carreras, ingreso promedio de
+egresados, costos de estudio, porcentaje de ingresantes, ubicaci\'on
+geogr\'afica, tipo de gesti\'on y duraci\'on. El dataset procesado
+(\texttt{features.csv}) contiene \textbf{6\,208} combinaciones
 carrera--instituci\'on (\textbf{554} carreras \'unicas en \textbf{25}
-departamentos).
+departamentos), con las variables de ingreso, costo, admisi\'on y duraci\'on ya
+normalizadas en $[0,1]$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig-pipeline-datos.png}
+    \caption{Pipeline de datos versionado con DVC (4 etapas), con la etapa de
+    ingesta congelada tras el decomiso del portal fuente.}
+    \label{fig:data-pipeline}
+\end{figure}
+
+\paragraph{Nota de integraci\'on.} A la fecha, este dataset es consumido por el
+\emph{pipeline} y validado de forma independiente; su conexi\'on directa con el
+agente conversacional --- que hoy razona sobre un cat\'alogo piloto de carreras
+--- est\'a en desarrollo (ver Secci\'on~\ref{sec:results}).
 
 \paragraph{Nota sobre la fuente.} El MTPE ha consolidado recientemente el portal
 \emph{Mi Carrera} como nuevo observatorio oficial del mercado laboral, relegando
@@ -64,15 +90,20 @@ queda como trabajo futuro.
 
 \paragraph{Arquitectura de fuentes intercambiables.} Dado que el portal oficial
 puede quedar inaccesible (de hecho \emph{Ponte en Carrera} fue relegado), el
-\emph{pipeline} adopta un \textbf{registro de fuentes} (\emph{source registry}):
-cada fuente de datos es un componente enchufable con una interfaz com\'un, lo que
+\emph{pipeline} adopta un \textbf{registro de fuentes} (\emph{source registry},
+\texttt{src/sources/registry.py}): cada fuente se registra con un decorador
+\texttt{@register} sobre una interfaz com\'un (\texttt{DataSource}), lo que
 permite (i)~cambiar el mecanismo de scraping ---por ejemplo de \emph{Selenium} a
 \emph{Playwright}, m\'as robusto para p\'aginas que renderizan con JavaScript y
-m\'as apto para ejecuci\'on \emph{headless} en el backend---, (ii)~a\~nadir
-\emph{Mi Carrera} como nueva fuente, y (iii)~definir un \textbf{fallback}: si la
-descarga en vivo falla, el pipeline recupera el \'ultimo \emph{snapshot} desde un
-bucket S3. As\'i el sistema es resiliente ante ca\'idas de la fuente sin
-convertirse en un simple dato est\'atico.
+m\'as apto para ejecuci\'on \emph{headless} en el backend---, y (ii)~a\~nadir
+\emph{Mi Carrera} como nueva fuente sin modificar el orquestador. A la fecha
+solo \texttt{ponte\_en\_carrera} est\'a registrada, y el \textbf{fallback}
+implementado es local: cada descarga exitosa se copia con \emph{timestamp} a un
+directorio de \emph{snapshots} (no a un bucket S3), desde donde puede
+recuperarse manualmente si la fuente en vivo falla. As\'i el sistema es
+resiliente ante ca\'idas de la fuente sin convertirse en un simple dato
+est\'atico, aunque el fallback autom\'atico a almacenamiento remoto (S3) queda
+como trabajo futuro.
 
 \subsection{Preprocesamiento}
 

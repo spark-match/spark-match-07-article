@@ -1,0 +1,33 @@
+%% Destino sugerido: Seccion 2 (Seleccion de modelo y datos), subseccion
+%% Dataset/Preprocesamiento. Hoy esa seccion solo tiene una descripcion en
+%% prosa (etapas ingestion.py, data_clean.py, feature_engineering.py); este
+%% diagrama la hace visual y deja explicita la etapa "frozen".
+%% Nombre de archivo sugerido al renderizar: fig-pipeline-datos.png
+%% Caption sugerido: "Pipeline de datos versionado con DVC (4 etapas), con la
+%% etapa de ingesta congelada tras el decomiso del portal fuente."
+%% Label sugerido: fig:data-pipeline
+
+flowchart TB
+    subgraph FILA1[" "]
+        direction LR
+        MEC["Ponte en Carrera (MINEDU)<br/>portal oficial"] -- "HTTP 500 desde<br/>2026-07-12<br/>(decomisionado)" --> FROZEN[/"etapa ingest: FROZEN"/]
+        FROZEN -.->|"se reproduce solo contra<br/>el ultimo raw.xlsx historico"| ING["ingest<br/>(ingestion.py, Selenium)"]
+        ING --> CLEAN["clean<br/>(data_clean.py)<br/>estandariza columnas y tipos,<br/>descarta incompletos"]
+    end
+
+    subgraph FILA2[" "]
+        direction LR
+        FEAT["features<br/>(feature_engineering.py)<br/>imputacion por etapas +<br/>normalizacion Min-Max [0,1]"] --> RIASEC["riasec<br/>etiquetado LLM (Bedrock)<br/>554 carreras unicas"]
+        RIASEC --> CSV[("features.csv<br/>6,208 combinaciones<br/>554 carreras / 25 departamentos")]
+        CSV -.->|"NO conectado aun"| AGENTE["Agente conversacional<br/>(catalogo piloto de 19 carreras)"]
+    end
+
+    CLEAN --> FEAT
+    ING -.snapshot con fecha y hora.-> SNAP[("snapshots/<br/>fallback local,<br/>sin remoto S3 aun")]
+
+    classDef pending fill:#fee2e2,stroke:#c00,stroke-width:1px
+    classDef done fill:#dcfce7,stroke:#16a34a,stroke-width:1px
+    class MEC,FROZEN pending
+    class CSV,RIASEC,FEAT,CLEAN,ING done
+    style FILA1 fill:none,stroke:none
+    style FILA2 fill:none,stroke:none

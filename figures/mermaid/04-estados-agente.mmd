@@ -1,0 +1,38 @@
+%% Destino sugerido: Seccion 4 (Implementacion), subseccion "Agente
+%% conversacional (Deep Agent / deepagents)". Complementa el diagrama de
+%% secuencia (01) mostrando la coordinacion entre subagentes como maquina de
+%% estados, que es justamente lo que pide el issue 07 ("diagrama de estados").
+%% Nombre de archivo sugerido al renderizar: fig-estados-agente.png
+%% Caption sugerido: "Maquina de estados del Deep Agent: enrutamiento por
+%% intencion y coordinacion de los tres subagentes especializados."
+%% Label sugerido: fig:agent-states
+
+stateDiagram-v2
+    [*] --> Enrutamiento
+
+    Enrutamiento --> TurnoSimple: IntentRouterMiddleware<br/>(heuristica sin costo) -> Haiku
+    Enrutamiento --> TurnoComplejo: -> Sonnet
+
+    TurnoSimple --> Coordinador
+    TurnoComplejo --> Coordinador
+
+    state Coordinador {
+        [*] --> EvaluaPerfil
+        EvaluaPerfil --> Assessment: perfil RIASEC incompleto
+        EvaluaPerfil --> Matching: perfil completo
+        Assessment --> Assessment: entrevista escalonada<br/>(preguntas B1-B5)
+        Assessment --> EvaluaPerfil: codigo RIASEC persistido<br/>(langmem, PII redactada)
+        Matching --> Matching: calculate_affinity<br/>sobre catalogo piloto (19 carreras)
+        Matching --> Planning: estudiante confirma interes
+        Planning --> Respuesta: plan de accion generado
+        Matching --> Respuesta: ranking Top-N por afinidad
+        Respuesta --> [*]
+    }
+
+    Coordinador --> [*]: streaming SSE al frontend
+
+    note right of Matching
+        Solo afinidad RIASEC esta integrada.
+        Ingreso, costo, admision y duracion:
+        diseno objetivo, pendiente (Seccion 8)
+    end note
