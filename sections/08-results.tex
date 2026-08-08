@@ -68,6 +68,37 @@ brecha --- integrar ingreso, costo, admisi\'on y duraci\'on al agente, y
 conectar su cat\'alogo con el dataset completo --- se detalla en
 \texttt{DOCS/issues/issues-v1/}.
 
+\paragraph{Actualizaci\'on: integraci\'on del cat\'alogo con datos completos.}
+Con posterioridad a la redacci\'on del p\'arrafo anterior se integr\'o la
+consulta del agente al cat\'alogo de carreras con sus datos reales. En una
+ejecuci\'on en \texttt{dev}, ante la consulta de un estudiante interesado en
+\emph{Medicina} en Arequipa, el agente ahora recomienda combinaciones
+\textbf{carrera--universidad concretas con costo anual, ingreso mensual de
+egresados, tasa de admisi\'on y duraci\'on reales}
+(Figura~\ref{fig:ev-caso3}), y \textbf{razona sobre las restricciones del
+estudiante}: ante un presupuesto limitado prioriza las opciones m\'as
+accesibles (Figura~\ref{fig:ev-caso3b}). Esto cierra en buena parte la brecha
+del Criterio~4. La integraci\'on es reciente y a\'un en estabilizaci\'on:
+algunos valores de costo o ingreso figuran como \emph{estimados} por imputaci\'on
+y el reporte descargable sigue pendiente.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fig-evidencia-caso3-explicacion.png}
+    \caption{Ejecuci\'on real (integraci\'on de datos): el agente consulta el
+    cat\'alogo y recomienda carrera--universidad con duraci\'on, costo anual,
+    ingreso de egresados y tasa de admisi\'on reales.}
+    \label{fig:ev-caso3}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fig-evidencia-caso3-medicina.png}
+    \caption{Ejecuci\'on real: ante un presupuesto limitado, el agente prioriza
+    las opciones m\'as accesibles con sus costos e inversi\'on total.}
+    \label{fig:ev-caso3b}
+\end{figure}
+
 \subsection{Ejemplo de salida (caso can\'onico, dise\~no objetivo)}
 
 El siguiente ejemplo ilustra el comportamiento \textbf{objetivo} del sistema
