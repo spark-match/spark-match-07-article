@@ -57,7 +57,7 @@ capturaron como evidencia de la experiencia de usuario en el prototipo.
 
 \paragraph{Observabilidad con LangSmith.} La plataforma se acompa\~na de
 trazas de ejecuci\'on en LangSmith, que documentan las interacciones del
-agente, las llamadas a herramientas y la latencia de cada turna.
+agente, las llamadas a herramientas y la latencia de cada turno.
 Las Figuras~\ref{fig:langsmit1} y~\ref{fig:langsmit2} muestran ejemplos de
 estas trazas, agregando evidencia del monitoreo y la calidad de la conversaci\'on.
 
@@ -100,68 +100,6 @@ de \texttt{search\_programs} es reciente y a\'un en estabilizaci\'on: algunos
 valores de costo o ingreso figuran como \emph{estimados} por imputaci\'on y el
 reporte descargable sigue pendiente. El trabajo pendiente para cerrar esta
 brecha se detalla en \texttt{DOCS/issues/issues-v1/}.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\linewidth]{fig-evidencia-caso3-explicacion.png}
-    \caption{Ejecuci\'on real (integraci\'on de datos): el agente consulta el
-    cat\'alogo y recomienda carrera--universidad con duraci\'on, costo anual,
-    ingreso de egresados y tasa de admisi\'on reales.}
-    \label{fig:ev-caso3}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\linewidth]{fig-evidencia-caso3-medicina.png}
-    \caption{Ejecuci\'on real: ante un presupuesto limitado, el agente prioriza
-    las opciones m\'as accesibles con sus costos e inversi\'on total.}
-    \label{fig:ev-caso3b}
-\end{figure}
-
-\paragraph{Actualizaci\'on: integraci\'on del cat\'alogo con datos completos.}
-Con posterioridad a la redacci\'on del p\'arrafo anterior se integr\'o la
-consulta del agente al cat\'alogo de carreras con sus datos reales. En una
-ejecuci\'on en \texttt{dev}, ante la consulta de un estudiante interesado en
-\emph{Medicina} en Arequipa, el agente ahora recomienda combinaciones
-\textbf{carrera--universidad concretas con costo anual, ingreso mensual de
-egresados, tasa de admisi\'on y duraci\'on reales}
-(Figura~\ref{fig:ev-caso3}), y \textbf{razona sobre las restricciones del
-estudiante}: ante un presupuesto limitado prioriza las opciones m\'as
-accesibles (Figura~\ref{fig:ev-caso3b}). Esto cierra en buena parte la brecha
-del Criterio~4. La integraci\'on es reciente y a\'un en estabilizaci\'on:
-algunos valores de costo o ingreso figuran como \emph{estimados} por imputaci\'on
-y el reporte descargable sigue pendiente.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\linewidth]{fig-evidencia-caso3-explicacion.png}
-    \caption{Ejecuci\'on real (integraci\'on de datos): el agente consulta el
-    cat\'alogo y recomienda carrera--universidad con duraci\'on, costo anual,
-    ingreso de egresados y tasa de admisi\'on reales.}
-    \label{fig:ev-caso3}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\linewidth]{fig-evidencia-caso3-medicina.png}
-    \caption{Ejecuci\'on real: ante un presupuesto limitado, el agente prioriza
-    las opciones m\'as accesibles con sus costos e inversi\'on total.}
-    \label{fig:ev-caso3b}
-\end{figure}
-
-\paragraph{Actualizaci\'on: integraci\'on del cat\'alogo con datos completos.}
-Con posterioridad a la redacci\'on del p\'arrafo anterior se integr\'o la
-consulta del agente al cat\'alogo de carreras con sus datos reales. En una
-ejecuci\'on en \texttt{dev}, ante la consulta de un estudiante interesado en
-\emph{Medicina} en Arequipa, el agente ahora recomienda combinaciones
-\textbf{carrera--universidad concretas con costo anual, ingreso mensual de
-egresados, tasa de admisi\'on y duraci\'on reales}
-(Figura~\ref{fig:ev-caso3}), y \textbf{razona sobre las restricciones del
-estudiante}: ante un presupuesto limitado prioriza las opciones m\'as
-accesibles (Figura~\ref{fig:ev-caso3b}). Esto cierra en buena parte la brecha
-del Criterio~4. La integraci\'on es reciente y a\'un en estabilizaci\'on:
-algunos valores de costo o ingreso figuran como \emph{estimados} por imputaci\'on
-y el reporte descargable sigue pendiente.
 
 \begin{figure}[H]
     \centering
@@ -234,8 +172,7 @@ la \textbf{entrevista RIASEC escalonada} y el \textbf{c\'alculo de afinidad}
 sobre el cat\'alogo piloto, sin pasar por \texttt{search\_programs}. Ambos
 flujos --- afinidad sobre el cat\'alogo piloto y b\'usqueda de datos reales
 por regi\'on/presupuesto --- son hoy capacidades reales pero \textbf{separadas}
-del agente; combinarlas en un \'unico ranking es, precisamente, la funci\'on
-de \emph{scoring} pendiente descrita en la Secci\'on~\ref{sec:implementation}.
+del agente.
 
 \paragraph{Caso A --- perfil t\'ecnico.} El estudiante completa la entrevista
 situacional; el agente infiere el c\'odigo \textbf{ICR} (Investigativo~9,
@@ -302,11 +239,7 @@ memoria por usuario} (\texttt{langmem} bajo el espacio de nombres del JWT).
 \paragraph{Qu\'e validan estas ejecuciones.} Las capturas confirman que
 funcionan \textbf{la entrevista RIASEC escalonada}, la \textbf{inferencia
 coherente} del perfil en dos casos opuestos, la \textbf{explicabilidad} de la
-recomendaci\'on y el \textbf{aislamiento por usuario}. Como se se\~nal\'o
-arriba, este flujo opera \'unicamente sobre afinidad RIASEC; lo pendiente
-sigue siendo la \textbf{funci\'on de scoring} que la combine con los datos
-reales de \texttt{search\_programs} en un \'unico ranking ponderado
-(Secci\'on~\ref{sec:implementation}).
+recomendaci\'on y el \textbf{aislamiento por usuario}.
 
 \subsection{Evidencia funcional}
 

@@ -157,6 +157,11 @@
 \setlength{\parskip}{6pt}
 \setlength{\parindent}{0pt}
 
+% Evita que identificadores largos en \texttt (nombres de repos, funciones)
+% se salgan del margen del bloque de texto: prioriza estirar el espacio
+% entre palabras antes que dejar una caja "overfull".
+\sloppy
+
 % --- Bibliografia ---
 % NOTA: sin la opcion "numbers" para que natbib use el modo autor-anio,
 % compatible con \bibliographystyle{apalike} (formato APA). Con "numbers"
