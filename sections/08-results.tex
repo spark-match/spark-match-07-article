@@ -44,7 +44,8 @@ implementados:
 
 El frontend se encuentra desplegado y accesible en el ambiente \texttt{dev}
 (Figura~\ref{fig:ev-frontend}), con las vistas de inicio, filtros, chat, reporte
-y perfil operativas.
+y perfil operativas. Adicionalmente, los flujos de inicio, perfil y filtros se
+capturaron como evidencia de la experiencia de usuario en el prototipo.
 
 \begin{figure}[H]
     \centering
@@ -52,6 +53,26 @@ y perfil operativas.
     \caption{Frontend (Angular) desplegado en \texttt{dev}: p\'agina de inicio de
     Spark Match con acceso a orientaci\'on, filtros, chat y reporte.}
     \label{fig:ev-frontend}
+\end{figure}
+
+\paragraph{Observabilidad con LangSmith.} La plataforma se acompa\~na de
+trazas de ejecuci\'on en LangSmith, que documentan las interacciones del
+agente, las llamadas a herramientas y la latencia de cada turna.
+Las Figuras~\ref{fig:langsmit1} y~\ref{fig:langsmit2} muestran ejemplos de
+estas trazas, agregando evidencia del monitoreo y la calidad de la conversaci\'on.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{langsmit1.png}
+    \caption{Trazas de LangSmith: historial de prompts, herramientas invocadas y eventos de la conversaci\'on.}
+    \label{fig:langsmit1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{langsmit2.png}
+    \caption{Trazas de LangSmith: seguimiento de la ejecuci\'on del agente y observabilidad de sus respuestas.}
+    \label{fig:langsmit2}
 \end{figure}
 
 \paragraph{Alcance real del motor de scoring.} De los cinco criterios
