@@ -88,6 +88,39 @@ escaneo de seguridad (\emph{checkov}) y \emph{linting} de Terraform
     \label{fig:deployment-architecture}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{3.jpeg}
+        \caption{Funciones AWS Lambda del backend.}
+        \label{fig:aws-lambda}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{6.jpeg}
+        \caption{APIs de AWS API Gateway que exponen el backend.}
+        \label{fig:aws-apigateway}
+    \end{subfigure}
+    \vspace{0.4cm}
+    \begin{subfigure}[b]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{7.jpeg}
+        \caption{Cluster ECS Fargate que ejecuta el agente conversacional en contenedores.}
+        \label{fig:aws-ecs}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{9.jpeg}
+        \caption{Distribuciones CloudFront que terminan TLS para frontend y agente.}
+        \label{fig:aws-cloudfront}
+    \end{subfigure}
+    \caption{Evidencia visual de los recursos AWS desplegados para el proyecto.}
+    \label{fig:aws-evidence}
+\end{figure}
+
 \subsection{CI/CD con GitHub Actions}
 
 El c\'odigo se organiza en la organizaci\'on de GitHub \texttt{spark-match}, con
