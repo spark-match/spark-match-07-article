@@ -51,10 +51,15 @@ Gateway), precisamente porque el \emph{timeout} fijo de 30s de API Gateway
 HTTP API cortar\'ia el \emph{streaming} SSE de \texttt{/ag-ui}. La
 Figura~\ref{fig:architecture} representa el dise\~no objetivo de la
 arquitectura a nivel de componentes l\'ogicos (no de despliegue): en el
-prototipo actual, el agente invoca directamente la herramienta de afinidad
-RIASEC sobre un cat\'alogo piloto de carreras; la conexi\'on del motor de
-scoring con \texttt{features.csv} (nodo derecho de la figura, marcado en
-rojo) es trabajo en curso (Secci\'on~\ref{sec:results}). La base de datos
+prototipo actual, el agente invoca la herramienta de afinidad RIASEC sobre un
+cat\'alogo piloto de carreras y, por separado, una herramienta de
+b\'usqueda (\texttt{search\_programs}) que ya lo conecta a datos reales
+derivados de \texttt{features.csv} (Secci\'on~\ref{sec:model-data}); lo que
+falta del nodo derecho de la figura (marcado en rojo) no es la conexi\'on al
+dato en s\'i, sino el \textbf{motor de scoring} que combine los cinco
+criterios en un puntaje ponderado \'unico --- hoy el agente presenta afinidad
+y datos reales lado a lado para que el LLM razone sobre ambos, pero no existe
+a\'un esa funci\'on de combinaci\'on (Secci\'on~\ref{sec:results}). La base de datos
 relacional del proyecto es \textbf{Amazon RDS para PostgreSQL} (no Aurora); se
 usa hoy para la persistencia de memoria del agente (ver subsecci\'on
 siguiente) y para el dominio \texttt{identity} del backend.
@@ -75,7 +80,8 @@ El agente se implementa en \textbf{Python} como un \emph{Deep Agent} construido
 con el \emph{harness} \texttt{deepagents} ---del ecosistema
 \emph{LangChain/LangGraph}--- que \textbf{coordina tres subagentes
 especializados}: \texttt{assessment} (perfil vocacional RIASEC),
-\texttt{matching} (afinidad y ranking de carreras) y \texttt{planning} (plan de
+\texttt{matching} (afinidad, ranking de carreras y su aterrizaje en
+universidades e institutos reales del Per\'u) y \texttt{planning} (plan de
 acci\'on para la carrera elegida; ver Secci\'on~\ref{sec:prompts} para el
 detalle de cada \emph{system prompt}).
 
@@ -162,14 +168,22 @@ dentro de las carreras anal\'iticas y mantiene costos relativamente bajos''.}
 \paragraph{Estado de implementaci\'on.} La herramienta
 \texttt{calculate\_affinity} del agente ya calcula el criterio de
 \textbf{afinidad} (similitud RIASEC posicional) y ordena un Top-N por ese
-criterio. Los criterios de \textbf{ingreso}, \textbf{costo}, \textbf{admisi\'on}
-y \textbf{duraci\'on} est\'an dise\~nados y sus variables normalizadas ya se
-calculan en el \emph{pipeline} de datos (Secci\'on~\ref{sec:model-data}), pero
-a\'un no est\'an integrados en la herramienta de scoring del agente ni conectados
-al dataset completo de \texttt{features.csv}; el ejemplo num\'erico de la
-Tabla~\ref{tab:scoring-example} es, por tanto, ilustrativo del dise\~no objetivo
-y no un resultado medido. Ver Secci\'on~\ref{sec:results} para el detalle del
-alcance implementado y el trabajo pendiente.
+criterio --- es, a la fecha, el \'unico de los cinco que el motor de
+\emph{scoring} pondera dentro de un puntaje. Los otros cuatro criterios ---
+\textbf{ingreso}, \textbf{costo}, \textbf{admisi\'on} y \textbf{duraci\'on} ---
+ya est\'an calculados y normalizados por el \emph{pipeline} de datos
+(Secci\'on~\ref{sec:model-data}), y desde la herramienta
+\texttt{search\_programs} el agente puede consultarlos directamente sobre el
+dataset completo de 6\,208 combinaciones carrera--instituci\'on, con cifras
+reales de costo, ingreso, admisi\'on y duraci\'on en vez de datos gen\'ericos.
+Lo que todav\'ia falta es la \textbf{funci\'on de combinaci\'on}: hoy el agente
+presenta esos cuatro criterios junto a la afinidad para que el LLM razone
+sobre ellos en su respuesta, pero no existe a\'un el c\'odigo que los combine
+en un \'unico puntaje ponderado con los pesos $w_1,\dots,w_5$ de la
+f\'ormula anterior; el ejemplo num\'erico de la Tabla~\ref{tab:scoring-example}
+sigue siendo, por tanto, ilustrativo del dise\~no objetivo y no un resultado
+medido. Ver Secci\'on~\ref{sec:results} para el detalle del alcance
+implementado y el trabajo pendiente.
 
 \subsection{Backend serverless y frontend}
 
