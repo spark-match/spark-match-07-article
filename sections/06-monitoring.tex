@@ -3,6 +3,7 @@
 % TFP - Rubrica: 2 puntos
 % ============================================================================
 \section{Monitoreo y mantenimiento}
+\label{sec:monitoring}
 
 El proyecto aplica MLOps sobre los componentes que cambian con el tiempo y sobre
 la operaci\'on del agente, priorizando la observabilidad del LLM, el seguimiento
@@ -20,19 +21,16 @@ El stack de observabilidad se compone de:
         infraestructura del backend serverless y del agente en ECS Fargate.
 \end{itemize}
 
-\paragraph{Correcci\'on: seguimiento de experimentos (importante).} El
-informe mencionaba anteriormente \textbf{Weights \& Biases} para registrar
-corridas del motor de scoring. Verificando el c\'odigo, esto no es exacto:
-el repositorio \texttt{spark-match-06-model-training} \textbf{a\'un no tiene
-c\'odigo} (solo archivos de gobernanza como \texttt{CODEOWNERS}), y ninguna
-dependencia de W\&B existe en ning\'un repositorio del ecosistema. La
-herramienta que s\'i est\'a planeada es distinta: el propio
-\texttt{pyproject.toml} de \texttt{spark-match-05-data-pipeline} declara un
-grupo opcional \texttt{ml} con \textbf{MLflow} (\texttt{mlflow>=3.13,<4.0}),
-\textbf{comentado} a la espera de que MLflow soporte pandas~3.x --- es decir,
-planeado para una fase futura (Fase~4 del pipeline), no instalado ni usado
-todav\'ia. El seguimiento de experimentos queda, por tanto, como trabajo
-pendiente, no como una capacidad ya operativa.
+\paragraph{Seguimiento de experimentos.} El repositorio
+\texttt{spark-match-06-model-training} \textbf{a\'un no tiene c\'odigo} (solo
+archivos de gobernanza como \texttt{CODEOWNERS}). La herramienta planeada para
+esta funci\'on es \textbf{MLflow}: el \texttt{pyproject.toml} de
+\texttt{spark-match-05-data-pipeline} (rama \texttt{dev}, ver nota sobre la
+rama evaluada en Secci\'on~\ref{sec:model-data}) ya declara un grupo opcional
+\texttt{ml} con MLflow (\texttt{mlflow>=3.13,<4.0}), \textbf{comentado} a la
+espera de que soporte pandas~3.x --- es decir, planeado para una fase futura
+del pipeline, no instalado ni usado todav\'ia. El seguimiento de experimentos
+queda, por tanto, como trabajo pendiente, no como una capacidad ya operativa.
 
 \subsection{Versionado (prompts, scoring y datos)}
 
@@ -43,8 +41,9 @@ pendiente, no como una capacidad ya operativa.
   \item \textbf{Versionado de la f\'ormula de scoring:} distintas versiones del
         motor (pesos, variables como la duraci\'on) quedan registradas.
   \item \textbf{Versionado de datos:} adem\'as de los \emph{snapshots} con
-        fecha y hora, el \emph{pipeline} ya define un \textbf{pipeline DVC}
-        real (\texttt{dvc.yaml}) con cuatro etapas encadenadas
+        fecha y hora, el \emph{pipeline} (rama \texttt{dev} de
+        \texttt{spark-match-05-data-pipeline}) ya define un \textbf{pipeline
+        DVC} real (\texttt{dvc.yaml}) con cuatro etapas encadenadas
         (\texttt{ingest} $\rightarrow$ \texttt{clean} $\rightarrow$
         \texttt{features} $\rightarrow$ \texttt{riasec}); a\'un no rastrea
         los archivos de datos como \emph{outputs} de DVC (siguen versionados
@@ -87,8 +86,9 @@ Las m\'etricas operativas y de negocio previstas son:
         sustentar el control de costos.
   \item Satisfacci\'on del usuario (feedback \emph{Likert} 1--5 sobre la
         recomendaci\'on final) y pertinencia percibida de la recomendaci\'on.
-  \item Tasa de \'exito de las invocaciones y tasa de JSON malformado del
-        extractor de preferencias.
+  \item Tasa de \'exito de las invocaciones de herramientas y tasa de
+        argumentos malformados al extraer preferencias (regi\'on, presupuesto,
+        pesos) en el subagente \texttt{matching}.
 \end{itemize}
 % TODO (equipo): completar los valores medidos de estas metricas tras las pruebas.
 

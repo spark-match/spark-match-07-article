@@ -1,0 +1,54 @@
+%% v2 -- actualizado a 2026-08-08 contra el estado real del codebase (rama dev
+%% de spark-match-08-deep-agent, commit ed64bae). Cambios respecto a v1:
+%%   - Catalogo piloto: 19 -> 20 carreras (conteo real de data/careers/*.md).
+%%   - Se agrega la consulta real a search_programs (antes ausente): el
+%%     subagente matching ya consulta datos reales de costo/ingreso/admision/
+%%     duracion sobre las 6,208 combinaciones de features.csv, en paralelo al
+%%     calculo de afinidad sobre el catalogo piloto -- son dos flujos reales
+%%     pero todavia no combinados en un unico puntaje ponderado (Seccion 8).
+%% Destino: Seccion 4 (Implementacion). Nombre sugerido: fig-secuencia-conversacion_v2.png
+%% Caption sugerido: igual que v1.
+%% Label sugerido: fig:conversation-sequence
+
+sequenceDiagram
+    autonumber
+    actor U as Estudiante (Angular UI)
+    participant BE as Backend serverless<br/>(Lambda, solo contexto identity)
+    participant AG as Deep Agent<br/>(FastAPI/uvicorn en ECS Fargate)
+    participant CO as Coordinador (deepagents)
+    participant AS as Subagente assessment
+    participant MA as Subagente matching
+    participant PL as Subagente planning
+    participant LLM as AWS Bedrock (Claude)
+    participant MEM as langmem (RDS PostgreSQL)
+    participant CAT as Catalogo piloto<br/>(20 carreras)
+    participant PROG as search_programs<br/>(features.csv real,<br/>6,208 combinaciones)
+
+    U->>BE: Login (JWT)
+    BE-->>U: Token de sesion
+    U->>AG: Mensaje en lenguaje natural<br/>(POST /ag-ui, streaming SSE)
+    AG->>CO: Enruta el turno<br/>(IntentRouterMiddleware: Haiku o Sonnet)
+    CO->>MEM: Recupera perfil previo (si existe)
+    MEM-->>CO: Perfil parcial / vacio
+
+    alt Perfil vocacional incompleto
+        CO->>AS: Continua entrevista RIASEC escalonada
+        AS->>LLM: Interpreta la respuesta libre del estudiante
+        LLM-->>AS: Intencion + rasgos RIASEC
+        AS->>MEM: Persiste perfil (PII redactada: correo, DNI, telefono)
+    else Perfil ya completo
+        CO->>MA: Solicita ranking de carreras
+        MA->>CAT: calculate_affinity (similitud RIASEC)
+        CAT-->>MA: Top-N ordenado por afinidad
+        MA->>PROG: search_programs (region, presupuesto max)
+        PROG-->>MA: costo, ingreso, admision y duracion reales
+        Note over MA,PROG: Ambas consultas son reales y ya usan datos<br/>oficiales, pero siguen separadas: no existe<br/>aun la funcion que combine los 5 criterios<br/>en un unico puntaje ponderado (Seccion 8).
+        MA-->>CO: Afinidad (Top-N) + datos reales, sin combinar
+        CO->>PL: Solicita plan de accion (opcional)
+        PL-->>CO: Pasos sugeridos para postular
+    end
+
+    CO->>LLM: Redacta justificacion en lenguaje natural
+    LLM-->>CO: Explicacion citando datos verificables
+    CO-->>AG: Respuesta compuesta
+    AG-->>U: Streaming SSE con recomendaciones + explicacion

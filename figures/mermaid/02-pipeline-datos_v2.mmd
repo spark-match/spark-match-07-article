@@ -1,0 +1,45 @@
+%% v2 -- actualizado a 2026-08-08. Cambios respecto a v1:
+%%   - Catalogo piloto: 19 -> 20 carreras.
+%%   - La conexion CSV -> Agente ya NO esta marcada "NO conectado aun": un
+%%     script determinista (build_programs_dataset.py) deriva programs.csv de
+%%     features.csv + riasec_tags.csv, y la herramienta search_programs lo
+%%     sirve al agente. Se aclara que la carga es desde archivo local, no en
+%%     tiempo real ni desde RDS (pendiente, ver Seccion 2).
+%%   - Nota sobre la rama evaluada: el pipeline (DVC, pyproject.toml,
+%%     qa_check_features.py) vive en la rama dev de spark-match-05-data-pipeline,
+%%     no en main (PR#6 de sincronizacion quedo con conflictos); dev es la rama
+%%     validada para la demo.
+%% Destino: Seccion 2. Nombre sugerido: fig-pipeline-datos_v2.png
+%% Label sugerido: fig:data-pipeline
+
+flowchart TB
+    subgraph FILA1[" "]
+        direction LR
+        MEC["Ponte en Carrera (MINEDU)<br/>portal oficial"] -- "HTTP 500 desde<br/>2026-07-12<br/>(decomisionado)" --> FROZEN[/"etapa ingest: FROZEN"/]
+        FROZEN -.->|"se reproduce solo contra<br/>el ultimo raw.xlsx historico"| ING["ingest<br/>(ingestion.py, Selenium)"]
+        ING --> CLEAN["clean<br/>(data_clean.py)<br/>estandariza columnas y tipos,<br/>descarta incompletos"]
+    end
+
+    subgraph FILA2[" "]
+        direction LR
+        FEAT["features<br/>(feature_engineering.py)<br/>imputacion por etapas +<br/>normalizacion Min-Max [0,1]"] --> RIASEC["riasec<br/>etiquetado LLM (Bedrock)<br/>554 carreras unicas"]
+        RIASEC --> CSV[("features.csv<br/>6,208 combinaciones<br/>554 carreras / 25 departamentos")]
+        CSV --> BUILD["build_programs_dataset.py<br/>(script determinista)"]
+        BUILD --> PROGCSV[("programs.csv<br/>copia derivada,<br/>archivo local")]
+        PROGCSV -.->|"search_programs<br/>(no en tiempo real,<br/>RDS aun pendiente)"| AGENTE["Agente conversacional<br/>(catalogo piloto de 20 carreras<br/>+ search_programs sobre datos reales)"]
+    end
+
+    CLEAN --> FEAT
+    ING -.snapshot con fecha y hora.-> SNAP[("snapshots/<br/>fallback local,<br/>sin remoto S3 aun")]
+
+    NOTE["Rama dev de spark-match-05-data-pipeline<br/>(validada para demo; PR#6 hacia main<br/>quedo con conflictos, promocion en proceso)"]
+    NOTE -.-> CSV
+
+    classDef pending fill:#fee2e2,stroke:#c00,stroke-width:1px
+    classDef done fill:#dcfce7,stroke:#16a34a,stroke-width:1px
+    classDef note fill:#fef9c3,stroke:#ca8a04,stroke-width:1px,stroke-dasharray: 3 3
+    class MEC,FROZEN pending
+    class CSV,RIASEC,FEAT,CLEAN,ING,BUILD,PROGCSV,AGENTE done
+    class NOTE note
+    style FILA1 fill:none,stroke:none
+    style FILA2 fill:none,stroke:none
