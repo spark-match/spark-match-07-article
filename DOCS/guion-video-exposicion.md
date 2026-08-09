@@ -114,11 +114,13 @@ rúbrica), así que conviene ir directo a lo visual y no leer texto.
   la Figura de filtros (`fig-evidencia-filtros.png`) y la de inicio
   (`fig-evidencia-frontend-home.png`).
 
-## 5. Fabiola Tapara — Demo funcional en vivo + resultados y evaluación (4:30, Secciones 7–8)
+## 5. Fabiola Tapara — Demo funcional en vivo + resultados y evaluación (4:00, Secciones 7–8)
 
 Este es el bloque que la rúbrica pide explícitamente ("demostración funcional
 del sistema incluida en la exposición"), así que **debe ser pantalla en vivo
-de la app**, no solo capturas.
+de la app**, no solo capturas. Con 4:00 no alcanza para todo el detalle del
+guion original — priorizar la demo en vivo (primeros 3 puntos) y comprimir la
+evaluación al mínimo (último punto, una sola frase con las cifras clave).
 
 - Conversación real en el ambiente `dev`: completar (o mostrar ya completada)
   la entrevista RIASEC escalonada y pedir recomendaciones.
@@ -130,12 +132,12 @@ de la app**, no solo capturas.
   se combina en un puntaje; los otros cuatro ya se consultan con datos reales,
   pero la función que los combina en un solo ranking ponderado es el
   principal trabajo pendiente. Una frase basta, no hace falta extenderse.
-- Cerrar con evaluación: suite de **evals (30/30 casos)** corriendo en CI,
-  trazas de **LangSmith**, y el resultado offline del motor de 5 criterios
-  (comparación de enfoques, prueba de consistencia costo vs. ingreso).
+- Cierre rápido de evaluación en una sola frase: suite de **evals (30/30
+  casos)** en CI y prueba de consistencia del motor offline (costo vs.
+  ingreso) — sin entrar al detalle de LangSmith, que Angel ya mencionó.
 - *En pantalla:* la app en vivo (prioridad), y si se corta la conexión,
-  Figuras `fig-evidencia-ranking-icr.png`, `fig-evidencia-caso3-explicacion.png`
-  y `fig-evidencia-evals-mock.png` como respaldo grabado de antemano.
+  Figuras `fig-evidencia-ranking-icr.png` y `fig-evidencia-caso3-explicacion.png`
+  como respaldo grabado de antemano.
 
 ## 6. Cierre — Conclusiones y recomendaciones (1:20, Secciones 9–10)
 
