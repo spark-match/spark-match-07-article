@@ -15,18 +15,24 @@ scoring multicriterio completo (ranking Top-N sobre las 6\,208 combinaciones
 de \texttt{features.csv}) se plantean m\'etricas como \textbf{Recall@K} y
 relevancia frente a un conjunto de casos de referencia; a la fecha esta
 m\'etrica \textbf{no est\'a implementada en c\'odigo} porque el propio ranking
-multicriterio tampoco lo est\'a (solo la afinidad RIASEC opera hoy, sobre el
-cat\'alogo piloto --- ver Secci\'on~\ref{sec:results}), por lo que Recall@K
-queda como parte del plan de evaluaci\'on a activar junto con esa
-integraci\'on.
+ponderado tampoco lo est\'a: el agente ya consulta las 6\,208 combinaciones
+reales con \texttt{search\_programs} (Secci\'on~\ref{sec:implementation}),
+pero solo la afinidad RIASEC se combina hoy en un puntaje --- los otros cuatro
+criterios se muestran junto a ella sin una funci\'on de combinaci\'on
+ponderada (ver Secci\'on~\ref{sec:results}) --- por lo que Recall@K queda
+como parte del plan de evaluaci\'on a activar junto con esa integraci\'on.
 
 \paragraph{Interpretaci\'on del perfil vocacional (LLM).} Lo que s\'i se mide
 hoy es la correcci\'on del \textbf{c\'odigo RIASEC} (3 letras) que el
 subagente \texttt{assessment} infiere de la entrevista escalonada
 (Secci\'on~\ref{sec:prompts}), verificado autom\'aticamente en el dataset de
-\emph{evals} (ver m\'as abajo). Un extractor estructurado de regi\'on,
-presupuesto y los otros cuatro pesos del ranking a\'un no existe en el
-agente; queda como trabajo pendiente junto con el resto del motor de scoring.
+\emph{evals} (ver m\'as abajo). La extracci\'on de regi\'on y presupuesto
+m\'aximo ya existe, pero como par\'ametros de la herramienta
+\texttt{search\_programs} que el subagente \texttt{matching} completa a
+partir de la conversaci\'on --- no como pesos num\'ericos del ranking. Los
+otros cuatro \textbf{pesos} ($w_2,\dots,w_5$ de la f\'ormula de scoring)
+a\'un no existen en el agente; queda como trabajo pendiente junto con el
+resto del motor de scoring.
 
 \paragraph{Justificaci\'on en lenguaje natural (LLM).} Se usa un componente de
 \textbf{LLM-as-judge} que puntu\'a las explicaciones del agente, complementado con
@@ -79,11 +85,15 @@ desplegado en ECS --- se ejecuta localmente o en CI invocando
 \subsection{Comparaci\'on de enfoques (resultados)}
 
 El motor de scoring de cinco criterios (Secci\'on~\ref{sec:implementation})
-a\'un no est\'a integrado en el agente en vivo, que hoy solo aplica la afinidad
-RIASEC sobre el cat\'alogo piloto (Secci\'on~\ref{sec:results}). No obstante,
-dicho motor s\'i fue \textbf{evaluado de forma offline} sobre las 6\,208
+a\'un no est\'a integrado en el agente en vivo: el agente en producci\'on
+combina en un puntaje \'unicamente la afinidad RIASEC, aunque ya consulta los
+otros cuatro criterios con datos reales v\'ia \texttt{search\_programs}
+(Secci\'on~\ref{sec:results}). No obstante, el motor de 5 criterios s\'i fue
+\textbf{evaluado de forma offline} sobre las 6\,208
 combinaciones de \texttt{features.csv} mediante un script reproducible
-(\texttt{eval\_recomendador.py} en el repositorio del \emph{pipeline} de datos),
+(\texttt{eval\_recomendador.py} en el repositorio del \emph{pipeline} de
+datos, rama \texttt{dev} --- ver nota sobre la rama evaluada en
+Secci\'on~\ref{sec:model-data}),
 comparando el enfoque propuesto (pesos din\'amicos sobre los cinco criterios)
 frente a dos alternativas m\'as simples: pesos est\'aticos iguales y ordenamiento
 por un solo criterio (solo ingreso). La Tabla~\ref{tab:comparacion-enfoques}
