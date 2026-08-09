@@ -1,0 +1,41 @@
+%% v2 -- actualizado a 2026-08-08. Cambios respecto a v1 (importante: v1 ya
+%% no es exacto en el punto central del diagrama):
+%%   - Catalogo piloto: 19 -> 20 carreras.
+%%   - La arista SCORE -.->|"NO conectado aun"| FEAT ya NO es correcta: la
+%%     herramienta search_programs conecta al agente con datos reales
+%%     derivados de features.csv (via programs.csv) desde 2026-08-08. Se
+%%     reemplaza por una arista real, y se mueve el marcador "pendiente" a lo
+%%     que de verdad falta: la funcion de scoring que combine afinidad +
+%%     ingreso + costo + admision + duracion en un unico puntaje ponderado
+%%     (hoy el agente presenta ambos criterios por separado, sin combinar).
+%% Destino: Seccion 4. Reemplaza a fig:architecture.
+%% Nombre sugerido: fig-arquitectura-logica_v2.png
+%% Label sugerido: fig:architecture (mismo label que v1)
+
+flowchart LR
+    UI["Angular UI<br/>(frontend)"]
+    BE["Backend serverless<br/>(Lambda, solo contexto identity)"]
+    AG["Deep Agent<br/>(FastAPI/uvicorn, ECS Fargate)"]
+    LLM["AWS Bedrock<br/>(Claude)"]
+    SCORE["Motor de scoring<br/>(subagente matching)"]
+    CAT["Catalogo piloto<br/>(20 carreras)"]
+    PROG["search_programs<br/>(datos reales)"]
+    FEAT[("features.csv<br/>6,208 combinaciones")]
+    MEM[("RDS PostgreSQL<br/>langmem + identity")]
+    COMBINE{{"Funcion de combinacion<br/>(5 criterios -> 1 puntaje)"}}
+
+    UI -- "login / CRUD<br/>(JWT)" --> BE
+    UI -- "conversacion<br/>(POST /ag-ui, streaming SSE)<br/>mismo JWT, llamada directa" --> AG
+    BE --> MEM
+    AG --> LLM
+    AG --> SCORE
+    AG --> MEM
+    SCORE --> CAT
+    SCORE --> PROG
+    PROG --> FEAT
+    SCORE -.->|"pendiente: combinar afinidad<br/>+ ingreso + costo + admision<br/>+ duracion en 1 puntaje"| COMBINE
+
+    classDef done fill:#dcfce7,stroke:#16a34a,stroke-width:1px
+    classDef pending fill:#fee2e2,stroke:#c00,stroke-width:1px,stroke-dasharray: 5 5
+    class UI,BE,AG,LLM,SCORE,CAT,MEM,PROG,FEAT done
+    class COMBINE pending
