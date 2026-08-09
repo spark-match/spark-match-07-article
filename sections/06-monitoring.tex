@@ -25,7 +25,7 @@ El stack de observabilidad se compone de:
 \texttt{spark-match-06-model-training} \textbf{a\'un no tiene c\'odigo} (solo
 archivos de gobernanza como \texttt{CODEOWNERS}). La herramienta planeada para
 esta funci\'on es \textbf{MLflow}: el \texttt{pyproject.toml} de
-\texttt{spark-match-05-data-pipeline} (rama \texttt{dev}, ver nota sobre la
+\texttt{spark-match-05-data-pipeline} (rama \texttt{main}, ver nota sobre la
 rama evaluada en Secci\'on~\ref{sec:model-data}) ya declara un grupo opcional
 \texttt{ml} con MLflow (\texttt{mlflow>=3.13,<4.0}), \textbf{comentado} a la
 espera de que soporte pandas~3.x --- es decir, planeado para una fase futura
@@ -41,7 +41,7 @@ queda, por tanto, como trabajo pendiente, no como una capacidad ya operativa.
   \item \textbf{Versionado de la f\'ormula de scoring:} distintas versiones del
         motor (pesos, variables como la duraci\'on) quedan registradas.
   \item \textbf{Versionado de datos:} adem\'as de los \emph{snapshots} con
-        fecha y hora, el \emph{pipeline} (rama \texttt{dev} de
+        fecha y hora, el \emph{pipeline} (rama \texttt{main} de
         \texttt{spark-match-05-data-pipeline}) ya define un \textbf{pipeline
         DVC} real (\texttt{dvc.yaml}) con cuatro etapas encadenadas
         (\texttt{ingest} $\rightarrow$ \texttt{clean} $\rightarrow$
