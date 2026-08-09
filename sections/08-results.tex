@@ -118,20 +118,6 @@ brecha se detalla en \texttt{DOCS/issues/issues-v1/}.
     \label{fig:ev-caso3b}
 \end{figure}
 
-\paragraph{Actualizaci\'on: integraci\'on del cat\'alogo con datos completos.}
-Con posterioridad a la redacci\'on del p\'arrafo anterior se integr\'o la
-consulta del agente al cat\'alogo de carreras con sus datos reales. En una
-ejecuci\'on en \texttt{dev}, ante la consulta de un estudiante interesado en
-\emph{Medicina} en Arequipa, el agente ahora recomienda combinaciones
-\textbf{carrera--universidad concretas con costo anual, ingreso mensual de
-egresados, tasa de admisi\'on y duraci\'on reales}
-(Figura~\ref{fig:ev-caso3}), y \textbf{razona sobre las restricciones del
-estudiante}: ante un presupuesto limitado prioriza las opciones m\'as
-accesibles (Figura~\ref{fig:ev-caso3b}). Esto cierra en buena parte la brecha
-del Criterio~4. La integraci\'on es reciente y a\'un en estabilizaci\'on:
-algunos valores de costo o ingreso figuran como \emph{estimados} por imputaci\'on
-y el reporte descargable sigue pendiente.
-
 \subsection{Ejemplo de salida (caso can\'onico, dise\~no objetivo)}
 
 El siguiente ejemplo ilustra el comportamiento \textbf{objetivo} del sistema
@@ -186,8 +172,7 @@ la \textbf{entrevista RIASEC escalonada} y el \textbf{c\'alculo de afinidad}
 sobre el cat\'alogo piloto, sin pasar por \texttt{search\_programs}. Ambos
 flujos --- afinidad sobre el cat\'alogo piloto y b\'usqueda de datos reales
 por regi\'on/presupuesto --- son hoy capacidades reales pero \textbf{separadas}
-del agente; combinarlas en un \'unico ranking es, precisamente, la funci\'on
-de \emph{scoring} pendiente descrita en la Secci\'on~\ref{sec:implementation}.
+del agente.
 
 \paragraph{Caso A --- perfil t\'ecnico.} El estudiante completa la entrevista
 situacional; el agente infiere el c\'odigo \textbf{ICR} (Investigativo~9,
@@ -254,11 +239,7 @@ memoria por usuario} (\texttt{langmem} bajo el espacio de nombres del JWT).
 \paragraph{Qu\'e validan estas ejecuciones.} Las capturas confirman que
 funcionan \textbf{la entrevista RIASEC escalonada}, la \textbf{inferencia
 coherente} del perfil en dos casos opuestos, la \textbf{explicabilidad} de la
-recomendaci\'on y el \textbf{aislamiento por usuario}. Como se se\~nal\'o
-arriba, este flujo opera \'unicamente sobre afinidad RIASEC; lo pendiente
-sigue siendo la \textbf{funci\'on de scoring} que la combine con los datos
-reales de \texttt{search\_programs} en un \'unico ranking ponderado
-(Secci\'on~\ref{sec:implementation}).
+recomendaci\'on y el \textbf{aislamiento por usuario}.
 
 \subsection{Evidencia funcional}
 
