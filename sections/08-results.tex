@@ -155,8 +155,15 @@ agente sobre el alcance ya integrado.
 A diferencia del ejemplo objetivo anterior, esta subsecci\'on documenta una
 \textbf{ejecuci\'on real} del agente desplegado en el ambiente \texttt{dev}
 (\url{https://d3sx4v4l1enpvk.cloudfront.net}), capturada durante las pruebas de
-QA. Cubre el alcance actualmente integrado: la \textbf{entrevista RIASEC
-escalonada} y el \textbf{c\'alculo de afinidad} sobre el cat\'alogo piloto.
+QA. \textbf{Nota temporal:} esta captura es anterior a la integraci\'on de
+\texttt{search\_programs} descrita arriba (Figuras~\ref{fig:ev-caso3}
+y~\ref{fig:ev-caso3b}) y ejercita un flujo distinto y todav\'ia independiente:
+la \textbf{entrevista RIASEC escalonada} y el \textbf{c\'alculo de afinidad}
+sobre el cat\'alogo piloto, sin pasar por \texttt{search\_programs}. Ambos
+flujos --- afinidad sobre el cat\'alogo piloto y b\'usqueda de datos reales
+por regi\'on/presupuesto --- son hoy capacidades reales pero \textbf{separadas}
+del agente; combinarlas en un \'unico ranking es, precisamente, la funci\'on
+de \emph{scoring} pendiente descrita en la Secci\'on~\ref{sec:implementation}.
 
 \paragraph{Caso A --- perfil t\'ecnico.} El estudiante completa la entrevista
 situacional; el agente infiere el c\'odigo \textbf{ICR} (Investigativo~9,
@@ -223,11 +230,15 @@ memoria por usuario} (\texttt{langmem} bajo el espacio de nombres del JWT).
 \paragraph{Qu\'e validan estas ejecuciones (y qu\'e no).} Las capturas confirman
 que funcionan \textbf{la entrevista RIASEC escalonada}, la \textbf{inferencia
 coherente} del perfil en dos casos opuestos, la \textbf{explicabilidad} de la
-recomendaci\'on y el \textbf{aislamiento por usuario}. De forma consistente con
-el alcance descrito arriba, el ranking se basa \textbf{\'unicamente en la
+recomendaci\'on y el \textbf{aislamiento por usuario}. En \textbf{este flujo
+espec\'ifico} (Casos A y B) el ranking se basa \textbf{\'unicamente en la
 afinidad RIASEC} sobre el cat\'alogo piloto de 20 carreras (sin ingreso, costo,
-admisi\'on ni universidad); la integraci\'on del motor multicriterio sobre
-\texttt{features.csv} permanece como trabajo pendiente.
+admisi\'on ni universidad); el flujo de \texttt{search\_programs} sobre datos
+reales, ya evidenciado arriba (Figuras~\ref{fig:ev-caso3} y~\ref{fig:ev-caso3b}),
+no pasa por este camino. Lo que permanece como trabajo pendiente no es la
+conexi\'on a datos reales --- ya existe por ambas v\'ias, aunque separadas ---
+sino la \textbf{funci\'on de scoring} que las combine en un \'unico ranking
+ponderado (Secci\'on~\ref{sec:implementation}).
 
 \subsection{Evidencia funcional}
 
