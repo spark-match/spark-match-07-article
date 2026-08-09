@@ -1,0 +1,45 @@
+%% v2 -- actualizado a 2026-08-08. Cambios respecto a v1:
+%%   - Catalogo piloto: 19 -> 20 carreras.
+%%   - Se agrega el estado DatosReales (consulta a search_programs: datos
+%%     reales de costo/ingreso/admision/duracion sobre las 6,208 combinaciones
+%%     de features.csv), en paralelo a calculate_affinity, reflejando que
+%%     ambos flujos ya son reales pero siguen sin combinarse en un puntaje.
+%%   - v2 corrige un problema de render de una iteracion previa: evitar ";" y
+%%     numeros largos con comas dentro de las etiquetas de las transiciones
+%%     (rompian el parser de stateDiagram-v2 y dejaban fragmentos sueltos);
+%%     esos detalles se movieron a la nota amarilla, que sí los admite bien.
+%% Destino: Seccion 4. Nombre sugerido: fig-estados-agente_v2.png
+%% Label sugerido: fig:agent-states
+
+stateDiagram-v2
+    [*] --> Enrutamiento
+
+    Enrutamiento --> TurnoSimple: IntentRouterMiddleware<br/>(heuristica sin costo) -> Haiku
+    Enrutamiento --> TurnoComplejo: -> Sonnet
+
+    TurnoSimple --> Coordinador
+    TurnoComplejo --> Coordinador
+
+    state Coordinador {
+        [*] --> EvaluaPerfil
+        EvaluaPerfil --> Assessment: perfil RIASEC incompleto
+        EvaluaPerfil --> Matching: perfil completo
+        Assessment --> Assessment: entrevista escalonada<br/>(preguntas B1-B5)
+        Assessment --> EvaluaPerfil: RIASEC persistido<br/>(langmem, PII redactada)
+        Matching --> DatosReales: calculate_affinity,<br/>luego search_programs
+        DatosReales --> Planning: estudiante confirma interes
+        Planning --> Respuesta: plan de accion generado
+        DatosReales --> Respuesta: afinidad + datos reales<br/>sin combinar
+        Respuesta --> [*]
+    }
+
+    Coordinador --> [*]: streaming SSE al frontend
+
+    note right of DatosReales
+        Afinidad (catalogo piloto de 20 carreras) y
+        datos reales (search_programs, region y
+        presupuesto, sobre 6208 combinaciones) ya
+        son ambos reales, pero siguen separados:
+        falta la funcion de scoring que los combine
+        en un unico puntaje (Seccion 8)
+    end note

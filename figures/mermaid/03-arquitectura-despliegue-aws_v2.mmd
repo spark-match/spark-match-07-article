@@ -1,0 +1,49 @@
+%% v2 -- actualizado a 2026-08-08. Unico cambio respecto a v1:
+%%   - "29 casos" -> "30 casos" (conteo real verificado por parseo JSON de
+%%     evals/dataset.jsonl; el "29" de v1 era un artefacto de `wc -l` sobre un
+%%     archivo sin newline final).
+%% Destino: Seccion 5. Nombre sugerido: fig-arquitectura-despliegue-aws_v2.png
+%% Label sugerido: fig:deployment-architecture
+
+flowchart TB
+    U(("Usuario<br/>(navegador)"))
+
+    subgraph CI["GitHub Actions (spark-match-01-devops)"]
+        direction LR
+        SC["SonarCloud"]
+        CQ["CodeQL"]
+        CHK["checkov / tflint"]
+        EVM["evals --mode mock<br/>(30 casos, cada PR)"]
+    end
+
+    subgraph AWS["AWS (Terraform: dev / prod)"]
+        subgraph BE["Backend serverless"]
+            EB["EventBridge"]
+            LAM["AWS Lambda (TypeScript)<br/>esbuild -> ZIP, Node.js 24.x<br/>solo contexto identity"]
+        end
+
+        subgraph AGENTE["Agente conversacional"]
+            ECR["Amazon ECR<br/>imagen Docker ARM64"]
+            ECS["ECS Fargate<br/>desired_count fijo<br/>(sin autoscaling aun)<br/>deployment circuit breaker"]
+            ALB["Application Load Balancer<br/>idle timeout hasta 4000s"]
+            CFRONT["CloudFront<br/>terminacion TLS"]
+        end
+
+        RDS[("RDS PostgreSQL<br/>compartida: identity + langmem")]
+        S3[("S3<br/>snapshots del dataset")]
+        BUD["AWS Budgets<br/>control de costos"]
+    end
+
+    U -->|HTTPS| CFRONT
+    CFRONT --> ALB --> ECS
+    ECS -->|TCP 5432<br/>checkpointer LangGraph| RDS
+    ECR -->|imagen publicada| ECS
+    EB --> LAM
+    LAM --> RDS
+    U -->|API Gateway HTTP API| LAM
+
+    CI -->|build & push en cada deploy| ECR
+    BUD -.vigila gasto mensual.-> AWS
+
+    classDef pending stroke-dasharray: 5 5,stroke:#c00
+    class ECS pending

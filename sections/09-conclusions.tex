@@ -31,10 +31,14 @@ transparencia y reproducibilidad.
         trabajo pendiente.
   \item Pr\'acticas de \emph{MLOps} ya operativas: versionado de prompts y de
         datos (\emph{snapshots} y un \emph{pipeline} DVC de 4 etapas);
-        observabilidad del agente con LangSmith; evaluaci\'on autom\'atica con
-        un \emph{LLM-as-judge} sobre 30 casos conversacionales que corre en
-        cada \emph{pull request}; CI/CD e IaC con Terraform (Lambda, ECS
-        Fargate, RDS PostgreSQL) en ambientes \texttt{dev} y \texttt{prod}.
+        observabilidad del agente con LangSmith; una suite de \emph{evals}
+        sobre 30 casos conversacionales que corre en modo \texttt{mock} en
+        cada \emph{pull request} (30/30 casos pasan), con el modo
+        \texttt{live} de \emph{LLM-as-judge} disponible bajo demanda para
+        evaluar la calidad de las respuestas del LLM
+        (Secci\'on~\ref{sec:monitoring}); CI/CD e IaC con Terraform (Lambda
+        vía SAM, ECS Fargate, RDS PostgreSQL) en ambientes \texttt{dev} y
+        \texttt{prod}.
 \end{itemize}
 
 \subsection{Dificultades y aprendizajes}

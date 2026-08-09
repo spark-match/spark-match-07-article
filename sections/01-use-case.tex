@@ -36,6 +36,34 @@ tradicionales son est\'aticas y no consideran restricciones reales del estudiant
 (presupuesto, geograf\'ia), ni ofrecen explicabilidad sobre por qu\'e se sugiere
 una opci\'on.
 
+\paragraph{Dimensi\'on del problema.} La brecha entre terminar la secundaria y
+acceder a educaci\'on superior en el Per\'u es amplia y viene empeorando: en
+2022 solo el \textbf{30.9\%} de los j\'ovenes peruanos de 15 a 29 a\~nos logr\'o
+transitar a educaci\'on superior, una ca\'ida frente al 36.6\% de 2019, y en el
+\'ambito rural la cifra baja a apenas 20.1\% \cite{senaju2024}. Del lado de
+quienes s\'i acceden a la universidad, la deserci\'on nacional fue de
+\textbf{15.8\%} entre 2012 y 2018 \cite{sunedu2020}, y la literatura acad\'emica
+sobre el caso peruano identifica una motivaci\'on vocacional deficiente como uno
+de los factores que m\'as explican ese abandono, despu\'es de las dificultades
+econ\'omicas y familiares \cite{escalante2023}. La Tabla~\ref{tab:problem-scale}
+resume estas cifras.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}p{6cm}p{1.6cm}p{4.8cm}@{}}
+\toprule
+\textbf{M\'etrica} & \textbf{Valor} & \textbf{Fuente} \\
+\midrule
+Transici\'on de secundaria a educaci\'on superior (2022, 15--29 a\~nos) & 30.9\% & INEI--ENAHO, v\'ia SENAJU \cite{senaju2024} \\
+\'{I}dem, ca\'ida frente a 2019 & 36.6\% & INEI--ENAHO, v\'ia SENAJU \cite{senaju2024} \\
+\'{I}dem, solo \'ambito rural & 20.1\% & INEI--ENAHO, v\'ia SENAJU \cite{senaju2024} \\
+Deserci\'on universitaria nacional (2012--2018) & 15.8\% & SUNEDU, II Informe Bienal \cite{sunedu2020} \\
+\bottomrule
+\end{tabular}
+\caption{Dimensi\'on cuantificada del problema en el contexto peruano.}
+\label{tab:problem-scale}
+\end{table}
+
 \subsection{Objetivo de negocio}
 
 Ayudar al estudiante a tomar una decisi\'on vocacional informada, entregando
@@ -61,13 +89,14 @@ inferidos din\'amicamente por un LLM. Como objetivos espec\'ificos:
         y datos, y para monitorear el sistema.
 \end{itemize}
 
-\paragraph{Estado actual del prototipo.} A la fecha de esta entrega, el criterio
-de afinidad vocacional (RIASEC) es el \'unico de los cinco ya integrado en el
-agente conversacional, y opera sobre un cat\'alogo piloto de carreras. Los
-criterios de ingreso, costo, admisi\'on y duraci\'on ya est\'an calculados y
-normalizados por el \emph{pipeline} de datos (Secci\'on~\ref{sec:model-data}),
-pero su integraci\'on con el agente sobre el dataset completo de 6\,208
-combinaciones es trabajo en curso, detallado en la Secci\'on~\ref{sec:results}.
+\paragraph{Estado actual del prototipo.} El criterio de afinidad vocacional
+(RIASEC) es, a la fecha, el \'unico de los cinco que el motor de
+\emph{scoring} combina en un puntaje; los otros cuatro (ingreso, costo,
+admisi\'on, duraci\'on) ya se consultan con datos reales sobre las 6\,208
+combinaciones carrera--instituci\'on, pero a\'un sin una funci\'on que los
+combine con la afinidad. El detalle del alcance implementado y el trabajo
+pendiente se documenta en las Secciones~\ref{sec:implementation}
+y~\ref{sec:results}.
 
 La Tabla~\ref{tab:use-case} resume la formulaci\'on del caso de uso.
 
@@ -98,7 +127,7 @@ cada criterio.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{fig-user-journey.png}
+    \includegraphics[width=\linewidth]{fig-user-journey_v2.png}
     \caption{Recorrido del estudiante en Spark Match, del primer contacto a la
     decisi\'on informada.}
     \label{fig:user-journey}

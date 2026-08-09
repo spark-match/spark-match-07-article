@@ -1,0 +1,26 @@
+%% v2 -- actualizado a 2026-08-08. Cambio respecto a v1:
+%%   - "Indica presupuesto (objetivo)" ya no es puro diseno objetivo: la
+%%     herramienta search_programs hoy filtra por presupuesto_max real sobre
+%%     las 6,208 combinaciones (aunque el ranking ponderado final que combine
+%%     ese filtro con afinidad/ingreso/etc. sigue pendiente, ver Seccion 8).
+%%     Se ajusta la etiqueta y el puntaje (subjetivo, no medido) en consecuencia.
+%% Destino: Seccion 1 / 8. Nombre sugerido: fig-user-journey_v2.png
+%% Label sugerido: fig:user-journey
+%% Nota: los puntajes (1-5) reflejan la experiencia esperada/objetivo, no una
+%% medicion real de satisfaccion (esa medicion aun no existe, ver Seccion 7).
+
+journey
+    title Recorrido del estudiante en Spark Match
+    section Descubrimiento
+      Entra a la plataforma: 3: Estudiante
+      Se registra / inicia sesion: 4: Estudiante
+    section Conversacion
+      Conversa sobre sus intereses: 5: Estudiante, Agente
+      Responde entrevista RIASEC escalonada: 4: Estudiante, Agente
+      Indica presupuesto y region (ya filtra datos reales): 3: Estudiante
+    section Recomendacion
+      Recibe ranking Top-N por afinidad: 4: Estudiante, Agente
+      Lee la justificacion explicada: 5: Estudiante
+    section Decision
+      Explora el detalle de cada carrera: 4: Estudiante
+      Guarda o comparte su reporte: 3: Estudiante

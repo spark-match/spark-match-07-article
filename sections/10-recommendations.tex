@@ -11,10 +11,12 @@
         clave (\texttt{search\_careers}, Secci\'on~\ref{sec:prompts}) por
         b\'usqueda sem\'antica sobre las fichas de carreras y universidades,
         para anclar las explicaciones del agente en texto oficial adicional
-        \cite{gao2024, fan2024}. La direcci\'on ya est\'a planeada en el propio
-        c\'odigo: \textbf{\texttt{pgvector}} sobre la instancia RDS
-        PostgreSQL existente (no se descart\'o, es la opci\'on hacia la que se
-        apunta); falta definir la fecha de la migraci\'on.
+        \cite{gao2024, fan2024}. La decisi\'on de \textbf{d\'onde} vivir\'an
+        los \emph{embeddings} cambi\'o durante el proyecto: el equipo
+        descart\'o \texttt{pgvector} sobre Aurora/RDS PostgreSQL (ADR~008,
+        revisado 13/07/2026) a favor de un proveedor de vector store externo
+        a\'un \textbf{por definir}; queda como trabajo pendiente cerrar ese
+        ADR y despu\'es fijar la fecha de la migraci\'on.
   \item \textbf{Migraci\'on de la fuente de datos (urgente):} el portal
         \emph{Ponte en Carrera} ya no responde (HTTP~500 desde el
         12/07/2026, tras su decomisi\'on por el MINEDU); la etapa

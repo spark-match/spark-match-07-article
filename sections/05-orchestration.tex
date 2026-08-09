@@ -37,8 +37,12 @@ agente usa el \emph{harness} \texttt{deepagents} y \texttt{langmem} para la
 persistencia del perfil (ver Secci\'on~\ref{sec:implementation}); Bedrock se
 usa \'unicamente como pasarela de inferencia del LLM (invocaciones a Claude),
 no como plataforma de hospedaje del contenedor. El motor de scoring, por su
-parte, opera sobre \texttt{features.csv} con Pandas/NumPy, aunque a\'un no
-est\'a conectado end-to-end con el agente (ver
+parte, opera sobre \texttt{features.csv} con Pandas/NumPy en el
+\emph{pipeline} de datos; el agente ya consulta ese mismo dataset con datos
+reales mediante una herramienta dedicada (\texttt{search\_programs}, ver
+Secci\'on~\ref{sec:implementation}), pero el motor de scoring como tal
+--- la funci\'on que combina los cinco criterios en un puntaje ponderado
+\'unico --- a\'un no est\'a conectada end-to-end con el agente (ver
 Secci\'on~\ref{sec:results}).
 
 \subsection{Contenerizaci\'on (Docker)}
@@ -81,7 +85,7 @@ escaneo de seguridad (\emph{checkov}) y \emph{linting} de Terraform
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{fig-arquitectura-despliegue-aws.png}
+    \includegraphics[width=\linewidth]{fig-arquitectura-despliegue-aws_v2.png}
     \caption{Arquitectura de despliegue en AWS: \emph{pipeline} serverless
     del backend y agente conversacional en ECS Fargate detr\'as de
     ALB/CloudFront.}
@@ -160,7 +164,7 @@ jobs:
 \begin{landscape}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{fig-cicd-pipeline.png}
+    \includegraphics[width=\linewidth]{fig-cicd-pipeline_v2.png}
     \caption{Pipeline de CI/CD: \emph{quality gates} en cada \emph{pull
     request} y despliegue a ECS Fargate con \emph{rollback} autom\'atico.}
     \label{fig:cicd-pipeline}
@@ -197,15 +201,14 @@ Figura~\ref{fig:ev-sonar} muestra el panel del backend con \emph{Quality Gate}
 \subsection{Escalabilidad}
 
 El sistema \textbf{no utiliza Kubernetes}. El backend escala de forma
-autom\'atica y sin administrar servidores (AWS Lambda + API Gateway), con
-l\'imites conocidos: AWS Lambda admite \textbf{100 ejecuciones concurrentes}
-en cuentas gratuitas (\textbf{1000} en cuentas de pago), ampliables bajo
-solicitud. El agente, en cambio, corre en \textbf{ECS Fargate}, que s\'i es un
+autom\'atica y sin administrar servidores (AWS Lambda + API Gateway), con un
+l\'imite conocido de \textbf{1\,000 ejecuciones concurrentes} por regi\'on
+(cuota por defecto de AWS Lambda, compartida entre todas las funciones de la
+cuenta). El agente, en cambio, corre en \textbf{ECS Fargate}, que s\'i es un
 orquestador de contenedores administrado: hoy el servicio se despliega con un
 \texttt{desired\_count} \textbf{fijo} (sin \emph{autoscaling} configurado
-todav\'ia --- el m\'odulo de Terraform deja el campo preparado con
-\texttt{lifecycle.ignore\_changes} para cuando se agregue), por lo que la
-capacidad del agente es constante y no reactiva a la demanda; s\'i cuenta con
+todav\'ia, aunque el m\'odulo de Terraform ya deja el campo preparado), por lo
+que la capacidad del agente es constante y no reactiva a la demanda; s\'i cuenta con
 un \emph{deployment circuit breaker} que revierte autom\'aticamente un
 despliegue fallido a la revisi\'on anterior. Para cargas de millones de
 usuarios simult\'aneos se requerir\'ia habilitar \emph{autoscaling} en el

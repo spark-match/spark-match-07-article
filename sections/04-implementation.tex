@@ -39,7 +39,7 @@ El flujo principal de la soluci\'on (Figura~\ref{fig:architecture}) es el siguie
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\linewidth]{fig-arquitectura-logica.png}
+    \includegraphics[width=0.95\linewidth]{fig-arquitectura-logica_v2.png}
     \caption{Arquitectura l\'ogica de componentes: el frontend se conecta
     \textbf{directamente} al backend (autenticaci\'on/CRUD) y al agente
     (conversaci\'on), sin proxy entre ambos.}
@@ -56,11 +56,11 @@ propio \emph{Application Load Balancer} p\'ublico (no detr\'as de API
 Gateway), precisamente porque el \emph{timeout} fijo de 30s de API Gateway
 HTTP API cortar\'ia el \emph{streaming} SSE de \texttt{/ag-ui}. La
 Figura~\ref{fig:architecture} representa el dise\~no objetivo de la
-arquitectura a nivel de componentes l\'ogicos (no de despliegue): en el
-prototipo actual, el agente invoca directamente la herramienta de afinidad
-RIASEC sobre un cat\'alogo piloto de carreras; la conexi\'on del motor de
-scoring con \texttt{features.csv} (nodo derecho de la figura, marcado en
-rojo) es trabajo en curso (Secci\'on~\ref{sec:results}). La base de datos
+arquitectura a nivel de componentes l\'ogicos (no de despliegue): el agente ya
+conecta tanto la afinidad RIASEC (cat\'alogo piloto) como los datos reales de
+\texttt{features.csv} v\'ia \texttt{search\_programs}; lo que falta del nodo
+marcado en rojo es el \textbf{motor de scoring} que combine ambos en un
+puntaje ponderado \'unico (detalle m\'as abajo). La base de datos
 relacional del proyecto es \textbf{Amazon RDS para PostgreSQL} (no Aurora); se
 usa hoy para la persistencia de memoria del agente (ver subsecci\'on
 siguiente) y para el dominio \texttt{identity} del backend.
@@ -68,7 +68,7 @@ siguiente) y para el dominio \texttt{identity} del backend.
 \begin{landscape}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.92\linewidth]{fig-secuencia-conversacion.png}
+    \includegraphics[width=0.92\linewidth]{fig-secuencia-conversacion_v2.png}
     \caption{Secuencia de una conversaci\'on t\'ipica, desde el mensaje del
     estudiante hasta la respuesta con recomendaciones explicadas.}
     \label{fig:conversation-sequence}
@@ -81,7 +81,8 @@ El agente se implementa en \textbf{Python} como un \emph{Deep Agent} construido
 con el \emph{harness} \texttt{deepagents} ---del ecosistema
 \emph{LangChain/LangGraph}--- que \textbf{coordina tres subagentes
 especializados}: \texttt{assessment} (perfil vocacional RIASEC),
-\texttt{matching} (afinidad y ranking de carreras) y \texttt{planning} (plan de
+\texttt{matching} (afinidad, ranking de carreras y su aterrizaje en
+universidades e institutos reales del Per\'u) y \texttt{planning} (plan de
 acci\'on para la carrera elegida; ver Secci\'on~\ref{sec:prompts} para el
 detalle de cada \emph{system prompt}).
 
@@ -90,11 +91,8 @@ agente corri\'o inicialmente sobre AWS Bedrock AgentCore; la infraestructura
 actual (m\'odulo \texttt{agent-service} de
 \texttt{spark-match-02-infrastructure}) lo empaqueta en un \textbf{contenedor
 Docker} y lo despliega en \textbf{AWS ECS Fargate} (ARM64) detr\'as de un
-Application Load Balancer, decisi\'on documentada expl\'icitamente en el
-Terraform del m\'odulo: AgentCore Runtime no sostiene bien el
-\emph{streaming} SSE de larga duraci\'on que requiere el \emph{endpoint}
-conversacional \texttt{/ag-ui}. El modo \texttt{agentcore} se mantiene en la
-configuraci\'on solo por compatibilidad con el despliegue anterior.
+Application Load Balancer (raz\'on del cambio y detalle de despliegue en la
+Secci\'on~\ref{sec:orchestration}).
 
 \paragraph{Memoria del agente.} El perfil y las preferencias del estudiante se
 persisten con \texttt{langmem} (\texttt{create\_manage\_memory\_tool} /
@@ -118,7 +116,7 @@ fast_model_id: str = "us.anthropic.claude-haiku-4-5-20251001-v1:0"   # turnos si
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{fig-estados-agente.png}
+    \includegraphics[width=\linewidth]{fig-estados-agente_v2.png}
     \caption{M\'aquina de estados del Deep Agent: enrutamiento por intenci\'on
     y coordinaci\'on de los tres subagentes especializados.}
     \label{fig:agent-states}
@@ -126,7 +124,7 @@ fast_model_id: str = "us.anthropic.claude-haiku-4-5-20251001-v1:0"   # turnos si
 
 \subsection{Motor de scoring (5 criterios)}
 
-Cuando el agente entrega los pesos, el motor le pone un puntaje a cada
+Cuando el agente entrega los pesos, el motor asigna un puntaje a cada
 combinaci\'on carrera--universidad. La f\'ormula, con cinco criterios, es:
 
 \[
@@ -168,14 +166,22 @@ dentro de las carreras anal\'iticas y mantiene costos relativamente bajos''.}
 \paragraph{Estado de implementaci\'on.} La herramienta
 \texttt{calculate\_affinity} del agente ya calcula el criterio de
 \textbf{afinidad} (similitud RIASEC posicional) y ordena un Top-N por ese
-criterio. Los criterios de \textbf{ingreso}, \textbf{costo}, \textbf{admisi\'on}
-y \textbf{duraci\'on} est\'an dise\~nados y sus variables normalizadas ya se
-calculan en el \emph{pipeline} de datos (Secci\'on~\ref{sec:model-data}), pero
-a\'un no est\'an integrados en la herramienta de scoring del agente ni conectados
-al dataset completo de \texttt{features.csv}; el ejemplo num\'erico de la
-Tabla~\ref{tab:scoring-example} es, por tanto, ilustrativo del dise\~no objetivo
-y no un resultado medido. Ver Secci\'on~\ref{sec:results} para el detalle del
-alcance implementado y el trabajo pendiente.
+criterio --- es, a la fecha, el \'unico de los cinco que el motor de
+\emph{scoring} pondera dentro de un puntaje. Los otros cuatro criterios ---
+\textbf{ingreso}, \textbf{costo}, \textbf{admisi\'on} y \textbf{duraci\'on} ---
+ya est\'an calculados y normalizados por el \emph{pipeline} de datos
+(Secci\'on~\ref{sec:model-data}), y desde la herramienta
+\texttt{search\_programs} el agente puede consultarlos directamente sobre el
+dataset completo de 6\,208 combinaciones carrera--instituci\'on, con cifras
+reales de costo, ingreso, admisi\'on y duraci\'on en vez de datos gen\'ericos.
+Lo que todav\'ia falta es la \textbf{funci\'on de combinaci\'on}: hoy el agente
+presenta esos cuatro criterios junto a la afinidad para que el LLM razone
+sobre ellos en su respuesta, pero no existe a\'un el c\'odigo que los combine
+en un \'unico puntaje ponderado con los pesos $w_1,\dots,w_5$ de la
+f\'ormula anterior; el ejemplo num\'erico de la Tabla~\ref{tab:scoring-example}
+sigue siendo, por tanto, ilustrativo del dise\~no objetivo y no un resultado
+medido. Ver Secci\'on~\ref{sec:results} para el detalle del alcance
+implementado y el trabajo pendiente.
 
 \subsection{Backend serverless y frontend}
 

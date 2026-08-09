@@ -80,16 +80,31 @@ de filas y carreras--- como se muestra en la Figura~\ref{fig:ev-qa-datos}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{fig-pipeline-datos.png}
+    \includegraphics[width=\linewidth]{fig-pipeline-datos_v2.png}
     \caption{Pipeline de datos versionado con DVC (4 etapas), con la etapa de
     ingesta congelada tras el decomiso del portal fuente.}
     \label{fig:data-pipeline}
 \end{figure}
 
-\paragraph{Nota de integraci\'on.} A la fecha, este dataset es consumido por el
-\emph{pipeline} y validado de forma independiente; su conexi\'on directa con el
-agente conversacional --- que hoy razona sobre un cat\'alogo piloto de carreras
---- est\'a en desarrollo (ver Secci\'on~\ref{sec:results}).
+\paragraph{Nota sobre la rama evaluada.} El \emph{pipeline} de datos descrito
+en esta secci\'on --- \texttt{qa\_check\_features.py}, el \emph{pipeline} DVC
+de cuatro etapas y sus dependencias --- vive en la rama \texttt{dev} de
+\texttt{spark-match-05-data-pipeline}, la rama que el equipo valid\'o para la
+demo y sobre la que se verificaron todas las cifras de esta secci\'on; su
+promoci\'on a \texttt{main} se completar\'a antes del despliegue final.
+
+\paragraph{Nota de integraci\'on.} A la fecha de esta entrega el agente
+conversacional ya consulta este dataset de forma directa: una herramienta
+dedicada (\texttt{search\_programs}) recupera, sobre las mismas 6\,208
+combinaciones carrera--instituci\'on, el ingreso mensual, costo anual, tasa de
+admisi\'on y duraci\'on reales asociados a la consulta del estudiante (ver
+Secci\'on~\ref{sec:results}). La conexi\'on no es en tiempo real sobre
+\texttt{features.csv}: un \emph{script} determinista
+(\texttt{build\_programs\_dataset.py}) genera, a partir de \'este y de
+\texttt{riasec\_tags.csv}, una copia derivada (\texttt{programs.csv}) que el
+agente carga desde archivo local. Sigue pendiente, por tanto, servir el
+dataset desde una base de datos real (RDS PostgreSQL), tal como contempla el
+dise\~no original.
 
 \paragraph{Nota sobre la fuente.} El MTPE ha consolidado recientemente el portal
 \emph{Mi Carrera} como nuevo observatorio oficial del mercado laboral, relegando
@@ -102,20 +117,13 @@ queda como trabajo futuro.
 
 \paragraph{Arquitectura de fuentes intercambiables.} Dado que el portal oficial
 puede quedar inaccesible (de hecho \emph{Ponte en Carrera} fue relegado), el
-\emph{pipeline} adopta un \textbf{registro de fuentes} (\emph{source registry},
-\texttt{src/sources/registry.py}): cada fuente se registra con un decorador
-\texttt{@register} sobre una interfaz com\'un (\texttt{DataSource}), lo que
-permite (i)~cambiar el mecanismo de scraping ---por ejemplo de \emph{Selenium} a
-\emph{Playwright}, m\'as robusto para p\'aginas que renderizan con JavaScript y
-m\'as apto para ejecuci\'on \emph{headless} en el backend---, y (ii)~a\~nadir
-\emph{Mi Carrera} como nueva fuente sin modificar el orquestador. A la fecha
-solo \texttt{ponte\_en\_carrera} est\'a registrada, y el \textbf{fallback}
-implementado es local: cada descarga exitosa se copia con \emph{timestamp} a un
-directorio de \emph{snapshots} (no a un bucket S3), desde donde puede
-recuperarse manualmente si la fuente en vivo falla. As\'i el sistema es
-resiliente ante ca\'idas de la fuente sin convertirse en un simple dato
-est\'atico, aunque el fallback autom\'atico a almacenamiento remoto (S3) queda
-como trabajo futuro.
+\emph{pipeline} adopta un \textbf{registro de fuentes}
+(\texttt{src/sources/registry.py}): cada fuente implementa una interfaz com\'un
+(\texttt{DataSource}), lo que permitir\'a a\~nadir \emph{Mi Carrera} sin
+modificar el orquestador. A la fecha solo \texttt{ponte\_en\_carrera} est\'a
+registrada, con \textbf{fallback} local (cada descarga exitosa se copia con
+\emph{timestamp} a un directorio de \emph{snapshots}); un fallback autom\'atico
+a almacenamiento remoto (S3) queda como trabajo futuro.
 
 \subsection{Preprocesamiento}
 
@@ -138,11 +146,12 @@ del repositorio y se divide en las siguientes etapas:
         con un \emph{flag} para poder revisarlo despu\'es.
   \item[Normalizaci\'on] Las variables del score se llevan al rango 0--1 con
         Min--Max. Al ingreso y al costo se les aplica primero un logaritmo, para
-        que los montos muy altos no se coman al resto. El costo y la duraci\'on se
-        invierten (un valor m\'as alto pasa a significar una mejor opci\'on),
-        mientras que la tasa de admisi\'on se deja tal cual, porque una admisi\'on
-        m\'as alta ya quiere decir que es m\'as f\'acil entrar. Todas las variables
-        normalizadas quedan orientadas ``mayor = mejor para el estudiante''.
+        evitar que los montos muy altos dominen la escala. El costo y la
+        duraci\'on se invierten (un valor m\'as alto pasa a significar una
+        mejor opci\'on), mientras que la tasa de admisi\'on se mantiene sin
+        invertir, pues un valor m\'as alto ya indica mayor facilidad de
+        ingreso. Todas las variables normalizadas quedan orientadas ``mayor =
+        mejor para el estudiante''.
   \item[Etiquetado vocacional (RIASEC)] Como el dataset econ\'omico no trae la
         dimensi\'on vocacional, se etiqueta cada carrera con su c\'odigo
         \emph{RIASEC} de Holland (3 letras) mediante el LLM en Bedrock, sobre las
@@ -150,9 +159,17 @@ del repositorio y se divide en las siguientes etapas:
         el t\'ermino de afinidad del scoring.
 \end{description}
 
-\paragraph{Sesgos y limitaciones de los datos.} El salario que publica el portal
-es de empleo formal, as\'i que deja fuera a los informales y a los independientes.
-Tambi\'en hay que tener cuidado con las carreras o universidades con pocos
-egresados, porque sus promedios son poco confiables, y con que el portal puede
-estar algo desactualizado. La configuraci\'on de imputaci\'on y los snapshots
-quedan versionados para poder reproducir cualquier resultado.
+\paragraph{Sesgos y limitaciones de los datos.} El salario que publica el
+portal corresponde solo al empleo formal, por lo que excluye a los
+trabajadores informales e independientes. Asimismo, las carreras o
+universidades con pocos egresados producen promedios poco confiables, y el
+portal puede estar desactualizado. La imputaci\'on por mediana de familia de
+carrera, necesaria porque el portal no publica todas las cifras para todas las
+combinaciones, alcanza al \textbf{72.9\%} de los valores de ingreso mensual y
+al \textbf{65.2\%} de las tasas de admisi\'on (medido sobre las 6\,208 filas);
+solo \textbf{370 filas} tienen las cuatro cifras --- ingreso, costo, admisi\'on
+y duraci\'on --- medidas directamente del portal. Por eso cada combinaci\'on
+que el agente muestra al estudiante indica qu\'e campos son medidos y
+cu\'ales estimados, en vez de presentar una mediana con apariencia
+de dato oficial. La configuraci\'on de imputaci\'on y los snapshots quedan
+versionados para poder reproducir cualquier resultado.

@@ -17,15 +17,18 @@ implementados:
         combinaciones carrera--instituci\'on, 554 carreras \'unicas), con las
         variables de ingreso, costo, admisi\'on y duraci\'on ya normalizadas;
   \item el \emph{etiquetado RIASEC} de las carreras mediante el LLM en Bedrock;
-  \item el \emph{agente conversacional} (Deep Agent) con cuatro herramientas
+  \item el \emph{agente conversacional} (Deep Agent) con cinco herramientas
         operativas: evaluaci\'on de perfil RIASEC (\texttt{evaluate\_riasec\_}
         \texttt{profile}), b\'usqueda de carreras (\texttt{search\_careers}),
-        c\'alculo de afinidad vocacional (\texttt{calculate\_affinity}) y
-        b\'usqueda web de respaldo (\texttt{web\_search}), servido con
-        FastAPI/uvicorn sobre ECS Fargate, trazado con LangSmith y verificado
-        por un \emph{framework de evaluaci\'on} con 30 casos conversacionales
-        (\texttt{evals/}) que corre autom\'aticamente en cada \emph{pull
-        request} (Secci\'on~\ref{sec:prompts});
+        c\'alculo de afinidad vocacional (\texttt{calculate\_affinity}),
+        b\'usqueda de programas reales del portal MINEDU
+        (\texttt{search\_programs}, sobre las 6\,208 combinaciones
+        carrera--instituci\'on) y b\'usqueda web de respaldo
+        (\texttt{web\_search}), servido con FastAPI/uvicorn sobre ECS Fargate,
+        trazado con LangSmith y verificado por un \emph{framework de
+        evaluaci\'on} con 30 casos conversacionales (\texttt{evals/}) que
+        corre autom\'aticamente en cada \emph{pull request}
+        (Secci\'on~\ref{sec:prompts});
   \item el \textbf{backend serverless} (TypeScript, \'unicamente el contexto
         \texttt{identity}: autenticaci\'on, usuarios y auditor\'ia; a\'un sin
         contexto de \emph{matching}) y el \textbf{frontend} (Angular 21, con
@@ -51,22 +54,79 @@ y perfil operativas.
     \label{fig:ev-frontend}
 \end{figure}
 
-\paragraph{Alcance real del motor de scoring (importante).} De los cinco
-criterios dise\~nados (afinidad, ingreso, costo, admisi\'on, duraci\'on), a la
-fecha \textbf{solo la afinidad vocacional (RIASEC) est\'a integrada} en la
-herramienta \texttt{calculate\_affinity} del agente, y \'esta opera sobre un
-\textbf{cat\'alogo piloto de 19 carreras} definidas manualmente en
-\texttt{data/careers/} (con nombre, campo y perfil RIASEC, sin universidad,
-ingreso, costo ni admisi\'on) --- \textbf{no} sobre las 6\,208 combinaciones de
-\texttt{features.csv}. El backend serverless, por su parte, solo implementa el
-contexto \texttt{identity}; no existe a\'un un contexto de \emph{matching} ni
-una carga de \texttt{features.csv} en RDS PostgreSQL. En consecuencia, el
-ranking multicriterio y el ejemplo num\'erico de la
-Secci\'on~\ref{sec:implementation} describen el dise\~no objetivo del sistema,
-no un resultado ya medido end-to-end. El trabajo pendiente para cerrar esta
-brecha --- integrar ingreso, costo, admisi\'on y duraci\'on al agente, y
-conectar su cat\'alogo con el dataset completo --- se detalla en
-\texttt{DOCS/issues/issues-v1/}.
+\paragraph{Alcance real del motor de scoring.} De los cinco criterios
+dise\~nados (afinidad, ingreso, costo, admisi\'on, duraci\'on), \textbf{solo
+la afinidad vocacional (RIASEC) se combina hoy en un puntaje}, mediante la
+herramienta \texttt{calculate\_affinity} sobre un \textbf{cat\'alogo piloto de
+20 carreras} (\texttt{data/careers/}, sin universidad, ingreso, costo ni
+admisi\'on). Los otros cuatro criterios ya est\'an disponibles con datos
+reales: el agente los consulta sobre las 6\,208 combinaciones de
+\texttt{features.csv} mediante \texttt{search\_programs} --- por ejemplo, ante
+la consulta de un estudiante interesado en \emph{Medicina} en Arequipa, el
+agente recomienda combinaciones \textbf{carrera--universidad concretas con
+costo anual, ingreso mensual de egresados, tasa de admisi\'on y duraci\'on
+reales} (Figura~\ref{fig:ev-caso3}) y \textbf{razona sobre las restricciones
+del estudiante}, priorizando las opciones m\'as accesibles ante un presupuesto
+limitado (Figura~\ref{fig:ev-caso3b}) --- pero esta herramienta filtra y
+ordena por coincidencia de campos, no calcula el puntaje ponderado que los
+combine con la afinidad (el c\'odigo la documenta expl\'icitamente como
+``recuperaci\'on, no scoring''). El backend serverless, por su parte, solo
+implementa el contexto \texttt{identity}; no existe a\'un un contexto de
+\emph{matching}. En consecuencia, el ranking multicriterio y el ejemplo
+num\'erico de la Secci\'on~\ref{sec:implementation} describen el dise\~no
+objetivo del sistema, no un resultado ya medido end-to-end. La integraci\'on
+de \texttt{search\_programs} es reciente y a\'un en estabilizaci\'on: algunos
+valores de costo o ingreso figuran como \emph{estimados} por imputaci\'on y el
+reporte descargable sigue pendiente. El trabajo pendiente para cerrar esta
+brecha se detalla en \texttt{DOCS/issues/issues-v1/}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fig-evidencia-caso3-explicacion.png}
+    \caption{Ejecuci\'on real (integraci\'on de datos): el agente consulta el
+    cat\'alogo y recomienda carrera--universidad con duraci\'on, costo anual,
+    ingreso de egresados y tasa de admisi\'on reales.}
+    \label{fig:ev-caso3}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fig-evidencia-caso3-medicina.png}
+    \caption{Ejecuci\'on real: ante un presupuesto limitado, el agente prioriza
+    las opciones m\'as accesibles con sus costos e inversi\'on total.}
+    \label{fig:ev-caso3b}
+\end{figure}
+
+\paragraph{Actualizaci\'on: integraci\'on del cat\'alogo con datos completos.}
+Con posterioridad a la redacci\'on del p\'arrafo anterior se integr\'o la
+consulta del agente al cat\'alogo de carreras con sus datos reales. En una
+ejecuci\'on en \texttt{dev}, ante la consulta de un estudiante interesado en
+\emph{Medicina} en Arequipa, el agente ahora recomienda combinaciones
+\textbf{carrera--universidad concretas con costo anual, ingreso mensual de
+egresados, tasa de admisi\'on y duraci\'on reales}
+(Figura~\ref{fig:ev-caso3}), y \textbf{razona sobre las restricciones del
+estudiante}: ante un presupuesto limitado prioriza las opciones m\'as
+accesibles (Figura~\ref{fig:ev-caso3b}). Esto cierra en buena parte la brecha
+del Criterio~4. La integraci\'on es reciente y a\'un en estabilizaci\'on:
+algunos valores de costo o ingreso figuran como \emph{estimados} por imputaci\'on
+y el reporte descargable sigue pendiente.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fig-evidencia-caso3-explicacion.png}
+    \caption{Ejecuci\'on real (integraci\'on de datos): el agente consulta el
+    cat\'alogo y recomienda carrera--universidad con duraci\'on, costo anual,
+    ingreso de egresados y tasa de admisi\'on reales.}
+    \label{fig:ev-caso3}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fig-evidencia-caso3-medicina.png}
+    \caption{Ejecuci\'on real: ante un presupuesto limitado, el agente prioriza
+    las opciones m\'as accesibles con sus costos e inversi\'on total.}
+    \label{fig:ev-caso3b}
+\end{figure}
 
 \paragraph{Actualizaci\'on: integraci\'on del cat\'alogo con datos completos.}
 Con posterioridad a la redacci\'on del p\'arrafo anterior se integr\'o la
@@ -103,12 +163,15 @@ y el reporte descargable sigue pendiente.
 
 El siguiente ejemplo ilustra el comportamiento \textbf{objetivo} del sistema
 una vez integrado el motor de scoring completo; \textbf{no} es una captura de
-una ejecuci\'on real, porque el extractor estructurado de regi\'on,
-presupuesto y los pesos de ingreso/costo/admisi\'on/duraci\'on a\'un no existe
-en el agente (Secci\'on~\ref{sec:prompts}), y el filtrado por regi\'on y
-presupuesto sobre \texttt{features.csv} tampoco est\'a conectado. Hoy el
-agente s\'olo calcula afinidad RIASEC sobre el cat\'alogo piloto de 19
-carreras.
+una ejecuci\'on real. Es importante precisar qu\'e parte es ya real y qu\'e
+parte sigue siendo dise\~no: el filtrado por regi\'on y presupuesto sobre
+datos reales \textbf{ya existe} --- la herramienta \texttt{search\_programs}
+lo aplica hoy sobre las 6\,208 combinaciones (ver el caso de Medicina en
+Arequipa m\'as arriba) ---, pero los \textbf{pesos num\'ericos} de
+ingreso/costo/admisi\'on/duraci\'on que combinan esos criterios en un \'unico
+puntaje ponderado a\'un no existen en el agente (Secci\'on~\ref{sec:prompts}).
+Por eso el JSON de preferencias de abajo, con sus cinco pesos expl\'icitos,
+sigue siendo dise\~no objetivo y no una extracci\'on real.
 
 \textbf{Caso:} estudiante de Cusco, presupuesto m\'aximo S/600/mes, prioridad en
 salario y cercan\'ia geogr\'afica.
@@ -143,8 +206,15 @@ agente sobre el alcance ya integrado.
 A diferencia del ejemplo objetivo anterior, esta subsecci\'on documenta una
 \textbf{ejecuci\'on real} del agente desplegado en el ambiente \texttt{dev}
 (\url{https://d3sx4v4l1enpvk.cloudfront.net}), capturada durante las pruebas de
-QA. Cubre el alcance actualmente integrado: la \textbf{entrevista RIASEC
-escalonada} y el \textbf{c\'alculo de afinidad} sobre el cat\'alogo piloto.
+QA. \textbf{Nota temporal:} esta captura es anterior a la integraci\'on de
+\texttt{search\_programs} descrita arriba (Figuras~\ref{fig:ev-caso3}
+y~\ref{fig:ev-caso3b}) y ejercita un flujo distinto y todav\'ia independiente:
+la \textbf{entrevista RIASEC escalonada} y el \textbf{c\'alculo de afinidad}
+sobre el cat\'alogo piloto, sin pasar por \texttt{search\_programs}. Ambos
+flujos --- afinidad sobre el cat\'alogo piloto y b\'usqueda de datos reales
+por regi\'on/presupuesto --- son hoy capacidades reales pero \textbf{separadas}
+del agente; combinarlas en un \'unico ranking es, precisamente, la funci\'on
+de \emph{scoring} pendiente descrita en la Secci\'on~\ref{sec:implementation}.
 
 \paragraph{Caso A --- perfil t\'ecnico.} El estudiante completa la entrevista
 situacional; el agente infiere el c\'odigo \textbf{ICR} (Investigativo~9,
@@ -208,14 +278,14 @@ memoria por usuario} (\texttt{langmem} bajo el espacio de nombres del JWT).
     \label{fig:ev-sae}
 \end{figure}
 
-\paragraph{Qu\'e validan estas ejecuciones (y qu\'e no).} Las capturas confirman
-que funcionan \textbf{la entrevista RIASEC escalonada}, la \textbf{inferencia
+\paragraph{Qu\'e validan estas ejecuciones.} Las capturas confirman que
+funcionan \textbf{la entrevista RIASEC escalonada}, la \textbf{inferencia
 coherente} del perfil en dos casos opuestos, la \textbf{explicabilidad} de la
-recomendaci\'on y el \textbf{aislamiento por usuario}. De forma consistente con
-el alcance descrito arriba, el ranking se basa \textbf{\'unicamente en la
-afinidad RIASEC} sobre el cat\'alogo piloto de 19 carreras (sin ingreso, costo,
-admisi\'on ni universidad); la integraci\'on del motor multicriterio sobre
-\texttt{features.csv} permanece como trabajo pendiente.
+recomendaci\'on y el \textbf{aislamiento por usuario}. Como se se\~nal\'o
+arriba, este flujo opera \'unicamente sobre afinidad RIASEC; lo pendiente
+sigue siendo la \textbf{funci\'on de scoring} que la combine con los datos
+reales de \texttt{search\_programs} en un \'unico ranking ponderado
+(Secci\'on~\ref{sec:implementation}).
 
 \subsection{Evidencia funcional}
 
@@ -227,6 +297,9 @@ recomendaciones explicadas. La evidencia incluir\'a:
 \begin{itemize}[noitemsep]
   \item \textbf{Repositorios:} \url{https://github.com/spark-match}.
   \item \textbf{Demo / video:} \url{https://youtu.be/c_wMR6HVe1M}.
+  \item \textbf{Ambiente \texttt{dev} desplegado:}
+        \url{https://d3sx4v4l1enpvk.cloudfront.net} (ver Secci\'on~\ref{sub:evidencia-real}).
+  \item \textbf{Video de exposici\'on:} Secci\'on~12.
   \item \textbf{Capturas:} ejecuciones reales del agente
         (Figuras~\ref{fig:ev-icr} y~\ref{fig:ev-sae}), ranking Top-N y trazas de
         observabilidad en LangSmith.
