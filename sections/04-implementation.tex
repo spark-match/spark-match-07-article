@@ -10,6 +10,12 @@ decisi\'on de ranking (motor de scoring determin\'istico), lo que garantiza
 transparencia y reproducibilidad: el LLM interpreta y explica, pero no decide el
 orden de las recomendaciones.
 
+Para complementar esta descripci\'on, se incluye la grabaci\'on del video del
+proyecto en el siguiente enlace:
+\begin{itemize}[noitemsep]
+  \item \url{https://youtu.be/c_wMR6HVe1M}
+\end{itemize}
+
 \subsection{Arquitectura general de la soluci\'on}
 
 El flujo principal de la soluci\'on (Figura~\ref{fig:architecture}) es el siguiente:
@@ -193,22 +199,15 @@ por \emph{features} (\texttt{auth}, \texttt{chat}, \texttt{assessment},
 \texttt{profile}, \texttt{landing}), cada una con su componente, servicio y
 pruebas unitarias; ya no es un simple \emph{scaffold} vac\'io, aunque su
 integraci\'on end-to-end con el agente desplegado todav\'ia est\'a en
-desarrollo. El dise\~no privilegia la separaci\'on de responsabilidades (UI /
-API / agente / scoring / datos), la configuraci\'on por variables de entorno y
-una API sin estado (las sesiones se persisten en base de datos, no en
-memoria). La Figura~\ref{fig:ev-filtros} muestra la vista de \emph{filtros}
-desplegada, que precarga el contexto del chat (tipo de gesti\'on, universidad o
-instituto y presupuesto m\'aximo) antes de iniciar la orientaci\'on.
+desarrollo. Para acceder a la app es necesario crear una cuenta llenando el
+formulario de registro con nombre completo, correo, contrase\~na, edad,
+regi\'on y \emph{área de interés}, y luego ingresar con el correo y
+contrase\~na creados. En la demo de prueba se puede usar el usuario
+\texttt{ftapara@unsa.edu.pe} con contrase\~na \texttt{qwerty123}. El registro
+se realiza en \url{https://d3sx4v4l1enpvk.cloudfront.net/auth/register}.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\linewidth]{fig-evidencia-filtros.png}
-    \caption{Vista de \emph{filtros} del frontend desplegado: gesti\'on
-    (p\'ublica/privada), tipo de instituci\'on y presupuesto anual, que precargan
-    el contexto de la conversaci\'on.}
-    \label{fig:ev-filtros}
-\end{figure}
-
+El dise\~no privilegia la separaci\'on de responsabilidades (UI / API /
+agente / scoring / datos), la configuraci\'on por variables de entorno y
 \paragraph{Lenguaje del n\'ucleo.} El \textbf{n\'ucleo de IA/ML del proyecto est\'a
 implementado en Python}: el agente conversacional (\texttt{deepagents}), el motor
 de scoring (Pandas/NumPy), el \emph{pipeline} de datos y el framework de
