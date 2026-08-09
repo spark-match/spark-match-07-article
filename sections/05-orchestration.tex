@@ -37,8 +37,12 @@ agente usa el \emph{harness} \texttt{deepagents} y \texttt{langmem} para la
 persistencia del perfil (ver Secci\'on~\ref{sec:implementation}); Bedrock se
 usa \'unicamente como pasarela de inferencia del LLM (invocaciones a Claude),
 no como plataforma de hospedaje del contenedor. El motor de scoring, por su
-parte, opera sobre \texttt{features.csv} con Pandas/NumPy, aunque a\'un no
-est\'a conectado end-to-end con el agente (ver
+parte, opera sobre \texttt{features.csv} con Pandas/NumPy en el
+\emph{pipeline} de datos; el agente ya consulta ese mismo dataset con datos
+reales mediante una herramienta dedicada (\texttt{search\_programs}, ver
+Secci\'on~\ref{sec:implementation}), pero el motor de scoring como tal
+--- la funci\'on que combina los cinco criterios en un puntaje ponderado
+\'unico --- a\'un no est\'a conectada end-to-end con el agente (ver
 Secci\'on~\ref{sec:results}).
 
 \subsection{Contenerizaci\'on (Docker)}
