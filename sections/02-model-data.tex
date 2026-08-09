@@ -86,6 +86,17 @@ de filas y carreras--- como se muestra en la Figura~\ref{fig:ev-qa-datos}.
     \label{fig:data-pipeline}
 \end{figure}
 
+\paragraph{Nota sobre la rama evaluada.} A la fecha de esta entrega, el
+\emph{pipeline} de datos descrito en esta secci\'on --- \texttt{qa\_check\_features.py},
+el \emph{pipeline} DVC de cuatro etapas y el \texttt{pyproject.toml} con sus
+dependencias --- vive en la rama \texttt{dev} de
+\texttt{spark-match-05-data-pipeline}, no todav\'ia en \texttt{main}: es la
+rama que el equipo valid\'o para la demo y sobre la que se verificaron todas
+las cifras de esta secci\'on. Un intento previo de sincronizar \texttt{dev}
+hacia \texttt{main} (PR~\#6) qued\'o marcado con conflictos de fusi\'on y se
+cerr\'o sin resolverlos; la promoci\'on de \texttt{dev} a \texttt{main} sigue
+en proceso y el equipo la completar\'a antes del despliegue final.
+
 \paragraph{Nota de integraci\'on.} A la fecha de esta entrega el agente
 conversacional ya consulta este dataset de forma directa: una herramienta
 dedicada (\texttt{search\_programs}) recupera, sobre las mismas 6\,208
