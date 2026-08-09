@@ -89,22 +89,14 @@ inferidos din\'amicamente por un LLM. Como objetivos espec\'ificos:
         y datos, y para monitorear el sistema.
 \end{itemize}
 
-\paragraph{Estado actual del prototipo.} A la fecha de esta entrega, el criterio
-de afinidad vocacional (RIASEC) es el \'unico de los cinco que el motor de
-\emph{scoring} del agente calcula y pondera. Los otros cuatro criterios
---- ingreso, costo, admisi\'on y duraci\'on --- ya est\'an calculados y
-normalizados por el \emph{pipeline} de datos (Secci\'on~\ref{sec:model-data}), y
-el agente puede consultarlos directamente sobre el dataset completo de
-6\,208 combinaciones carrera--instituci\'on mediante una herramienta de
-b\'usqueda dedicada, lo que le permite fundamentar sus recomendaciones en
-cifras reales de costo, ingreso, admisi\'on y duraci\'on en vez de datos
-gen\'ericos. Lo que todav\'ia falta es combinar esos cuatro criterios y la
-afinidad en un \'unico puntaje ponderado por sesi\'on: hoy el agente los
-presenta junto a la afinidad para que el LLM razone sobre ellos en su
-respuesta, pero no existe a\'un la funci\'on de combinaci\'on con pesos
-din\'amicos descrita en la Secci\'on~\ref{sec:implementation}. El detalle del
-alcance implementado y el trabajo pendiente se documenta en la
-Secci\'on~\ref{sec:results}.
+\paragraph{Estado actual del prototipo.} El criterio de afinidad vocacional
+(RIASEC) es, a la fecha, el \'unico de los cinco que el motor de
+\emph{scoring} combina en un puntaje; los otros cuatro (ingreso, costo,
+admisi\'on, duraci\'on) ya se consultan con datos reales sobre las 6\,208
+combinaciones carrera--instituci\'on, pero a\'un sin una funci\'on que los
+combine con la afinidad. El detalle del alcance implementado y el trabajo
+pendiente se documenta en las Secciones~\ref{sec:implementation}
+y~\ref{sec:results}.
 
 La Tabla~\ref{tab:use-case} resume la formulaci\'on del caso de uso.
 

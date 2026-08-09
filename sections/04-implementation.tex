@@ -85,10 +85,8 @@ agente corri\'o inicialmente sobre AWS Bedrock AgentCore; la infraestructura
 actual (m\'odulo \texttt{agent-service} de
 \texttt{spark-match-02-infrastructure}) lo empaqueta en un \textbf{contenedor
 Docker} y lo despliega en \textbf{AWS ECS Fargate} (ARM64) detr\'as de un
-Application Load Balancer, decisi\'on documentada expl\'icitamente en el
-Terraform del m\'odulo: AgentCore Runtime no sostiene bien el
-\emph{streaming} SSE de larga duraci\'on que requiere el \emph{endpoint}
-conversacional \texttt{/ag-ui}.
+Application Load Balancer (raz\'on del cambio y detalle de despliegue en la
+Secci\'on~\ref{sec:orchestration}).
 
 \paragraph{Memoria del agente.} El perfil y las preferencias del estudiante se
 persisten con \texttt{langmem} (\texttt{create\_manage\_memory\_tool} /
@@ -120,7 +118,7 @@ fast_model_id: str = "us.anthropic.claude-haiku-4-5-20251001-v1:0"   # turnos si
 
 \subsection{Motor de scoring (5 criterios)}
 
-Cuando el agente entrega los pesos, el motor le pone un puntaje a cada
+Cuando el agente entrega los pesos, el motor asigna un puntaje a cada
 combinaci\'on carrera--universidad. La f\'ormula, con cinco criterios, es:
 
 \[

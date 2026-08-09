@@ -146,11 +146,12 @@ del repositorio y se divide en las siguientes etapas:
         con un \emph{flag} para poder revisarlo despu\'es.
   \item[Normalizaci\'on] Las variables del score se llevan al rango 0--1 con
         Min--Max. Al ingreso y al costo se les aplica primero un logaritmo, para
-        que los montos muy altos no se coman al resto. El costo y la duraci\'on se
-        invierten (un valor m\'as alto pasa a significar una mejor opci\'on),
-        mientras que la tasa de admisi\'on se deja tal cual, porque una admisi\'on
-        m\'as alta ya quiere decir que es m\'as f\'acil entrar. Todas las variables
-        normalizadas quedan orientadas ``mayor = mejor para el estudiante''.
+        evitar que los montos muy altos dominen la escala. El costo y la
+        duraci\'on se invierten (un valor m\'as alto pasa a significar una
+        mejor opci\'on), mientras que la tasa de admisi\'on se mantiene sin
+        invertir, pues un valor m\'as alto ya indica mayor facilidad de
+        ingreso. Todas las variables normalizadas quedan orientadas ``mayor =
+        mejor para el estudiante''.
   \item[Etiquetado vocacional (RIASEC)] Como el dataset econ\'omico no trae la
         dimensi\'on vocacional, se etiqueta cada carrera con su c\'odigo
         \emph{RIASEC} de Holland (3 letras) mediante el LLM en Bedrock, sobre las
@@ -158,17 +159,17 @@ del repositorio y se divide en las siguientes etapas:
         el t\'ermino de afinidad del scoring.
 \end{description}
 
-\paragraph{Sesgos y limitaciones de los datos.} El salario que publica el portal
-es de empleo formal, as\'i que deja fuera a los informales y a los independientes.
-Tambi\'en hay que tener cuidado con las carreras o universidades con pocos
-egresados, porque sus promedios son poco confiables, y con que el portal puede
-estar algo desactualizado. La imputaci\'on por mediana de familia de carrera,
-necesaria porque el portal no publica todas las cifras para todas las
+\paragraph{Sesgos y limitaciones de los datos.} El salario que publica el
+portal corresponde solo al empleo formal, por lo que excluye a los
+trabajadores informales e independientes. Asimismo, las carreras o
+universidades con pocos egresados producen promedios poco confiables, y el
+portal puede estar desactualizado. La imputaci\'on por mediana de familia de
+carrera, necesaria porque el portal no publica todas las cifras para todas las
 combinaciones, alcanza al \textbf{72.9\%} de los valores de ingreso mensual y
 al \textbf{65.2\%} de las tasas de admisi\'on (medido sobre las 6\,208 filas);
 solo \textbf{370 filas} tienen las cuatro cifras --- ingreso, costo, admisi\'on
 y duraci\'on --- medidas directamente del portal. Por eso cada combinaci\'on
-que el agente muestra al estudiante viaja acompa\~nada de qu\'e campos son
-medidos y cu\'ales estimados, en vez de presentar una mediana con apariencia
+que el agente muestra al estudiante indica qu\'e campos son medidos y
+cu\'ales estimados, en vez de presentar una mediana con apariencia
 de dato oficial. La configuraci\'on de imputaci\'on y los snapshots quedan
 versionados para poder reproducir cualquier resultado.
