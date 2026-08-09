@@ -11,7 +11,8 @@ decisi\'on de ranking. El agente no es un \'unico prompt monol\'itico sino un
 su propio \emph{system prompt} versionado como archivo \texttt{.md} en
 \texttt{src/prompts/}: \textbf{assessment} (administra el test vocacional
 RIASEC de forma conversacional), \textbf{matching} (calcula la afinidad entre
-el perfil y el cat\'alogo de carreras) y \textbf{planning} (genera un plan de
+el perfil y el cat\'alogo de carreras, y aterriza el ranking en programas
+reales del Per\'u) y \textbf{planning} (genera un plan de
 acci\'on --- \emph{skills}, recursos y \emph{timeline} --- para la carrera que
 el estudiante elige). Todas las tareas se resuelven mediante \emph{prompting}
 (sin ajuste fino), estrategia adecuada para un proyecto acad\'emico por su bajo
@@ -77,6 +78,19 @@ versi\'on de este mismo patr\'on de entrevista escalonada infiera tambi\'en los
 otros cuatro pesos $w_2,\dots,w_5$ (ingreso, costo, admisi\'on, duraci\'on), pero
 esa extracci\'on a\'un no est\'a implementada (ver Secci\'on~\ref{sec:results}).
 
+\paragraph{Aterrizar el ranking en datos reales (matching).} El
+\emph{system prompt} de \texttt{matching} instruye un flujo de tres pasos: (i)
+calcular la afinidad RIASEC con \texttt{calculate\_affinity} --- nunca
+inventar el score ---, (ii) ampliar contexto de carreras con
+\texttt{search\_careers} si hace falta y (iii) traducir ese ranking abstracto
+a universidades e institutos concretos del Per\'u con \texttt{search\_programs}
+(costo anual, ingreso mensual, admisi\'on y duraci\'on reales del portal
+\emph{Ponte en Carrera}). El prompt es expl\'icito sobre no convertir una
+estimaci\'on en una cifra exacta: cuando un valor viene marcado como
+\texttt{estimated} (Secci\'on~\ref{sec:model-data}), instruye al subagente a
+comunicarlo como aproximado o a omitirlo, en vez de presentarlo con la
+apariencia de un dato medido.
+
 \subsection{Adaptaci\'on: idioma y \emph{guardrails}}
 
 Los cuatro \emph{system prompts} comparten una \textbf{regla de idioma de
@@ -107,11 +121,15 @@ la orientaci\'on vocacional.
 
 \subsection{Flujo RAG (trabajo futuro)}
 
-En esta etapa, la recuperaci\'on de informaci\'on se resuelve como una
-\emph{herramienta} del agente (\texttt{search\_careers}) que hace b\'usqueda por
-palabra clave sobre el cat\'alogo piloto de carreras
-(\texttt{data/careers/*.md}, texto libre en la ficha de cada carrera); no
-consulta \texttt{features.csv} ni emplea a\'un una base vectorial. La
+En esta etapa, la recuperaci\'on de informaci\'on se resuelve mediante
+\emph{herramientas} del agente, no con b\'usqueda sem\'antica: \texttt{search\_careers}
+hace b\'usqueda por palabra clave sobre el cat\'alogo piloto de carreras
+(\texttt{data/careers/*.md}, texto libre en la ficha de cada carrera), y
+\texttt{search\_programs} filtra y ordena por coincidencia exacta de campos
+(carrera, ubicaci\'on, presupuesto m\'aximo) sobre el dataset real derivado de
+\texttt{features.csv} (Secci\'on~\ref{sec:model-data}). Ambas son
+recuperaci\'on estructurada --- ninguna calcula \emph{embeddings} ni hace
+b\'usqueda por similitud --- y ninguna emplea a\'un una base vectorial. La
 generaci\'on aumentada por recuperaci\'on (RAG) \cite{gao2024, fan2024} se
 contempla como l\'inea de mejora: el propio c\'odigo de \texttt{search\_careers}
 documenta la intenci\'on de reemplazar la b\'usqueda por palabra clave por
