@@ -36,6 +36,31 @@ tradicionales son est\'aticas y no consideran restricciones reales del estudiant
 (presupuesto, geograf\'ia), ni ofrecen explicabilidad sobre por qu\'e se sugiere
 una opci\'on.
 
+\paragraph{Dimensi\'on del problema.} Cada a\~no egresan de secundaria en el
+Per\'u cerca de \textbf{200\,000 estudiantes} (MINEDU, 2024), la base potencial
+de usuarios de una herramienta de orientaci\'on vocacional. La Tabla~\ref{tab:problem-scale}
+resume las cifras que dimensionan el problema; las que no provienen de una fuente
+oficial \'unica se presentan como estimaciones del equipo a partir de fuentes
+secundarias, y se declaran as\'i expl\'icitamente para no sobrerrepresentar su
+precisi\'on.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}p{5.2cm}p{1.6cm}p{5.5cm}@{}}
+\toprule
+\textbf{M\'etrica} & \textbf{Valor} & \textbf{Fuente} \\
+\midrule
+Estudiantes/a\~no que egresan de secundaria en Per\'u & $\sim$200\,000 & MINEDU, 2024 \\
+Sin acceso a orientaci\'on vocacional especializada & 60--70\% & Estimaci\'on del equipo, cobertura de orientadores \\
+Reporta dificultad al elegir carrera & 75\% & Estudio cualitativo con docentes peruanos \\
+Cambia de carrera en el primer a\~no & 15--20\% & Datos SUNEDU, instituciones piloto \\
+Costo de un a\~no de estudios mal elegido (USD) & 2\,000--3\,000 & Estimaci\'on: costo promedio privado + costo de oportunidad \\
+\bottomrule
+\end{tabular}
+\caption{Dimensi\'on cuantificada del problema en el contexto peruano.}
+\label{tab:problem-scale}
+\end{table}
+
 \subsection{Objetivo de negocio}
 
 Ayudar al estudiante a tomar una decisi\'on vocacional informada, entregando
@@ -62,12 +87,21 @@ inferidos din\'amicamente por un LLM. Como objetivos espec\'ificos:
 \end{itemize}
 
 \paragraph{Estado actual del prototipo.} A la fecha de esta entrega, el criterio
-de afinidad vocacional (RIASEC) es el \'unico de los cinco ya integrado en el
-agente conversacional, y opera sobre un cat\'alogo piloto de carreras. Los
-criterios de ingreso, costo, admisi\'on y duraci\'on ya est\'an calculados y
-normalizados por el \emph{pipeline} de datos (Secci\'on~\ref{sec:model-data}),
-pero su integraci\'on con el agente sobre el dataset completo de 6\,208
-combinaciones es trabajo en curso, detallado en la Secci\'on~\ref{sec:results}.
+de afinidad vocacional (RIASEC) es el \'unico de los cinco que el motor de
+\emph{scoring} del agente calcula y pondera. Los otros cuatro criterios
+--- ingreso, costo, admisi\'on y duraci\'on --- ya est\'an calculados y
+normalizados por el \emph{pipeline} de datos (Secci\'on~\ref{sec:model-data}), y
+el agente puede consultarlos directamente sobre el dataset completo de
+6\,208 combinaciones carrera--instituci\'on mediante una herramienta de
+b\'usqueda dedicada, lo que le permite fundamentar sus recomendaciones en
+cifras reales de costo, ingreso, admisi\'on y duraci\'on en vez de datos
+gen\'ericos. Lo que todav\'ia falta es combinar esos cuatro criterios y la
+afinidad en un \'unico puntaje ponderado por sesi\'on: hoy el agente los
+presenta junto a la afinidad para que el LLM razone sobre ellos en su
+respuesta, pero no existe a\'un la funci\'on de combinaci\'on con pesos
+din\'amicos descrita en la Secci\'on~\ref{sec:implementation}. El detalle del
+alcance implementado y el trabajo pendiente se documenta en la
+Secci\'on~\ref{sec:results}.
 
 La Tabla~\ref{tab:use-case} resume la formulaci\'on del caso de uso.
 
