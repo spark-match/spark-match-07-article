@@ -86,10 +86,18 @@ de filas y carreras--- como se muestra en la Figura~\ref{fig:ev-qa-datos}.
     \label{fig:data-pipeline}
 \end{figure}
 
-\paragraph{Nota de integraci\'on.} A la fecha, este dataset es consumido por el
-\emph{pipeline} y validado de forma independiente; su conexi\'on directa con el
-agente conversacional --- que hoy razona sobre un cat\'alogo piloto de carreras
---- est\'a en desarrollo (ver Secci\'on~\ref{sec:results}).
+\paragraph{Nota de integraci\'on.} A la fecha de esta entrega el agente
+conversacional ya consulta este dataset de forma directa: una herramienta
+dedicada (\texttt{search\_programs}) recupera, sobre las mismas 6\,208
+combinaciones carrera--instituci\'on, el ingreso mensual, costo anual, tasa de
+admisi\'on y duraci\'on reales asociados a la consulta del estudiante (ver
+Secci\'on~\ref{sec:results}). La conexi\'on no es en tiempo real sobre
+\texttt{features.csv}: un \emph{script} determinista
+(\texttt{build\_programs\_dataset.py}) genera, a partir de \'este y de
+\texttt{riasec\_tags.csv}, una copia derivada (\texttt{programs.csv}) que el
+agente carga desde archivo local. Sigue pendiente, por tanto, servir el
+dataset desde una base de datos real (RDS PostgreSQL), tal como contempla el
+dise\~no original.
 
 \paragraph{Nota sobre la fuente.} El MTPE ha consolidado recientemente el portal
 \emph{Mi Carrera} como nuevo observatorio oficial del mercado laboral, relegando
@@ -154,5 +162,13 @@ del repositorio y se divide en las siguientes etapas:
 es de empleo formal, as\'i que deja fuera a los informales y a los independientes.
 Tambi\'en hay que tener cuidado con las carreras o universidades con pocos
 egresados, porque sus promedios son poco confiables, y con que el portal puede
-estar algo desactualizado. La configuraci\'on de imputaci\'on y los snapshots
-quedan versionados para poder reproducir cualquier resultado.
+estar algo desactualizado. La imputaci\'on por mediana de familia de carrera,
+necesaria porque el portal no publica todas las cifras para todas las
+combinaciones, alcanza al \textbf{72.9\%} de los valores de ingreso mensual y
+al \textbf{65.2\%} de las tasas de admisi\'on (medido sobre las 6\,208 filas);
+solo \textbf{370 filas} tienen las cuatro cifras --- ingreso, costo, admisi\'on
+y duraci\'on --- medidas directamente del portal. Por eso cada combinaci\'on
+que el agente muestra al estudiante viaja acompa\~nada de qu\'e campos son
+medidos y cu\'ales estimados, en vez de presentar una mediana con apariencia
+de dato oficial. La configuraci\'on de imputaci\'on y los snapshots quedan
+versionados para poder reproducir cualquier resultado.
