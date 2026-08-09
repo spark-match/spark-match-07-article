@@ -131,13 +131,16 @@ hace b\'usqueda por palabra clave sobre el cat\'alogo piloto de carreras
 recuperaci\'on estructurada --- ninguna calcula \emph{embeddings} ni hace
 b\'usqueda por similitud --- y ninguna emplea a\'un una base vectorial. La
 generaci\'on aumentada por recuperaci\'on (RAG) \cite{gao2024, fan2024} se
-contempla como l\'inea de mejora: el propio c\'odigo de \texttt{search\_careers}
-documenta la intenci\'on de reemplazar la b\'usqueda por palabra clave por
-\textbf{b\'usqueda sem\'antica con \texttt{pgvector}} sobre RDS PostgreSQL en
-producci\'on --- es la direcci\'on planeada, no una opci\'on descartada --- para
-indexar las fichas de carreras y universidades y anclar las explicaciones del
-agente en texto oficial adicional. La fecha de esa migraci\'on a\'un no est\'a
-definida y se documentar\'a en la bit\'acora de arquitectura del equipo.
+contempla como l\'inea de mejora para indexar las fichas de carreras y
+universidades y anclar las explicaciones del agente en texto oficial
+adicional. La decisi\'on de arquitectura sobre \textbf{d\'onde} vivir\'an esos
+\emph{embeddings} cambi\'o durante el proyecto: el ADR original
+(\texttt{008-aurora-postgresql-pgvector.md}) planteaba \texttt{pgvector} sobre
+la misma instancia Aurora/RDS PostgreSQL, pero el equipo de backend
+\textbf{revis\'o esa decisi\'on el 13/07/2026} y descart\'o \texttt{pgvector}:
+la b\'usqueda vectorial se resolver\'a con un proveedor externo especializado,
+a\'un \textbf{por definir} en un ADR futuro. La fecha de esa migraci\'on
+tampoco est\'a definida.
 
 \subsection{Ajustes finos (fine-tuning)}
 
