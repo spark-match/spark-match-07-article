@@ -86,16 +86,12 @@ de filas y carreras--- como se muestra en la Figura~\ref{fig:ev-qa-datos}.
     \label{fig:data-pipeline}
 \end{figure}
 
-\paragraph{Nota sobre la rama evaluada.} A la fecha de esta entrega, el
-\emph{pipeline} de datos descrito en esta secci\'on --- \texttt{qa\_check\_features.py},
-el \emph{pipeline} DVC de cuatro etapas y el \texttt{pyproject.toml} con sus
-dependencias --- vive en la rama \texttt{dev} de
-\texttt{spark-match-05-data-pipeline}, no todav\'ia en \texttt{main}: es la
-rama que el equipo valid\'o para la demo y sobre la que se verificaron todas
-las cifras de esta secci\'on. Un intento previo de sincronizar \texttt{dev}
-hacia \texttt{main} (PR~\#6) qued\'o marcado con conflictos de fusi\'on y se
-cerr\'o sin resolverlos; la promoci\'on de \texttt{dev} a \texttt{main} sigue
-en proceso y el equipo la completar\'a antes del despliegue final.
+\paragraph{Nota sobre la rama evaluada.} El \emph{pipeline} de datos descrito
+en esta secci\'on --- \texttt{qa\_check\_features.py}, el \emph{pipeline} DVC
+de cuatro etapas y sus dependencias --- vive en la rama \texttt{dev} de
+\texttt{spark-match-05-data-pipeline}, la rama que el equipo valid\'o para la
+demo y sobre la que se verificaron todas las cifras de esta secci\'on; su
+promoci\'on a \texttt{main} se completar\'a antes del despliegue final.
 
 \paragraph{Nota de integraci\'on.} A la fecha de esta entrega el agente
 conversacional ya consulta este dataset de forma directa: una herramienta
@@ -121,20 +117,13 @@ queda como trabajo futuro.
 
 \paragraph{Arquitectura de fuentes intercambiables.} Dado que el portal oficial
 puede quedar inaccesible (de hecho \emph{Ponte en Carrera} fue relegado), el
-\emph{pipeline} adopta un \textbf{registro de fuentes} (\emph{source registry},
-\texttt{src/sources/registry.py}): cada fuente se registra con un decorador
-\texttt{@register} sobre una interfaz com\'un (\texttt{DataSource}), lo que
-permite (i)~cambiar el mecanismo de scraping ---por ejemplo de \emph{Selenium} a
-\emph{Playwright}, m\'as robusto para p\'aginas que renderizan con JavaScript y
-m\'as apto para ejecuci\'on \emph{headless} en el backend---, y (ii)~a\~nadir
-\emph{Mi Carrera} como nueva fuente sin modificar el orquestador. A la fecha
-solo \texttt{ponte\_en\_carrera} est\'a registrada, y el \textbf{fallback}
-implementado es local: cada descarga exitosa se copia con \emph{timestamp} a un
-directorio de \emph{snapshots} (no a un bucket S3), desde donde puede
-recuperarse manualmente si la fuente en vivo falla. As\'i el sistema es
-resiliente ante ca\'idas de la fuente sin convertirse en un simple dato
-est\'atico, aunque el fallback autom\'atico a almacenamiento remoto (S3) queda
-como trabajo futuro.
+\emph{pipeline} adopta un \textbf{registro de fuentes}
+(\texttt{src/sources/registry.py}): cada fuente implementa una interfaz com\'un
+(\texttt{DataSource}), lo que permitir\'a a\~nadir \emph{Mi Carrera} sin
+modificar el orquestador. A la fecha solo \texttt{ponte\_en\_carrera} est\'a
+registrada, con \textbf{fallback} local (cada descarga exitosa se copia con
+\emph{timestamp} a un directorio de \emph{snapshots}); un fallback autom\'atico
+a almacenamiento remoto (S3) queda como trabajo futuro.
 
 \subsection{Preprocesamiento}
 

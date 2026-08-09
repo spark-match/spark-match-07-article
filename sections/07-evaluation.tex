@@ -66,21 +66,17 @@ varios mensajes del estudiante (saludo, aporte de preferencias, aclaraciones),
 no un \'unico JSON de entrada. Por ello los casos de prueba se construyen como
 \emph{guiones de conversaci\'on}.
 
-\paragraph{Correcci\'on: el \emph{eval} ya corre, no depende del despliegue
-(importante).} El informe indicaba antes que el \emph{LLM-as-judge} ``se
-implementa del lado de AWS y queda pendiente hasta que el agente est\'e
-desplegado''. Verificando el c\'odigo, esto ya no es exacto (si alguna vez lo
-fue): el \emph{runner} tiene \textbf{dos modos}. En modo \texttt{mock}
-(\texttt{--mode mock}) ejecuta los \emph{handlers} reales del agente
-directamente --- sin LLM, sin credenciales de AWS y sin agente desplegado
---- y corre autom\'aticamente en \textbf{cada} \emph{pull request} como parte
-del \emph{pipeline} de CI (\texttt{ci.yml}, \emph{job} \texttt{evals}). En
-modo \texttt{live} (\texttt{--mode live}) invoca el agente real de LangGraph
-en proceso y lo punt\'ua con el \emph{LLM-as-judge} (Claude Haiku~4.5,
-Secci\'on~\ref{sec:results}); este modo s\'i requiere credenciales de AWS
-para llamar a Bedrock, pero \textbf{no} requiere que el agente est\'e
-desplegado en ECS --- se ejecuta localmente o en CI invocando
-\texttt{create\_spark\_agent()} directamente.
+\paragraph{El \emph{eval} no depende del despliegue.} El \emph{runner} tiene
+\textbf{dos modos}. En modo \texttt{mock} (\texttt{--mode mock}) ejecuta los
+\emph{handlers} reales del agente directamente --- sin LLM, sin credenciales
+de AWS y sin agente desplegado --- y corre autom\'aticamente en \textbf{cada}
+\emph{pull request} como parte del \emph{pipeline} de CI (\texttt{ci.yml},
+\emph{job} \texttt{evals}). En modo \texttt{live} (\texttt{--mode live})
+invoca el agente real de LangGraph en proceso y lo punt\'ua con el
+\emph{LLM-as-judge} (Claude Haiku~4.5, Secci\'on~\ref{sec:results}); este
+modo s\'i requiere credenciales de AWS para llamar a Bedrock, pero
+\textbf{no} requiere que el agente est\'e desplegado en ECS --- se ejecuta
+localmente o en CI invocando \texttt{create\_spark\_agent()} directamente.
 
 \subsection{Comparaci\'on de enfoques (resultados)}
 

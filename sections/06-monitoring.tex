@@ -21,21 +21,16 @@ El stack de observabilidad se compone de:
         infraestructura del backend serverless y del agente en ECS Fargate.
 \end{itemize}
 
-\paragraph{Correcci\'on: seguimiento de experimentos (importante).} El
-informe mencionaba anteriormente \textbf{Weights \& Biases} para registrar
-corridas del motor de scoring. Verificando el c\'odigo, esto no es exacto:
-el repositorio \texttt{spark-match-06-model-training} \textbf{a\'un no tiene
-c\'odigo} (solo archivos de gobernanza como \texttt{CODEOWNERS}), y ninguna
-dependencia de W\&B existe en ning\'un repositorio del ecosistema. La
-herramienta que s\'i est\'a planeada es distinta: el propio
-\texttt{pyproject.toml} de \texttt{spark-match-05-data-pipeline} (rama
-\texttt{dev}, ver nota sobre la rama evaluada en
-Secci\'on~\ref{sec:model-data}) declara un grupo opcional \texttt{ml} con
-\textbf{MLflow} (\texttt{mlflow>=3.13,<4.0}), \textbf{comentado} a la espera
-de que MLflow soporte pandas~3.x --- es decir, planeado para una fase futura
-(Fase~4 del pipeline), no instalado ni usado todav\'ia. El seguimiento de
-experimentos queda, por tanto, como trabajo pendiente, no como una capacidad
-ya operativa.
+\paragraph{Seguimiento de experimentos.} El repositorio
+\texttt{spark-match-06-model-training} \textbf{a\'un no tiene c\'odigo} (solo
+archivos de gobernanza como \texttt{CODEOWNERS}). La herramienta planeada para
+esta funci\'on es \textbf{MLflow}: el \texttt{pyproject.toml} de
+\texttt{spark-match-05-data-pipeline} (rama \texttt{dev}, ver nota sobre la
+rama evaluada en Secci\'on~\ref{sec:model-data}) ya declara un grupo opcional
+\texttt{ml} con MLflow (\texttt{mlflow>=3.13,<4.0}), \textbf{comentado} a la
+espera de que soporte pandas~3.x --- es decir, planeado para una fase futura
+del pipeline, no instalado ni usado todav\'ia. El seguimiento de experimentos
+queda, por tanto, como trabajo pendiente, no como una capacidad ya operativa.
 
 \subsection{Versionado (prompts, scoring y datos)}
 

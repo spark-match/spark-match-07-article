@@ -54,42 +54,31 @@ y perfil operativas.
     \label{fig:ev-frontend}
 \end{figure}
 
-\paragraph{Alcance real del motor de scoring (importante).} De los cinco
-criterios dise\~nados (afinidad, ingreso, costo, admisi\'on, duraci\'on), a la
-fecha \textbf{solo la afinidad vocacional (RIASEC) est\'a integrada} en la
-herramienta \texttt{calculate\_affinity} del agente, y \'esta opera sobre un
-\textbf{cat\'alogo piloto de 20 carreras} definidas manualmente en
-\texttt{data/careers/} (con nombre, campo y perfil RIASEC, sin universidad,
-ingreso, costo ni admisi\'on) --- \textbf{no} sobre las 6\,208 combinaciones de
-\texttt{features.csv}. El backend serverless, por su parte, solo implementa el
-contexto \texttt{identity}; no existe a\'un un contexto de \emph{matching} ni
-una carga de \texttt{features.csv} en RDS PostgreSQL. En consecuencia, el
-ranking multicriterio y el ejemplo num\'erico de la
-Secci\'on~\ref{sec:implementation} describen el dise\~no objetivo del sistema,
-no un resultado ya medido end-to-end. El trabajo pendiente para cerrar esta
-brecha --- integrar ingreso, costo, admisi\'on y duraci\'on al agente, y
-conectar su cat\'alogo con el dataset completo --- se detalla en
-\texttt{DOCS/issues/issues-v1/}.
-
-\paragraph{Actualizaci\'on: integraci\'on del cat\'alogo con datos completos.}
-Con posterioridad a la redacci\'on del p\'arrafo anterior se integr\'o la
-consulta del agente al cat\'alogo de carreras con sus datos reales. En una
-ejecuci\'on en \texttt{dev}, ante la consulta de un estudiante interesado en
-\emph{Medicina} en Arequipa, el agente ahora recomienda combinaciones
-\textbf{carrera--universidad concretas con costo anual, ingreso mensual de
-egresados, tasa de admisi\'on y duraci\'on reales}
-(Figura~\ref{fig:ev-caso3}), y \textbf{razona sobre las restricciones del
-estudiante}: ante un presupuesto limitado prioriza las opciones m\'as
-accesibles (Figura~\ref{fig:ev-caso3b}). Es importante ser precisos sobre el
-alcance de este avance: cierra la brecha de \textbf{datos} del Criterio~4 ---
-el agente ya no razona sobre un cat\'alogo piloto sin cifras, sino sobre datos
-reales del portal MINEDU --- pero \textbf{no} cierra la brecha del
-\textbf{motor de scoring}: \texttt{search\_programs} filtra y ordena por
-coincidencia de campos, no calcula un puntaje ponderado que combine los cinco
-criterios (el c\'odigo de la herramienta lo documenta expl\'icitamente como
-``recuperaci\'on, no scoring''). La integraci\'on es reciente y a\'un en
-estabilizaci\'on: algunos valores de costo o ingreso figuran como
-\emph{estimados} por imputaci\'on y el reporte descargable sigue pendiente.
+\paragraph{Alcance real del motor de scoring.} De los cinco criterios
+dise\~nados (afinidad, ingreso, costo, admisi\'on, duraci\'on), \textbf{solo
+la afinidad vocacional (RIASEC) se combina hoy en un puntaje}, mediante la
+herramienta \texttt{calculate\_affinity} sobre un \textbf{cat\'alogo piloto de
+20 carreras} (\texttt{data/careers/}, sin universidad, ingreso, costo ni
+admisi\'on). Los otros cuatro criterios ya est\'an disponibles con datos
+reales: el agente los consulta sobre las 6\,208 combinaciones de
+\texttt{features.csv} mediante \texttt{search\_programs} --- por ejemplo, ante
+la consulta de un estudiante interesado en \emph{Medicina} en Arequipa, el
+agente recomienda combinaciones \textbf{carrera--universidad concretas con
+costo anual, ingreso mensual de egresados, tasa de admisi\'on y duraci\'on
+reales} (Figura~\ref{fig:ev-caso3}) y \textbf{razona sobre las restricciones
+del estudiante}, priorizando las opciones m\'as accesibles ante un presupuesto
+limitado (Figura~\ref{fig:ev-caso3b}) --- pero esta herramienta filtra y
+ordena por coincidencia de campos, no calcula el puntaje ponderado que los
+combine con la afinidad (el c\'odigo la documenta expl\'icitamente como
+``recuperaci\'on, no scoring''). El backend serverless, por su parte, solo
+implementa el contexto \texttt{identity}; no existe a\'un un contexto de
+\emph{matching}. En consecuencia, el ranking multicriterio y el ejemplo
+num\'erico de la Secci\'on~\ref{sec:implementation} describen el dise\~no
+objetivo del sistema, no un resultado ya medido end-to-end. La integraci\'on
+de \texttt{search\_programs} es reciente y a\'un en estabilizaci\'on: algunos
+valores de costo o ingreso figuran como \emph{estimados} por imputaci\'on y el
+reporte descargable sigue pendiente. El trabajo pendiente para cerrar esta
+brecha se detalla en \texttt{DOCS/issues/issues-v1/}.
 
 \begin{figure}[H]
     \centering
@@ -227,18 +216,14 @@ memoria por usuario} (\texttt{langmem} bajo el espacio de nombres del JWT).
     \label{fig:ev-sae}
 \end{figure}
 
-\paragraph{Qu\'e validan estas ejecuciones (y qu\'e no).} Las capturas confirman
-que funcionan \textbf{la entrevista RIASEC escalonada}, la \textbf{inferencia
+\paragraph{Qu\'e validan estas ejecuciones.} Las capturas confirman que
+funcionan \textbf{la entrevista RIASEC escalonada}, la \textbf{inferencia
 coherente} del perfil en dos casos opuestos, la \textbf{explicabilidad} de la
-recomendaci\'on y el \textbf{aislamiento por usuario}. En \textbf{este flujo
-espec\'ifico} (Casos A y B) el ranking se basa \textbf{\'unicamente en la
-afinidad RIASEC} sobre el cat\'alogo piloto de 20 carreras (sin ingreso, costo,
-admisi\'on ni universidad); el flujo de \texttt{search\_programs} sobre datos
-reales, ya evidenciado arriba (Figuras~\ref{fig:ev-caso3} y~\ref{fig:ev-caso3b}),
-no pasa por este camino. Lo que permanece como trabajo pendiente no es la
-conexi\'on a datos reales --- ya existe por ambas v\'ias, aunque separadas ---
-sino la \textbf{funci\'on de scoring} que las combine en un \'unico ranking
-ponderado (Secci\'on~\ref{sec:implementation}).
+recomendaci\'on y el \textbf{aislamiento por usuario}. Como se se\~nal\'o
+arriba, este flujo opera \'unicamente sobre afinidad RIASEC; lo pendiente
+sigue siendo la \textbf{funci\'on de scoring} que la combine con los datos
+reales de \texttt{search\_programs} en un \'unico ranking ponderado
+(Secci\'on~\ref{sec:implementation}).
 
 \subsection{Evidencia funcional}
 

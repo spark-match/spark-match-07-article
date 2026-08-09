@@ -168,18 +168,14 @@ Figura~\ref{fig:ev-sonar} muestra el panel del backend con \emph{Quality Gate}
 \subsection{Escalabilidad}
 
 El sistema \textbf{no utiliza Kubernetes}. El backend escala de forma
-autom\'atica y sin administrar servidores (AWS Lambda + API Gateway), con
-l\'imites conocidos: AWS Lambda ofrece por defecto una cuota de
-\textbf{1\,000 ejecuciones concurrentes} por regi\'on compartida entre todas
-las funciones de la cuenta, aunque las cuentas reci\'en creadas suelen recibir
-una cuota inicial menor (t\'ipicamente 10--50) hasta que AWS la incrementa
-autom\'aticamente o se solicita el aumento por soporte. El agente, en cambio,
-corre en \textbf{ECS Fargate}, que s\'i es un
+autom\'atica y sin administrar servidores (AWS Lambda + API Gateway), con un
+l\'imite conocido de \textbf{1\,000 ejecuciones concurrentes} por regi\'on
+(cuota por defecto de AWS Lambda, compartida entre todas las funciones de la
+cuenta). El agente, en cambio, corre en \textbf{ECS Fargate}, que s\'i es un
 orquestador de contenedores administrado: hoy el servicio se despliega con un
 \texttt{desired\_count} \textbf{fijo} (sin \emph{autoscaling} configurado
-todav\'ia --- el m\'odulo de Terraform deja el campo preparado con
-\texttt{lifecycle.ignore\_changes} para cuando se agregue), por lo que la
-capacidad del agente es constante y no reactiva a la demanda; s\'i cuenta con
+todav\'ia, aunque el m\'odulo de Terraform ya deja el campo preparado), por lo
+que la capacidad del agente es constante y no reactiva a la demanda; s\'i cuenta con
 un \emph{deployment circuit breaker} que revierte autom\'aticamente un
 despliegue fallido a la revisi\'on anterior. Para cargas de millones de
 usuarios simult\'aneos se requerir\'ia habilitar \emph{autoscaling} en el

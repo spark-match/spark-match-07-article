@@ -50,16 +50,11 @@ propio \emph{Application Load Balancer} p\'ublico (no detr\'as de API
 Gateway), precisamente porque el \emph{timeout} fijo de 30s de API Gateway
 HTTP API cortar\'ia el \emph{streaming} SSE de \texttt{/ag-ui}. La
 Figura~\ref{fig:architecture} representa el dise\~no objetivo de la
-arquitectura a nivel de componentes l\'ogicos (no de despliegue): en el
-prototipo actual, el agente invoca la herramienta de afinidad RIASEC sobre un
-cat\'alogo piloto de carreras y, por separado, una herramienta de
-b\'usqueda (\texttt{search\_programs}) que ya lo conecta a datos reales
-derivados de \texttt{features.csv} (Secci\'on~\ref{sec:model-data}); lo que
-falta del nodo derecho de la figura (marcado en rojo) no es la conexi\'on al
-dato en s\'i, sino el \textbf{motor de scoring} que combine los cinco
-criterios en un puntaje ponderado \'unico --- hoy el agente presenta afinidad
-y datos reales lado a lado para que el LLM razone sobre ambos, pero no existe
-a\'un esa funci\'on de combinaci\'on (Secci\'on~\ref{sec:results}). La base de datos
+arquitectura a nivel de componentes l\'ogicos (no de despliegue): el agente ya
+conecta tanto la afinidad RIASEC (cat\'alogo piloto) como los datos reales de
+\texttt{features.csv} v\'ia \texttt{search\_programs}; lo que falta del nodo
+marcado en rojo es el \textbf{motor de scoring} que combine ambos en un
+puntaje ponderado \'unico (detalle m\'as abajo). La base de datos
 relacional del proyecto es \textbf{Amazon RDS para PostgreSQL} (no Aurora); se
 usa hoy para la persistencia de memoria del agente (ver subsecci\'on
 siguiente) y para el dominio \texttt{identity} del backend.
@@ -93,8 +88,7 @@ Docker} y lo despliega en \textbf{AWS ECS Fargate} (ARM64) detr\'as de un
 Application Load Balancer, decisi\'on documentada expl\'icitamente en el
 Terraform del m\'odulo: AgentCore Runtime no sostiene bien el
 \emph{streaming} SSE de larga duraci\'on que requiere el \emph{endpoint}
-conversacional \texttt{/ag-ui}. El modo \texttt{agentcore} se mantiene en la
-configuraci\'on solo por compatibilidad con el despliegue anterior.
+conversacional \texttt{/ag-ui}.
 
 \paragraph{Memoria del agente.} El perfil y las preferencias del estudiante se
 persisten con \texttt{langmem} (\texttt{create\_manage\_memory\_tool} /
